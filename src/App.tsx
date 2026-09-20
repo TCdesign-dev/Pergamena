@@ -4,6 +4,7 @@ import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
 import { Editor, type Fuoco, type RifEditore } from './editor/Editor'
 import { Comandi } from './layout/Comandi'
+import { esponi } from './lib/dev'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -24,6 +25,8 @@ export function App() {
     setApertoId(id)
     setFuoco(dove)
   }, [])
+
+  useEffect(() => esponi({ apri }), [apri])
 
   const chiudiComandi = useCallback(() => {
     setComandiAperti(false)

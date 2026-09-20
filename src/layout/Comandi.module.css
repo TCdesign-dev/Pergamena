@@ -38,12 +38,28 @@
 
 .riga {
   display: flex;
-  align-items: baseline;
-  gap: var(--u);
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
   padding: 7px 9px;
   border-radius: var(--raggio);
   text-align: left;
+}
+
+.capo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u);
+  width: 100%;
+}
+
+.frammento {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+  line-height: 1.45;
 }
 .riga:hover { background: var(--carta-alt); }
 .scelta, .scelta:hover { background: color-mix(in srgb, var(--accento) 12%, transparent); }

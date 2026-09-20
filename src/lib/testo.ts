@@ -1,5 +1,16 @@
-/** Toglie accenti e maiuscole, così cercare "citazione" trova
- *  "Citazione" e "matematica" trova "Matemàtica". */
+const ACCENTATE = 'àáâãäåèéêëìíîïòóôõöùúûüçñýÿ'
+const SEMPLICI  = 'aaaaaaeeeeiiiiooooouuuucnyy'
+
+/*  Toglie accenti e maiuscole SENZA cambiare la lunghezza della
+ *  stringa. La via ovvia — normalize('NFD') più rimozione dei segni —
+ *  accorcia il testo, e le posizioni trovate nella versione
+ *  normalizzata non corrisponderebbero più a quelle nel testo vero:
+ *  le anteprime della ricerca uscirebbero sfasate di qualche carattere. */
 export function normalizza(s: string) {
-  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  let out = ''
+  for (const ch of s.toLowerCase()) {
+    const i = ACCENTATE.indexOf(ch)
+    out += i >= 0 ? SEMPLICI[i] : ch
+  }
+  return out
 }

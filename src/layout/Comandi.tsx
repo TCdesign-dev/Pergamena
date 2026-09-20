@@ -2,17 +2,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { creaQuaderno, creaDocumento } from '../documento/archivio'
 import type { Quaderno, Documento } from '../documento/tipi'
 import type { Fuoco } from '../editor/Editor'
+import { useRicerca } from '../ricerca/useRicerca'
 import { normalizza } from '../lib/testo'
 import s from './Comandi.module.css'
 
 /*  ⌘K: l'unico punto d'ingresso.
- *  È il motivo per cui in cima all'app non c'è una barra di ricerca
- *  né una barra degli strumenti: quello che serve si chiama, non si
- *  cerca con il mouse. */
+ *  Cerca nei titoli, poi DENTRO agli appunti, poi offre le azioni.
+ *  È il motivo per cui in cima all'app non c'è né una barra di
+ *  ricerca né una barra degli strumenti. */
 
 type Riga =
   | { tipo: 'documento'; chiave: string; titolo: string; materia: string; id: string }
-  | { tipo: 'azione'; chiave: string; titolo: string; materia: string; esegui: () => void }
+  | { tipo: 'contenuto'; chiave: string; titolo: string; materia: string; id: string; frammento: string }
+  | { tipo: 'azione'; chiave: string; titolo: string; esegui: () => void }
 
 export function Comandi({
   quaderni, documenti, onApri, onChiudi,
@@ -24,50 +26,67 @@ export function Comandi({
 }) {
   const [query, setQuery] = useState('')
   const [indice, setIndice] = useState(0)
+  const nelContenuto = useRicerca(query, documenti, quaderni)
 
   const righe = useMemo<Riga[]>(() => {
     const nomeMateria = (id: string) => quaderni.find((q) => q.id === id)?.nome || 'Senza nome'
+    const q = normalizza(query.trim())
 
-    const docs: Riga[] = documenti.map((d) => ({
-      tipo: 'documento',
-      chiave: `d-${d.id}`,
-      id: d.id,
-      titolo: d.titolo || 'Senza titolo',
-      materia: nomeMateria(d.quadernoId),
-    }))
+    const perTitolo = documenti
+      .map((d) => ({
+        tipo: 'documento' as const,
+        chiave: `d-${d.id}`,
+        id: d.id,
+        titolo: d.titolo || 'Senza titolo',
+        materia: nomeMateria(d.quadernoId),
+      }))
+      .filter((r) => !q || normalizza(r.titolo).includes(q) || normalizza(r.materia).includes(q))
 
-    const azioni: Riga[] = [
-      ...quaderni.map((q) => ({
+    // un documento che compare già per titolo non si ripete
+    const gia = new Set(perTitolo.map((r) => r.id))
+    const perContenuto = nelContenuto
+      .filter((r) => !gia.has(r.documentoId))
+      .map((r) => ({
+        tipo: 'contenuto' as const,
+        chiave: `c-${r.documentoId}`,
+        id: r.documentoId,
+        titolo: r.titolo,
+        materia: r.materia,
+        frammento: r.frammento,
+      }))
+
+    const azioni = [
+      ...quaderni.map((k) => ({
         tipo: 'azione' as const,
-        chiave: `n-${q.id}`,
-        titolo: `Nuovo documento in ${q.nome || 'Senza nome'}`,
-        materia: 'azione',
-        esegui: () => onApri(creaDocumento(q.id).id, 'titolo'),
+        chiave: `n-${k.id}`,
+        titolo: `Nuovo documento in ${k.nome || 'Senza nome'}`,
+        esegui: () => onApri(creaDocumento(k.id).id, 'titolo'),
       })),
       {
-        tipo: 'azione',
+        tipo: 'azione' as const,
         chiave: 'nuova-materia',
         titolo: 'Nuova materia',
-        materia: 'azione',
         esegui: () => onApri(creaDocumento(creaQuaderno('').id).id, 'titolo'),
       },
-    ]
+    ].filter((r) => !q || normalizza(r.titolo).includes(q))
 
-    const q = normalizza(query.trim())
-    const passa = (r: Riga) =>
-      !q || normalizza(r.titolo).includes(q) || normalizza(r.materia).includes(q)
-
-    return [...docs.filter(passa), ...azioni.filter(passa)]
-  }, [quaderni, documenti, query, onApri])
+    return [...perTitolo, ...perContenuto, ...azioni]
+  }, [quaderni, documenti, query, nelContenuto, onApri])
 
   useEffect(() => setIndice(0), [query])
+  useEffect(() => {
+    setIndice((i) => Math.min(i, Math.max(righe.length - 1, 0)))
+  }, [righe.length])
 
   function scegli(r: Riga | undefined) {
     if (!r) return
-    if (r.tipo === 'documento') onApri(r.id, 'corpo')
-    else r.esegui()
+    if (r.tipo === 'azione') r.esegui()
+    else onApri(r.id, 'corpo')
     onChiudi()
   }
+
+  const muovi = (passo: number) =>
+    setIndice((i) => (i + passo + righe.length) % Math.max(righe.length, 1))
 
   return (
     <div className={s.velo} onMouseDown={onChiudi}>
@@ -76,11 +95,11 @@ export function Comandi({
           className={s.campo}
           autoFocus
           value={query}
-          placeholder="Vai a un documento, o crea…"
+          placeholder="Cerca nei titoli e negli appunti, o crea…"
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'ArrowDown') { e.preventDefault(); setIndice((i) => (i + 1) % Math.max(righe.length, 1)) }
-            else if (e.key === 'ArrowUp') { e.preventDefault(); setIndice((i) => (i - 1 + righe.length) % Math.max(righe.length, 1)) }
+            if (e.key === 'ArrowDown') { e.preventDefault(); muovi(1) }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); muovi(-1) }
             else if (e.key === 'Enter') { e.preventDefault(); scegli(righe[indice]) }
             else if (e.key === 'Escape') { e.preventDefault(); onChiudi() }
           }}
@@ -96,8 +115,11 @@ export function Comandi({
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => scegli(r)}
             >
-              <span className={s.titolo}>{r.titolo}</span>
-              {r.tipo === 'documento' && <span className={s.materia}>{r.materia}</span>}
+              <span className={s.capo}>
+                <span className={s.titolo}>{r.titolo}</span>
+                {r.tipo !== 'azione' && <span className={s.materia}>{r.materia}</span>}
+              </span>
+              {r.tipo === 'contenuto' && <span className={s.frammento}>{r.frammento}</span>}
             </button>
           ))}
         </div>

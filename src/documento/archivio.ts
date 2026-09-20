@@ -2,6 +2,7 @@ import * as Y from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import { nanoid } from 'nanoid'
 import { COLORI } from '../stili/colori'
+import { esponi } from '../lib/dev'
 import type { Quaderno, Documento } from './tipi'
 
 /*  Tutto è Yjs, anche l'indice.
@@ -24,6 +25,12 @@ export const mappaDocumenti = indice.getMap<Documento>('documenti')
 
 // ── Contenuto: un Y.Doc per documento, caricato su richiesta ───
 const aperti = new Map<string, { doc: Y.Doc; pronto: Promise<unknown> }>()
+
+/** Il documento già in memoria, se c'è. La ricerca lo usa per non
+ *  riaprire da IndexedDB quello che sta sotto al cursore. */
+export function giaAperto(id: string) {
+  return aperti.get(id)
+}
 
 export function apriDocumento(id: string) {
   const esistente = aperti.get(id)
@@ -90,3 +97,10 @@ export async function eliminaQuaderno(id: string) {
   for (const d of suoi) await eliminaDocumento(d.id)
   mappaQuaderni.delete(id)
 }
+
+esponi({
+  archivio: {
+    creaQuaderno, creaDocumento, rinominaQuaderno, rinominaDocumento,
+    eliminaDocumento, eliminaQuaderno, apriDocumento, mappaQuaderni, mappaDocumenti,
+  },
+})

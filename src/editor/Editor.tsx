@@ -3,6 +3,7 @@ import { useEditor, EditorContent, type Editor as EditoreTipTap } from '@tiptap/
 import { apriDocumento, rinominaDocumento, segnaModificato } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
 import { estensioni } from './estensioni'
+import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
 import s from './Editor.module.css'
@@ -70,11 +71,8 @@ function Tela({ documento, doc, fuoco, rifEditore }: {
     return () => { rifEditore.current = null }
   }, [editor, rifEditore])
 
-  // maniglia di sviluppo: in console `pergamena.editor` è l'editor vivo.
-  // Serve per collaudare e per ispezionare il documento senza stampe sparse.
   useEffect(() => {
-    if (!import.meta.env.DEV || !editor) return
-    Object.assign(window, { pergamena: { editor, doc, documento } })
+    if (editor) esponi({ editor, doc, documento })
   }, [editor, doc, documento])
 
   return (

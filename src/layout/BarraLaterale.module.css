@@ -24,6 +24,20 @@
 }
 .piu:hover { background: var(--linea); color: var(--inchiostro); }
 
+.ordine {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 3px calc(var(--u) * 0.75);
+  margin-bottom: calc(var(--u) * 1.5);
+  border-radius: var(--raggio);
+  color: var(--tenue);
+  font-size: 11px;
+}
+.ordine:hover { background: var(--linea); color: var(--inchiostro-tenue); }
+.frecciaOrdine { font-size: 10px; opacity: 0.8; }
+
 .vuoto {
   padding: calc(var(--u) * 2);
   color: var(--tenue);

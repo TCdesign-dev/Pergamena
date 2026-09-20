@@ -4,6 +4,9 @@ import {
 } from '../documento/archivio'
 import type { Quaderno, Documento } from '../documento/tipi'
 import type { Fuoco } from '../editor/Editor'
+import {
+  ORDINI, ETICHETTE_ORDINE, leggiOrdine, salvaOrdine, ordina, type Ordine,
+} from '../documento/ordinamento'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
@@ -16,6 +19,15 @@ export function BarraLaterale({
 }) {
   // la materia appena creata nasce già in modifica: niente finestrelle
   const [inRinomina, setInRinomina] = useState<string | null>(null)
+  const [ordine, setOrdine] = useState<Ordine>(leggiOrdine)
+
+  function cambiaOrdine() {
+    const prossimo = ORDINI[(ORDINI.indexOf(ordine) + 1) % ORDINI.length]
+    setOrdine(prossimo)
+    salvaOrdine(prossimo)
+  }
+
+  const inOrdine = ordina(documenti, ordine)
 
   function nuovaMateria() {
     const q = creaQuaderno('')
@@ -30,6 +42,17 @@ export function BarraLaterale({
         <span className={s.marchio}>Pergamena</span>
         <button className={s.piu} title="Nuova materia" onClick={nuovaMateria}>+</button>
       </header>
+
+      {quaderni.length > 0 && (
+        <button
+          className={s.ordine}
+          title="Cambia l'ordine dei documenti"
+          onClick={cambiaOrdine}
+        >
+          <span>per {ETICHETTE_ORDINE[ordine]}</span>
+          <span className={s.frecciaOrdine}>⇅</span>
+        </button>
+      )}
 
       {quaderni.length === 0 && (
         <p className={s.vuoto}>
@@ -74,7 +97,7 @@ export function BarraLaterale({
           </div>
 
           <ul className={s.elenco}>
-            {documenti
+            {inOrdine
               .filter((d) => d.quadernoId === q.id)
               .map((d) => (
                 <li key={d.id}>
@@ -89,7 +112,9 @@ export function BarraLaterale({
                     }}
                   >
                     <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
-                    <span className={s.voceData}>{quando(d.modificato)}</span>
+                    <span className={s.voceData}>
+                      {ordine === 'titolo' ? '' : quando(ordine === 'creazione' ? d.creato : d.modificato)}
+                    </span>
                   </button>
                 </li>
               ))}

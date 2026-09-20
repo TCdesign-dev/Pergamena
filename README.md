@@ -48,10 +48,16 @@ src/
 ├── documento/
 │   ├── tipi.ts          Quaderno · Documento · Argomento
 │   ├── archivio.ts      Yjs + IndexedDB: apre, crea, rinomina, elimina
+│   ├── ordinamento.ts   i tre ordini dei documenti
 │   └── useIndice.ts     ponte fra Yjs e React
 │
 ├── lib/
-│   └── testo.ts         normalizzazione per le ricerche (accenti, maiuscole)
+│   ├── testo.ts         normalizzazione per le ricerche (accenti, maiuscole)
+│   └── dev.ts           la maniglia `pergamena` in console (solo in sviluppo)
+│
+├── ricerca/
+│   ├── indice.ts        legge il testo dai documenti Yjs, cache e ricerca
+│   └── useRicerca.ts    il ponte verso React, con attesa
 │
 ├── editor/
 │   ├── Editor.tsx       colonna di scrittura + titolo + gestione del fuoco
@@ -132,7 +138,7 @@ salvataggio locale, si riapre sull'ultimo documento.
 
 | tasti | effetto |
 |---|---|
-| `⌘K` | palette: salta a un documento, creane uno, crea una materia |
+| `⌘K` | palette: cerca nei titoli **e dentro agli appunti**, o crea |
 | `/` | elenco dei blocchi, a inizio riga o dopo uno spazio |
 | `⌘\` | nasconde la barra laterale |
 
@@ -172,9 +178,27 @@ Le frecce a destra si convertono subito; quelle a sinistra alla
 pressione dello spazio — altrimenti `<-` scatterebbe prima che tu
 possa finire di scrivere `<->`.
 
-### Fase 1 — sync e telefono
-Supabase, filtri e ricerca, PWA **in sola lettura** da resa statica
-(niente editor su mobile).
+### ✅ Fase 1a — ricerca e organizzazione
+
+`⌘K` cerca anche **dentro** agli appunti, non solo nei titoli, e mostra
+un'anteprima del punto trovato. Insensibile ad accenti e maiuscole.
+
+I documenti nella barra si ordinano per **ultima modifica**, **data di
+creazione** o **titolo** — si cicla dal comando sotto l'intestazione,
+e la scelta resta fra una sessione e l'altra.
+
+Non c'è un indice separato da tenere allineato: il testo si rilegge
+dai documenti Yjs già in IndexedDB, con una cache chiusa a chiave sul
+timestamp di modifica. Se il documento cambia, la voce non combacia
+più e viene riletta — niente invalidazione manuale, niente indice che
+si disallinea in silenzio.
+
+Misurato su 64 documenti: **26 ms a freddo, 0 ms a caldo**.
+
+### Fase 1b — sync e telefono · in attesa delle chiavi
+
+Supabase e PWA **in sola lettura** da resa statica (niente editor su
+mobile). Serve riempire le tre righe `VITE_SUPABASE_*` in `.env.local`.
 
 ### Fase 2 — immagini
 Wikimedia Commons, sintassi `!Basilica di Superga!`, pannello laterale
