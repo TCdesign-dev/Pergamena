@@ -59,6 +59,14 @@ src/
 │   ├── indice.ts        legge il testo dai documenti Yjs, cache e ricerca
 │   └── useRicerca.ts    il ponte verso React, con attesa
 │
+├── immagini/
+│   ├── deposito.ts      i byte in IndexedDB, con attribuzione
+│   ├── commons.ts       Wikimedia Commons (nessuna chiave)
+│   ├── statoPannello.ts la pila delle ricerche
+│   └── inserisci.ts     scarica, deposita, mette il nodo
+│
+├── impostazioni.ts      quello che si può spegnere
+│
 ├── editor/
 │   ├── Editor.tsx       colonna di scrittura + titolo + gestione del fuoco
 │   ├── estensioni/
@@ -67,7 +75,11 @@ src/
 │   │   ├── segnoAi.ts   marca il testo che non hai scritto tu
 │   │   ├── coloreTesto.ts  i cinque colori + scorciatoie
 │   │   ├── frecce.ts    -> diventa →,  --> diventa ⟶
-│   │   └── slash.ts     il plugin di «/» (intercetta frecce e Invio)
+│   │   ├── slash.ts     il plugin di «/» (intercetta frecce e Invio)
+│   │   ├── immagine.ts  il nodo, più incolla e trascina
+│   │   └── richiestaImmagine.ts   la sintassi !…!
+│   ├── immagine/
+│   │   └── NodoImmagine.tsx    ridimensionamento e allineamento
 │   └── menu/
 │       ├── MenuSelezione.tsx   compare solo selezionando: niente barra fissa
 │       ├── MenuSlash.tsx       l'elenco dei blocchi
@@ -77,7 +89,8 @@ src/
 └── layout/
     ├── Guscio.tsx       tre zone (la terza arriva in fase 2)
     ├── BarraLaterale.tsx
-    └── Comandi.tsx      la palette ⌘K
+    ├── Comandi.tsx      la palette ⌘K
+    └── PannelloImmagini.tsx
 ```
 
 ### Le tre decisioni da cui dipende tutto il resto
@@ -140,6 +153,7 @@ salvataggio locale, si riapre sull'ultimo documento.
 |---|---|
 | `⌘K` | palette: cerca nei titoli **e dentro agli appunti**, o crea |
 | `/` | elenco dei blocchi, a inizio riga o dopo uno spazio |
+| `⌘/` | apre il pannello delle immagini |
 | `⌘\` | nasconde la barra laterale |
 
 `/` non scatta in mezzo a una parola: così `12/03` resta una data e
@@ -200,9 +214,39 @@ Misurato su 64 documenti: **26 ms a freddo, 0 ms a caldo**.
 Supabase e PWA **in sola lettura** da resa statica (niente editor su
 mobile). Serve riempire le tre righe `VITE_SUPABASE_*` in `.env.local`.
 
-### Fase 2 — immagini
-Wikimedia Commons, sintassi `!Basilica di Superga!`, pannello laterale
-con trascinamento nel testo, ridimensionamento.
+### ✅ Fase 2 — immagini
+
+`⌘/` apre il pannello a destra. Si cerca a mano, oppure si scrive
+`!Basilica di Superga!` negli appunti e la ricerca parte da sola — i
+punti esclamativi spariscono, **la frase resta**, perché è una frase
+dei tuoi appunti e non un comando. Si spegne dal pannello.
+
+Le immagini **non entrano mai da sole nel testo**: arrivano nel
+pannello e le trascini tu. Durante una lezione un'immagine che si
+infila da sola in mezzo a un paragrafo è un disastro.
+
+Una volta nel documento: ridimensionamento dalla maniglia, tre
+allineamenti (piena larghezza, a sinistra o a destra col testo che
+scorre accanto). Si inseriscono anche incollandole e trascinandole dal
+Finder.
+
+Tre decisioni dietro a questa fase:
+
+**I byte si copiano, non si collegano.** Un link a Commons prima o poi
+marcisce, e senza connessione non vedresti più niente mentre ripassi.
+Le immagini vivono in IndexedDB con la loro attribuzione, che per la
+licenza di Commons è un obbligo.
+
+**Un'immagine non viene mai ingrandita oltre la sua risoluzione.**
+Una foto da 500px portata a tutta colonna diventa sfocata, e fra due
+mesi non capisci perché. La larghezza iniziale la decide la
+risoluzione vera.
+
+**Il trascinamento si aggancia al confine del blocco.** `posAtCoords`
+dà il punto esatto sotto al puntatore, che di solito è in mezzo a un
+paragrafo: inserire lì un blocco lo spezza e lascia un paragrafo
+vuoto. L'immagine va sopra o sotto al blocco, secondo la metà in cui
+hai lasciato la presa.
 
 ### Fase 3 — registrazione e merge
 - Guscio **Tauri**.

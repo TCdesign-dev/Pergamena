@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useIndice } from './documento/useIndice'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
 import { Editor, type Fuoco, type RifEditore } from './editor/Editor'
 import { Comandi } from './layout/Comandi'
 import { esponi } from './lib/dev'
+import { PannelloImmagini } from './layout/PannelloImmagini'
+import { iscrivitiPannello, leggiPannello, apriPannello } from './immagini/statoPannello'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -20,6 +22,7 @@ export function App() {
   const [latoAperto, setLatoAperto] = useState(true)
   const [comandiAperti, setComandiAperti] = useState(false)
   const rifEditore: RifEditore = useRef(null)
+  const pannello = useSyncExternalStore(iscrivitiPannello, leggiPannello)
 
   const apri = useCallback((id: string, dove: Fuoco = 'corpo') => {
     setApertoId(id)
@@ -56,6 +59,9 @@ export function App() {
       } else if (e.key === 'k' || e.key === 'K') {
         e.preventDefault()
         setComandiAperti((v) => !v)
+      } else if (e.key === '/') {
+        e.preventDefault()
+        apriPannello(!leggiPannello().aperto)
       }
     }
     window.addEventListener('keydown', giu)
@@ -68,6 +74,7 @@ export function App() {
     <>
     <Guscio
       latoAperto={latoAperto}
+      destra={pannello.aperto ? <PannelloImmagini rifEditore={rifEditore} /> : undefined}
       lato={
         <BarraLaterale
           quaderni={quaderni}

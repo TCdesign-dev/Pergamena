@@ -9,6 +9,8 @@ import { SegnoAi } from './segnoAi'
 import { ColoreTesto } from './coloreTesto'
 import { Frecce } from './frecce'
 import { Slash } from './slash'
+import { Immagine } from './immagine'
+import { RichiestaImmagine } from './richiestaImmagine'
 
 /** L'elenco delle estensioni sta in un posto solo: da qui in poi
  *  aggiungere una funzione all'editor è aggiungere una riga qui. */
@@ -29,6 +31,8 @@ export function estensioni(doc: Y.Doc) {
     ColoreTesto,
     Frecce,
     Slash,
+    Immagine,
+    RichiestaImmagine,
     Collaboration.configure({ document: doc, field: 'contenuto' }),
   ]
 }
