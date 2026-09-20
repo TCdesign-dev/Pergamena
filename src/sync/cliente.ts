@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { esponi } from '../lib/dev'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const chiave = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -21,3 +22,5 @@ export const supabase = configurato
       realtime: { params: { eventsPerSecond: 5 } },
     })
   : null
+
+esponi({ supabase })

@@ -252,7 +252,26 @@ Oltre le 300 righe si compatta, cancellando solo **sotto** all'id
 davvero letto, così ciò che arriva nel frattempo da un altro
 dispositivo sopravvive.
 
+**Tutti i documenti, non solo quello aperto.** Poco dopo l'accesso
+parte una passata su ogni documento dell'indice, uno alla volta,
+aprendo e richiudendo. Senza, la copia coprirebbe solo ciò che hai
+toccato: una lezione che non apri da settimane non arriverebbe mai sul
+server, ed è esattamente il caso in cui un backup deve esserci.
+La stessa passata, al contrario, riempie un Mac nuovo.
+
+**Le immagini viaggiano a parte.** I byte non possono stare nel
+documento Yjs, che gonfierebbe, né solo in locale. Vanno in un secchio
+privato su Supabase Storage, una cartella per utente; nel documento
+resta l'identificativo, e didascalia e attribuzione sono già attributi
+del nodo. Se un'immagine manca in locale si ripesca dal server e si
+rimette in cache, così la volta dopo è istantanea e funziona offline.
+
 Senza chiavi l'app resta locale e funziona identica.
+
+**Collaudato end-to-end:** scritto senza rete → la spia diventa rossa
+e la modifica resta in coda; rete ripristinata → riparte da sola in
+9 s; svuotato *tutto* il locale → quaderni, documenti e il testo
+scritto offline tornano giù da Supabase identici.
 
 ### Fase 1c — telefono
 

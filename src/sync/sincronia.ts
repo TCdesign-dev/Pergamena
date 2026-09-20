@@ -192,6 +192,8 @@ export class Sincronia {
 const stanze = new Map<string, { doc: Y.Doc; sinc?: Sincronia }>()
 let accesa = false
 
+export const stanzaRegistrata = (stanza: string) => stanze.has(stanza)
+
 export function registraStanza(stanza: string, doc: Y.Doc) {
   if (stanze.has(stanza)) return
   stanze.set(stanza, { doc })

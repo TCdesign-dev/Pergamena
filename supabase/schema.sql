@@ -47,3 +47,33 @@ exception
   when duplicate_object then null;   -- già aggiunta: va bene
 end
 $$;
+
+
+-- ════════════════════════════════════════════════════════════════════
+--  Immagini
+--
+--  I byte non possono stare nel documento Yjs (lo gonfierebbero) né
+--  solo in locale (un backup che perde le immagini non è un backup).
+--  Vanno in un secchio privato, una cartella per utente.
+--
+--  I metadati — didascalia, attribuzione, larghezza — stanno già negli
+--  attributi del nodo dentro al Yjs, quindi qui servono solo i byte.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('immagini', 'immagini', false, 15728640)   -- 15 MB per file
+on conflict (id) do nothing;
+
+drop policy if exists "immagini leggo le mie"    on storage.objects;
+drop policy if exists "immagini carico le mie"   on storage.objects;
+drop policy if exists "immagini cancello le mie" on storage.objects;
+
+-- il primo pezzo del percorso è l'id dell'utente: <uid>/<id-immagine>
+create policy "immagini leggo le mie" on storage.objects for select
+  using (bucket_id = 'immagini' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "immagini carico le mie" on storage.objects for insert
+  with check (bucket_id = 'immagini' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "immagini cancello le mie" on storage.objects for delete
+  using (bucket_id = 'immagini' and (storage.foldername(name))[1] = auth.uid()::text);

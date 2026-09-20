@@ -10,6 +10,7 @@ import { iscrivitiPannello, leggiPannello, apriPannello } from './immagini/stato
 import { FinestraAccesso } from './sync/FinestraAccesso'
 import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
 import { accendiSincronia, spegniSincronia } from './sync/sincronia'
+import { allineaTutto } from './sync/allineaTutto'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -34,6 +35,16 @@ export function App() {
     if (accesso.utente) accendiSincronia()
     else spegniSincronia()
   }, [accesso.utente])
+
+  /*  Poco dopo l'accesso, una passata su tutti i documenti: quelli
+   *  che non apri da settimane devono arrivare sul server lo stesso,
+   *  altrimenti il backup copre solo ciò che hai toccato. */
+  const elenco = documenti.map((d) => d.id).join(',')
+  useEffect(() => {
+    if (!accesso.utente || !elenco) return
+    const fra = setTimeout(() => void allineaTutto(elenco.split(',')), 2500)
+    return () => clearTimeout(fra)
+  }, [accesso.utente, elenco])
 
   const apri = useCallback((id: string, dove: Fuoco = 'corpo') => {
     setApertoId(id)
