@@ -209,10 +209,43 @@ si disallinea in silenzio.
 
 Misurato su 64 documenti: **26 ms a freddo, 0 ms a caldo**.
 
-### Fase 1b — sync e telefono · in attesa delle chiavi
+### ✅ Fase 1b — sincronizzazione
 
-Supabase e PWA **in sola lettura** da resa statica (niente editor su
-mobile). Serve riempire le tre righe `VITE_SUPABASE_*` in `.env.local`.
+Una tabella sola, un registro di aggiornamenti Yjs: non ci sono
+tabelle «documenti» o «quaderni» perché quelli vivono *dentro* al Yjs
+come tutto il resto. Meno schema sul server significa nessuna
+migrazione quando cambia la forma degli appunti.
+
+Prima volta: incolla `supabase/schema.sql` nel SQL Editor del
+progetto. È sicuro rilanciarlo.
+
+**Accesso.** Si entra con l'email. Supabase manda un **link** con i
+modelli predefiniti: cliccandolo si torna sull'app già dentro. Se
+preferisci un **codice** a sei cifre — indispensabile dal telefono, o
+quando leggi la posta su un altro dispositivo — vai su
+*Authentication › Email Templates*, apri **Magic Link** e **Confirm
+signup**, e aggiungi al corpo:
+
+```html
+<p>Il tuo codice: <b>{{ .Token }}</b></p>
+```
+
+L'app accetta entrambe le strade senza sapere quale arriverà.
+
+**Come viaggia.** Gli aggiornamenti si accumulano 1,5 s e si
+uniscono prima di partire — senza, una lezione da un'ora sarebbe
+decine di migliaia di righe. All'avvio si ricostruisce lo stato
+*remoto* a parte, per spedire esattamente il delta locale invece di
+rimandare tutto: è anche ciò che rende indolore lavorare offline.
+Oltre le 300 righe si compatta, cancellando solo **sotto** all'id
+davvero letto, così ciò che arriva nel frattempo da un altro
+dispositivo sopravvive.
+
+Senza chiavi l'app resta locale e funziona identica.
+
+### Fase 1c — telefono
+
+PWA **in sola lettura** da resa statica: niente editor su mobile.
 
 ### ✅ Fase 2 — immagini
 

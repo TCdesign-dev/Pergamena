@@ -41,7 +41,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
         <p className={s.spiega}>
           {passo === 'email'
             ? 'Gli appunti restano su questo Mac. L’accesso serve a copiarli al sicuro e a leggerli dal telefono.'
-            : `Abbiamo mandato un codice a ${email}. Scrivilo qui sotto.`}
+            : `Abbiamo scritto a ${email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.`}
         </p>
 
         {passo === 'email' ? (

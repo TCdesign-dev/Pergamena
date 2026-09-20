@@ -12,7 +12,12 @@ export const configurato = Boolean(url && chiave)
 
 export const supabase = configurato
   ? createClient(url, chiave, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+      /*  `detectSessionInUrl` acceso: i modelli di email predefiniti di
+       *  Supabase mandano un LINK, non un codice. Cliccandolo si torna
+       *  qui con i gettoni nell'indirizzo, e il client li raccoglie da
+       *  solo. Il codice a sei cifre resta come seconda strada, per il
+       *  telefono e per chi legge la posta su un altro dispositivo. */
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
       realtime: { params: { eventsPerSecond: 5 } },
     })
   : null
