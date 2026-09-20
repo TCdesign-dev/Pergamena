@@ -268,6 +268,13 @@ rimette in cache, così la volta dopo è istantanea e funziona offline.
 
 Senza chiavi l'app resta locale e funziona identica.
 
+**Se IndexedDB si impianta** — capita: un database in stato anomalo
+non risponde né con successo né con errore, tace e basta — il deposito
+locale si arrende dopo 4 secondi e si ripiega sul server. Le immagini
+si vedono lo stesso e se ne inseriscono di nuove. Verificato con un
+database davvero bloccato, non simulato. Per rimetterlo a posto si
+svuotano i dati del sito dal browser.
+
 **Collaudato end-to-end:** scritto senza rete → la spia diventa rossa
 e la modifica resta in coda; rete ripristinata → riparte da sola in
 9 s; svuotato *tutto* il locale → quaderni, documenti e il testo

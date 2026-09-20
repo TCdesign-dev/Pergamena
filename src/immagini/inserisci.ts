@@ -1,6 +1,7 @@
 import type { Editor } from '@tiptap/core'
 import { salva } from './deposito'
 import { scarica, type Trovata } from './commons'
+import { esponi } from '../lib/dev'
 
 /** Copia i byte nel deposito e mette il nodo nel documento.
  *  `pos` serve quando l'immagine arriva trascinata: va dove l'hai
@@ -65,3 +66,5 @@ async function misura(blob: Blob) {
     return { larghezza: 0, altezza: 0 }
   }
 }
+
+esponi({ immagini: { inserisciDaCommons, inserisciDaFile } })
