@@ -1,0 +1,125 @@
+.pagina {
+  height: 100%;
+  overflow-y: auto;
+  padding: calc(var(--u) * 8) calc(var(--u) * 6) calc(var(--u) * 10);
+}
+
+.testa { max-width: 62rem; margin: 0 auto calc(var(--u) * 5); }
+.titolo {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 640;
+  letter-spacing: -0.024em;
+}
+.sottotitolo {
+  margin: calc(var(--u) * 0.75) 0 0;
+  color: var(--tenue);
+  font-size: 13px;
+}
+
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+  gap: calc(var(--u) * 3);
+  max-width: 62rem;
+  margin: 0 auto;
+}
+
+/* ── scheda ─────────────────────────────────────────────────── */
+.scheda { position: relative; }
+
+.copertina {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--raggio-g);
+  background: var(--carta-alt);
+  box-shadow: var(--ombra-bassa);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+.copertina img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scheda:hover .copertina { transform: translateY(-2px); box-shadow: var(--ombra); }
+
+/* senza copertina: l'iniziale su un fondo tinto col colore della materia */
+.copertina[data-colore="rosso"]   { background: color-mix(in srgb, var(--c-rosso) 16%, var(--carta-alt)); }
+.copertina[data-colore="arancio"] { background: color-mix(in srgb, var(--c-arancio) 16%, var(--carta-alt)); }
+.copertina[data-colore="verde"]   { background: color-mix(in srgb, var(--c-verde) 16%, var(--carta-alt)); }
+.copertina[data-colore="blu"]     { background: color-mix(in srgb, var(--c-blu) 16%, var(--carta-alt)); }
+.copertina[data-colore="viola"]   { background: color-mix(in srgb, var(--c-viola) 16%, var(--carta-alt)); }
+
+.iniziale {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--inchiostro-tenue);
+  font-size: 34px;
+  font-weight: 300;
+  opacity: 0.5;
+}
+
+/* ── comandi che compaiono solo passandoci sopra ────────────── */
+.comandi {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--raggio);
+  background: #16161ab8;
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.scheda:hover .comandi { opacity: 1; }
+.comandi button {
+  width: 22px; height: 21px;
+  border-radius: 3px;
+  color: #ffffffb8;
+  font-size: 11px;
+  line-height: 1;
+}
+.comandi button:hover { background: #ffffff29; color: #fff; }
+
+/* ── didascalia ─────────────────────────────────────────────── */
+.didascalia { margin-top: calc(var(--u) * 1.25); padding: 0 2px; }
+
+.nome, .campoNome {
+  display: block;
+  width: 100%;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 550;
+  color: var(--inchiostro);
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.campoNome { border: none; background: none; padding: 0; outline: none; }
+.campoNome::placeholder { color: var(--tenue); font-weight: 400; }
+
+.conteggio {
+  display: block;
+  margin-top: 2px;
+  color: var(--tenue);
+  font-size: 11.5px;
+}
+
+/* ── nuova materia ──────────────────────────────────────────── */
+.nuova {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--u);
+  aspect-ratio: 4 / 3;
+  border-radius: var(--raggio-g);
+  border: 1px dashed var(--linea-forte);
+  color: var(--tenue);
+  font-size: 12.5px;
+}
+.nuova:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); border-color: var(--tenue); }
+.piu { font-size: 22px; font-weight: 200; line-height: 1; }

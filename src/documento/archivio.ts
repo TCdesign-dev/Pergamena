@@ -3,7 +3,9 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import { nanoid } from 'nanoid'
 import { COLORI } from '../stili/colori'
 import { esponi } from '../lib/dev'
-import { registraStanza, dimenticaStanza } from '../sync/sincronia'
+import { registraStanza, dimenticaStanza, cancellaStanzaRemota } from '../sync/sincronia'
+import { immaginiDi } from '../immagini/riferimenti'
+import { elimina as eliminaImmagine, salva as salvaImmagine } from '../immagini/deposito'
 import type { Quaderno, Documento } from './tipi'
 
 /*  Tutto è Yjs, anche l'indice.
@@ -88,20 +90,70 @@ export function rinominaQuaderno(id: string, nome: string) {
   if (q) mappaQuaderni.set(id, { ...q, nome })
 }
 
-/** Elimina documento e contenuto. In fase 4 questo diventa il
- *  gestore dell'archivio: cancella anche audio e trascrizione. */
+/*  Eliminare una pagina deve eliminarla DAVVERO: il contenuto, le sue
+ *  immagini (byte compresi, in locale e sul server) e la storia
+ *  remota. Altrimenti lo spazio si riempie di roba che nessuno
+ *  guarderà più, e al prossimo dispositivo la pagina ricomparirebbe.
+ *
+ *  In fase 3 qui si aggiungono registrazione e trascrizione. */
 export async function eliminaDocumento(id: string) {
+  // prima si legge quali immagini usa, finché il documento c'è ancora
+  const voce = aperti.get(id) ?? apriDocumento(id)
+  await voce.pronto
+  const immagini = immaginiDi(voce.doc)
+
   dimenticaStanza(`doc:${id}`)
   mappaDocumenti.delete(id)
-  aperti.get(id)?.doc.destroy()
+
+  voce.doc.destroy()
   aperti.delete(id)
-  await indexedDB.deleteDatabase(`${PREFISSO}:doc:${id}`)
+
+  await Promise.allSettled([
+    ...immagini.map((i) => eliminaImmagine(i)),
+    cancellaStanzaRemota(`doc:${id}`),
+    indexedDB.deleteDatabase(`${PREFISSO}:doc:${id}`),
+  ])
 }
 
 export async function eliminaQuaderno(id: string) {
   const suoi = [...mappaDocumenti.values()].filter((d) => d.quadernoId === id)
   for (const d of suoi) await eliminaDocumento(d.id)
+
+  const copertina = mappaQuaderni.get(id)?.copertinaId
+  if (copertina) await eliminaImmagine(copertina).catch(() => {})
+
   mappaQuaderni.delete(id)
+}
+
+/** Mette (o sostituisce) la copertina di una materia. */
+export async function impostaCopertina(quadernoId: string, blob: Blob, meta?: {
+  attribuzione?: string
+  licenza?: string
+  origine?: string
+}) {
+  const q = mappaQuaderni.get(quadernoId)
+  if (!q) return
+
+  const nuova = await salvaImmagine(blob, {
+    larghezza: 0,
+    altezza: 0,
+    origine: meta?.origine ?? '',
+    attribuzione: meta?.attribuzione ?? '',
+    licenza: meta?.licenza ?? '',
+  })
+
+  const vecchia = q.copertinaId
+  mappaQuaderni.set(quadernoId, { ...q, copertinaId: nuova })
+  if (vecchia) void eliminaImmagine(vecchia).catch(() => {})
+}
+
+export async function togliCopertina(quadernoId: string) {
+  const q = mappaQuaderni.get(quadernoId)
+  if (!q?.copertinaId) return
+  const vecchia = q.copertinaId
+  const { copertinaId: _, ...senza } = q
+  mappaQuaderni.set(quadernoId, senza)
+  void eliminaImmagine(vecchia).catch(() => {})
 }
 
 esponi({

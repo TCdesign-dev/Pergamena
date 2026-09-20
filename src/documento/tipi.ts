@@ -6,6 +6,7 @@ export type Quaderno = {
   nome: string
   colore: Colore
   creato: number
+  copertinaId?: string   // immagine nel deposito, scelta da te
 }
 
 /** Un documento è un canvas verticale continuo: può contenere

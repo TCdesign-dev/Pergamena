@@ -1,0 +1,46 @@
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20vh;
+  background: #00000047;
+}
+
+.pannello {
+  width: min(380px, calc(100vw - var(--u) * 6));
+  padding: calc(var(--u) * 3);
+  background: var(--carta);
+  border-radius: var(--raggio-g);
+  box-shadow: var(--ombra);
+}
+
+.titolo { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }
+
+.dettaglio {
+  margin: var(--u) 0 0;
+  color: var(--inchiostro-tenue);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.piede {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--u);
+  margin-top: calc(var(--u) * 3);
+}
+
+.annulla, .pericolo {
+  padding: 7px 14px;
+  border-radius: var(--raggio);
+  font-size: 13px;
+  font-weight: 500;
+}
+.annulla { color: var(--inchiostro-tenue); }
+.annulla:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+.pericolo { background: var(--c-rosso); color: #fff; }
+.pericolo:hover { filter: brightness(1.08); }

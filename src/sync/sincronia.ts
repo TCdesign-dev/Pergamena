@@ -200,6 +200,14 @@ export function registraStanza(stanza: string, doc: Y.Doc) {
   if (accesa) avviaStanza(stanza)
 }
 
+/** Cancella dal server tutta la storia di una stanza. Si usa quando
+ *  una pagina viene eliminata: senza, resterebbe sul server per
+ *  sempre e tornerebbe giù al prossimo dispositivo. */
+export async function cancellaStanzaRemota(stanza: string) {
+  if (!supabase) return
+  await supabase.from('aggiornamenti').delete().eq('stanza', stanza)
+}
+
 export function dimenticaStanza(stanza: string) {
   stanze.get(stanza)?.sinc?.ferma()
   stanze.delete(stanza)

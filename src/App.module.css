@@ -1,7 +1,3 @@
-.nulla {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  color: var(--tenue);
-  font-size: 13px;
-}
+/*  La colonna centrale: una barra sottile sopra, e sotto tutto lo
+ *  spazio per scrivere. */
+.colonna { display: flex; flex-direction: column; height: 100%; min-height: 0; }

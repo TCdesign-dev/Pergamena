@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import {
-  creaQuaderno, creaDocumento, eliminaDocumento, rinominaQuaderno,
-} from '../documento/archivio'
+import { creaQuaderno, creaDocumento } from '../documento/archivio'
 import type { Quaderno, Documento } from '../documento/tipi'
 import type { Fuoco } from '../editor/Editor'
 import {
@@ -11,118 +9,108 @@ import { StatoSincronia } from './StatoSincronia'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
-  quaderni, documenti, apertoId, onApri, onAccedi,
+  quaderni, documenti, apertoId, inHome, onApri, onHome, onAccedi, onEliminaPagina, onEliminaMateria,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   apertoId: string | null
+  inHome: boolean
   onApri: (id: string, fuoco?: Fuoco) => void
+  onHome: () => void
   onAccedi: () => void
+  onEliminaPagina: (d: Documento) => void
+  onEliminaMateria: (q: Quaderno) => void
 }) {
-  // la materia appena creata nasce già in modifica: niente finestrelle
-  const [inRinomina, setInRinomina] = useState<string | null>(null)
   const [ordine, setOrdine] = useState<Ordine>(leggiOrdine)
+  const [chiusi, setChiusi] = useState<Set<string>>(new Set())
 
   function cambiaOrdine() {
-    const prossimo = ORDINI[(ORDINI.indexOf(ordine) + 1) % ORDINI.length]
-    setOrdine(prossimo)
-    salvaOrdine(prossimo)
+    const p = ORDINI[(ORDINI.indexOf(ordine) + 1) % ORDINI.length]
+    setOrdine(p)
+    salvaOrdine(p)
+  }
+
+  function piega(id: string) {
+    setChiusi((c) => {
+      const n = new Set(c)
+      n.has(id) ? n.delete(id) : n.add(id)
+      return n
+    })
   }
 
   const inOrdine = ordina(documenti, ordine)
 
-  function nuovaMateria() {
-    const q = creaQuaderno('')
-    setInRinomina(q.id)
-    // 'niente': stai per scrivere il nome della materia, il cursore resta qui
-    onApri(creaDocumento(q.id).id, 'niente')
-  }
-
   return (
     <nav className={s.barra}>
-      <header className={s.testa}>
-        <span className={s.marchio}>Pergamena</span>
-        <button className={s.piu} title="Nuova materia" onClick={nuovaMateria}>+</button>
-      </header>
+      <div className={s.alto}>
+        <button className={`${s.home} ${inHome ? s.attivo : ''}`} onClick={onHome}>
+          <span className={s.marchio}>Pergamena</span>
+        </button>
 
-      {quaderni.length > 0 && (
         <button
           className={s.ordine}
-          title="Cambia l'ordine dei documenti"
+          title="Cambia l’ordine delle pagine"
           onClick={cambiaOrdine}
         >
-          <span>per {ETICHETTE_ORDINE[ordine]}</span>
-          <span className={s.frecciaOrdine}>⇅</span>
+          {ETICHETTE_ORDINE[ordine]} ⇅
         </button>
-      )}
+      </div>
 
-      {quaderni.length === 0 && (
-        <p className={s.vuoto}>
-          Nessuna materia.<br />Premi <b>+</b> per crearne una.
-        </p>
-      )}
+      <div className={s.elencoMaterie}>
+        {quaderni.length === 0 && (
+          <p className={s.vuoto}>Nessuna materia.<br />Creane una dalla Home.</p>
+        )}
 
-      {quaderni.map((q) => (
-        <section key={q.id} className={s.quaderno}>
-          <div className={s.titoloQuaderno}>
-            <span className={s.pallino} data-colore={q.colore} />
+        {quaderni.map((q) => {
+          const pagine = inOrdine.filter((d) => d.quadernoId === q.id)
+          const chiuso = chiusi.has(q.id)
 
-            {inRinomina === q.id ? (
-              <input
-                className={s.campoNome}
-                autoFocus
-                defaultValue={q.nome}
-                placeholder="Nome materia"
-                onChange={(e) => rinominaQuaderno(q.id, e.target.value)}
-                onBlur={() => setInRinomina(null)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur()
-                }}
-              />
-            ) : (
-              <button
-                className={s.nome}
-                title="Doppio clic per rinominare"
-                onDoubleClick={() => setInRinomina(q.id)}
-              >
-                {q.nome || 'Senza nome'}
-              </button>
-            )}
+          return (
+            <section key={q.id} className={s.materia}>
+              <div className={s.intestazione}>
+                <button className={s.piega} onClick={() => piega(q.id)} title={chiuso ? 'Apri' : 'Chiudi'}>
+                  <span className={`${s.freccia} ${chiuso ? s.chiusa : ''}`}>▾</span>
+                </button>
+                <span className={s.pallino} data-colore={q.colore} />
+                <button className={s.nome} onClick={() => piega(q.id)}>{q.nome || 'Senza nome'}</button>
+                <div className={s.azioni}>
+                  <button title="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}>+</button>
+                  <button title="Elimina la materia" onClick={() => onEliminaMateria(q)}>⌫</button>
+                </div>
+              </div>
 
-            <button
-              className={s.piu}
-              title="Nuovo documento"
-              onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}
-            >
-              +
-            </button>
-          </div>
+              {!chiuso && (
+                <ul className={s.pagine}>
+                  {pagine.length === 0 && <li className={s.nessuna}>nessuna pagina</li>}
+                  {pagine.map((d) => (
+                    <li key={d.id} className={s.riga}>
+                      <button
+                        className={`${s.pagina} ${d.id === apertoId && !inHome ? s.corrente : ''}`}
+                        onClick={() => onApri(d.id, 'corpo')}
+                      >
+                        <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                        {ordine !== 'titolo' && (
+                          <span className={s.data}>
+                            {quando(ordine === 'creazione' ? d.creato : d.modificato)}
+                          </span>
+                        )}
+                      </button>
+                      <button className={s.cestino} title="Elimina la pagina" onClick={() => onEliminaPagina(d)}>⌫</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )
+        })}
 
-          <ul className={s.elenco}>
-            {inOrdine
-              .filter((d) => d.quadernoId === q.id)
-              .map((d) => (
-                <li key={d.id}>
-                  <button
-                    className={`${s.voce} ${d.id === apertoId ? s.vocePiena : ''}`}
-                    onClick={() => onApri(d.id, 'corpo')}
-                    onContextMenu={(e) => {
-                      e.preventDefault()
-                      if (confirm(`Eliminare «${d.titolo || 'Senza titolo'}»?`)) {
-                        void eliminaDocumento(d.id)
-                      }
-                    }}
-                  >
-                    <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
-                    <span className={s.voceData}>
-                      {ordine === 'titolo' ? '' : quando(ordine === 'creazione' ? d.creato : d.modificato)}
-                    </span>
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </section>
-      ))}
+        <button
+          className={s.nuovaMateria}
+          onClick={() => { const q = creaQuaderno(''); onApri(creaDocumento(q.id).id, 'titolo') }}
+        >
+          + Nuova materia
+        </button>
+      </div>
 
       <StatoSincronia onAccedi={onAccedi} />
     </nav>

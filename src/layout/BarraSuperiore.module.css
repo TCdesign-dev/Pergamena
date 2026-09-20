@@ -1,0 +1,51 @@
+.barra {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  height: 38px;
+  padding: 0 calc(var(--u) * 2);
+  flex: none;
+}
+
+.percorso {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.passo {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  color: var(--tenue);
+  font-size: 12px;
+  white-space: nowrap;
+}
+button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
+
+.pallino { width: 6px; height: 6px; border-radius: 50%; }
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }
+
+.sbarra { color: var(--linea-forte); }
+
+.corrente {
+  padding: 3px 5px;
+  color: var(--inchiostro-tenue);
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+
+.azioni { display: flex; gap: 2px; flex: none; }
+.azioni button {
+  width: 26px; height: 26px;
+  border-radius: var(--raggio);
+  color: var(--tenue); font-size: 12px; line-height: 1;
+}
+.azioni button:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.attivo { background: var(--premuta); color: var(--inchiostro) !important; }

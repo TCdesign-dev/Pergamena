@@ -1,110 +1,107 @@
-.barra { padding: calc(var(--u) * 1.5); user-select: none; }
-
-.testa {
+.barra {
   display: flex;
-  align-items: center;
-  height: calc(var(--u) * 4.5);
-  padding: 0 calc(var(--u) * 0.75);
-  margin-bottom: calc(var(--u) * 2);
-}
-.marchio {
-  flex: 1;
-  font-family: var(--font-testo);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  flex-direction: column;
+  height: 100%;
+  padding: calc(var(--u) * 1.25);
+  user-select: none;
 }
 
-.piu {
-  width: 22px; height: 22px;
+/* ── alto ───────────────────────────────────────────────────── */
+.alto { padding: 0 calc(var(--u) * 0.5) calc(var(--u) * 1.5); }
+
+.home {
+  display: block; width: 100%;
+  padding: 5px 7px;
   border-radius: var(--raggio);
-  color: var(--tenue);
-  font-size: 15px;
-  line-height: 1;
+  text-align: left;
 }
-.piu:hover { background: var(--linea); color: var(--inchiostro); }
+.home:hover { background: var(--sfiorata); }
+.attivo { background: var(--premuta); }
+.marchio { font-size: 14px; font-weight: 620; letter-spacing: -0.01em; }
 
 .ordine {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  width: 100%;
-  padding: 3px calc(var(--u) * 0.75);
-  margin-bottom: calc(var(--u) * 1.5);
+  display: block; width: 100%;
+  padding: 3px 7px; margin-top: 2px;
   border-radius: var(--raggio);
-  color: var(--tenue);
-  font-size: 11px;
+  color: var(--tenue); font-size: 10.5px;
+  text-align: left;
 }
-.ordine:hover { background: var(--linea); color: var(--inchiostro-tenue); }
-.frecciaOrdine { font-size: 10px; opacity: 0.8; }
+.ordine:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
 
-.vuoto {
-  padding: calc(var(--u) * 2);
-  color: var(--tenue);
-  font-size: 12.5px;
-  line-height: 1.7;
+/* ── elenco ─────────────────────────────────────────────────── */
+.elencoMaterie { flex: 1; overflow-y: auto; }
+
+.vuoto { padding: calc(var(--u) * 1.5); color: var(--tenue); font-size: 11.5px; line-height: 1.7; }
+
+.materia { margin-bottom: 1px; }
+
+.intestazione {
+  display: flex; align-items: center; gap: 3px;
+  height: 27px; padding: 0 4px 0 1px;
+  border-radius: var(--raggio);
 }
+.intestazione:hover { background: var(--sfiorata); }
 
-.quaderno { margin-bottom: calc(var(--u) * 2.5); }
+.piega { width: 15px; height: 20px; color: var(--tenue); }
+.freccia { display: inline-block; font-size: 9px; transition: transform 120ms ease; }
+.chiusa { transform: rotate(-90deg); }
 
-.titoloQuaderno {
-  display: flex;
-  align-items: center;
-  gap: var(--u);
-  padding: 0 calc(var(--u) * 0.75);
-  margin-bottom: calc(var(--u) * 0.5);
-}
-.pallino { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.pallino { width: 6px; height: 6px; border-radius: 50%; flex: none; margin-right: 3px; }
 .pallino[data-colore="rosso"]   { background: var(--c-rosso); }
 .pallino[data-colore="arancio"] { background: var(--c-arancio); }
 .pallino[data-colore="verde"]   { background: var(--c-verde); }
 .pallino[data-colore="blu"]     { background: var(--c-blu); }
 .pallino[data-colore="viola"]   { background: var(--c-viola); }
-.nome, .campoNome {
-  flex: 1;
-  min-width: 0;
-  font-family: var(--font-ui);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.055em;
-  text-transform: uppercase;
-  color: var(--inchiostro-tenue);
-  text-align: left;
-}
+
 .nome {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  flex: 1; min-width: 0;
+  font-size: 12.5px; font-weight: 550; color: var(--inchiostro-tenue);
+  text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-.campoNome {
-  border: none;
-  background: none;
-  padding: 0;
-  outline: none;
-  color: var(--inchiostro);
+
+/*  Le azioni compaiono solo passandoci sopra: una barra piena di
+ *  icone sempre visibili è rumore, e nasconde ciò che conta. */
+.azioni { display: flex; gap: 1px; opacity: 0; transition: opacity 110ms ease; }
+.intestazione:hover .azioni { opacity: 1; }
+.azioni button {
+  width: 19px; height: 19px; border-radius: 3px;
+  color: var(--tenue); font-size: 12px; line-height: 1;
 }
-.campoNome::placeholder { color: var(--tenue); text-transform: none; letter-spacing: 0; }
+.azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
 
-.elenco { list-style: none; margin: 0; padding: 0; }
+/* ── pagine ─────────────────────────────────────────────────── */
+.pagine { list-style: none; margin: 0 0 calc(var(--u) * 0.75); padding: 0 0 0 19px; }
+.nessuna { padding: 3px 7px; color: var(--tenue); font-size: 11px; font-style: italic; }
 
-.voce {
-  display: flex;
-  align-items: baseline;
-  gap: var(--u);
-  width: 100%;
-  padding: 5px calc(var(--u) * 0.75);
+.riga { display: flex; align-items: center; border-radius: var(--raggio); }
+.riga:hover { background: var(--sfiorata); }
+
+.pagina {
+  display: flex; align-items: baseline; gap: var(--u);
+  flex: 1; min-width: 0;
+  padding: 5px 7px;
   border-radius: var(--raggio);
   text-align: left;
 }
-.voce:hover { background: var(--linea); }
-.vocePiena { background: var(--carta); box-shadow: inset 0 0 0 1px var(--linea); }
-.vocePiena:hover { background: var(--carta); }
+.corrente { background: var(--premuta); font-weight: 550; }
+.riga:has(.corrente) { background: transparent; }
 
-.voceTitolo {
-  flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-size: 13px;
+.titoloPagina { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12.5px; }
+.data { flex: none; color: var(--tenue); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+.cestino {
+  flex: none; width: 20px; height: 20px; margin-right: 3px;
+  border-radius: 3px; color: var(--tenue); font-size: 11px; line-height: 1;
+  opacity: 0; transition: opacity 110ms ease;
 }
-.voceData { flex: none; color: var(--tenue); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.riga:hover .cestino { opacity: 1; }
+.cestino:hover { background: var(--premuta); color: var(--c-rosso); }
+
+/* ── nuova materia ──────────────────────────────────────────── */
+.nuovaMateria {
+  display: block; width: 100%;
+  padding: 6px 7px; margin-top: var(--u);
+  border-radius: var(--raggio);
+  color: var(--tenue); font-size: 12px; text-align: left;
+}
+.nuovaMateria:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }

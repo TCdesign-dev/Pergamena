@@ -1,0 +1,68 @@
+.velo {
+  position: fixed; inset: 0; z-index: 95;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding-top: 10vh;
+  background: #00000047;
+}
+
+.pannello {
+  display: flex; flex-direction: column;
+  width: min(640px, calc(100vw - var(--u) * 6));
+  max-height: 72vh;
+  padding: calc(var(--u) * 2.5);
+  background: var(--carta);
+  border-radius: var(--raggio-g);
+  box-shadow: var(--ombra);
+}
+
+.testa { display: flex; align-items: center; margin-bottom: calc(var(--u) * 2); }
+.titolo { flex: 1; margin: 0; font-size: 14.5px; font-weight: 600; }
+.chiudi {
+  width: 24px; height: 24px; border-radius: var(--raggio);
+  color: var(--tenue); font-size: 17px; line-height: 1;
+}
+.chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+.cerca { display: flex; gap: var(--u); margin-bottom: calc(var(--u) * 2); }
+.campo {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--font-ui); font-size: 13px;
+  outline: none;
+}
+.campo:focus { border-color: var(--accento); }
+.secondario {
+  flex: none; padding: 7px 12px;
+  border-radius: var(--raggio);
+  background: var(--sfiorata);
+  color: var(--inchiostro-tenue);
+  font-size: 12.5px;
+}
+.secondario:hover { background: var(--premuta); color: var(--inchiostro); }
+
+.griglia {
+  flex: 1; overflow-y: auto;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--u);
+  align-content: start;
+}
+.stato { grid-column: 1 / -1; margin: calc(var(--u) * 2) 0; color: var(--tenue); font-size: 12.5px; line-height: 1.6; }
+
+.scheda {
+  aspect-ratio: 4 / 3; overflow: hidden;
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+}
+.scheda img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scheda:hover { box-shadow: 0 0 0 2px var(--accento); }
+
+.togli {
+  align-self: flex-start;
+  margin-top: calc(var(--u) * 2);
+  color: var(--tenue); font-size: 12px;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.togli:hover { color: var(--c-rosso); }
