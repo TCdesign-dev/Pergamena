@@ -1,0 +1,72 @@
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;   /* altrimenti il pannello si stira a 60vh */
+  padding-top: 14vh;
+  background: rgb(0 0 0 / 0.28);
+}
+
+.pannello {
+  width: min(540px, calc(100vw - var(--u) * 6));
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: calc(var(--raggio) * 2.5);
+  box-shadow: var(--ombra);
+}
+
+.campo {
+  flex: none;
+  padding: calc(var(--u) * 1.75) calc(var(--u) * 2);
+  border: none;
+  border-bottom: 1px solid var(--linea);
+  background: none;
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  outline: none;
+}
+.campo::placeholder { color: var(--tenue); }
+
+.elenco { overflow-y: auto; padding: 5px; }
+
+.riga {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u);
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: var(--raggio);
+  text-align: left;
+}
+.riga:hover { background: var(--carta-alt); }
+.scelta, .scelta:hover { background: color-mix(in srgb, var(--accento) 12%, transparent); }
+
+.titolo {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13.5px;
+}
+.materia {
+  flex: none;
+  color: var(--tenue);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.nulla {
+  margin: 0;
+  padding: calc(var(--u) * 2);
+  color: var(--tenue);
+  font-size: 13px;
+  text-align: center;
+}

@@ -1,0 +1,84 @@
+/*  I token sono l'intero progetto grafico di Pergamena.
+ *  Cambiare un valore qui cambia l'app ovunque.
+ *  Nessun componente deve contenere un colore o una misura letterale. */
+
+:root {
+  /* ── Tipografia: quella di sistema, niente grazie ──────────── */
+  --font-testo: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+
+  --corpo: 16.5px;
+  --interlinea: 1.68;
+  --colonna: 44rem;        /* ~68 caratteri: la misura giusta per leggere */
+
+  /* ── Ritmo ────────────────────────────────────────────────── */
+  --u: 8px;                /* ogni spazio è un multiplo di questo */
+  --raggio: 4px;
+
+  /* ── Colore: bianco e scala di grigi neutra ───────────────── */
+  --carta: #ffffff;
+  --carta-alt: #f6f6f7;    /* barre laterali */
+  --inchiostro: #18181b;
+  --inchiostro-tenue: #63636b;
+  --tenue: #9d9da5;        /* solo UI secondaria, mai testo di contenuto */
+  --linea: #e4e4e7;
+  --linea-forte: #d1d1d6;
+  --accento: #2563eb;      /* solo stati interattivi, non decorazione */
+  --selezione: #d3e3fd;
+  --evidenziatore: #fde68a;
+  --ombra: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.10);
+
+  /* ── I cinque colori del testo ────────────────────────────── */
+  /*  Si salva il NOME del colore, non il codice esadecimale:
+   *  così la stessa parola resta leggibile sia su fondo chiaro
+   *  sia su fondo scuro. Un #c8342c salvato nel documento
+   *  diventerebbe illeggibile in tema scuro. */
+  --c-rosso: #c02626;
+  --c-arancio: #b45309;
+  --c-verde: #15803d;
+  --c-blu: #1d4ed8;
+  --c-viola: #7e22ce;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="chiaro"]) {
+    --carta: #171719;
+    --carta-alt: #1e1e21;
+    --inchiostro: #e9e9ec;
+    --inchiostro-tenue: #9a9aa3;
+    --tenue: #6e6e77;
+    --linea: #2b2b30;
+    --linea-forte: #3a3a41;
+    --accento: #5b8dee;
+    --selezione: #29385a;
+    --evidenziatore: #56491c;
+    --ombra: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+
+    --c-rosso: #f08079;
+    --c-arancio: #e0a253;
+    --c-verde: #5dbd83;
+    --c-blu: #7da8f5;
+    --c-viola: #c093e8;
+  }
+}
+
+:root[data-tema="scuro"] {
+  --carta: #171719;
+  --carta-alt: #1e1e21;
+  --inchiostro: #e9e9ec;
+  --inchiostro-tenue: #9a9aa3;
+  --tenue: #6e6e77;
+  --linea: #2b2b30;
+  --linea-forte: #3a3a41;
+  --accento: #5b8dee;
+  --selezione: #29385a;
+  --evidenziatore: #56491c;
+  --ombra: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.45);
+
+  --c-rosso: #f08079;
+  --c-arancio: #e0a253;
+  --c-verde: #5dbd83;
+  --c-blu: #7da8f5;
+  --c-viola: #c093e8;
+}

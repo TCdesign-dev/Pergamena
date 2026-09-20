@@ -1,0 +1,23 @@
+.guscio {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  height: 100%;
+  transition: grid-template-columns 160ms ease;
+}
+.conDestra { grid-template-columns: 236px minmax(0, 1fr) 280px; }
+.latoChiuso { grid-template-columns: 0 minmax(0, 1fr); }
+.latoChiuso.conDestra { grid-template-columns: 0 minmax(0, 1fr) 280px; }
+
+.lato {
+  overflow: hidden auto;
+  background: var(--carta-alt);
+  border-right: 1px solid var(--linea);
+}
+
+.centro { overflow: hidden; min-width: 0; }
+
+.destra {
+  overflow: hidden auto;
+  background: var(--carta-alt);
+  border-left: 1px solid var(--linea);
+}

@@ -1,0 +1,30 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #radice { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+::selection { background: var(--selezione); }
+
+:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 2px;
+  border-radius: var(--raggio);
+}

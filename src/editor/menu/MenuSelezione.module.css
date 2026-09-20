@@ -1,0 +1,64 @@
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 3px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: calc(var(--raggio) * 1.75);
+  box-shadow: var(--ombra);
+}
+
+.bottone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: 12px;
+  line-height: 1;
+  transition: background 90ms ease, color 90ms ease;
+}
+.bottone:hover { background: var(--carta-alt); color: var(--inchiostro); }
+.attivo { color: var(--accento); background: color-mix(in srgb, var(--accento) 11%, transparent); }
+
+.grassetto { font-weight: 700; }
+.corsivo { font-style: italic; font-family: var(--font-testo); }
+.sottolineato { text-decoration: underline; text-underline-offset: 2px; }
+
+.separatore {
+  width: 1px;
+  height: 15px;
+  margin: 0 4px;
+  background: var(--linea);
+  flex: none;
+}
+
+/* ── colore del testo ──────────────────────────────────────── */
+.apriColori { padding-right: 3px; }
+.lettera { font-weight: 600; font-size: 12.5px; opacity: 0.45; }
+.lettera[data-applicato] { opacity: 1; }   /* pieno = la selezione ha già quel colore */
+.freccetta { font-size: 7px; opacity: 0.65; }
+
+.lettera[data-colore="rosso"]   { color: var(--c-rosso); }
+.lettera[data-colore="arancio"] { color: var(--c-arancio); }
+.lettera[data-colore="verde"]   { color: var(--c-verde); }
+.lettera[data-colore="blu"]     { color: var(--c-blu); }
+.lettera[data-colore="viola"]   { color: var(--c-viola); }
+
+.pastiglia { min-width: 26px; }
+.campione {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.campione[data-colore="rosso"]   { background: var(--c-rosso); }
+.campione[data-colore="arancio"] { background: var(--c-arancio); }
+.campione[data-colore="verde"]   { background: var(--c-verde); }
+.campione[data-colore="blu"]     { background: var(--c-blu); }
+.campione[data-colore="viola"]   { background: var(--c-viola); }

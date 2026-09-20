@@ -1,0 +1,45 @@
+.pannello {
+  position: fixed;
+  z-index: 40;
+  max-height: 224px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: calc(var(--raggio) * 2);
+  box-shadow: var(--ombra);
+  font-family: var(--font-ui);
+}
+
+.voce {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  width: 100%;
+  height: 30px;
+  padding: 0 7px;
+  border-radius: var(--raggio);
+  text-align: left;
+  color: var(--inchiostro);
+}
+.voce:hover { background: var(--carta-alt); }
+.scelta { background: color-mix(in srgb, var(--accento) 12%, transparent); }
+.scelta:hover { background: color-mix(in srgb, var(--accento) 12%, transparent); }
+
+.icona {
+  flex: none;
+  width: 19px;
+  text-align: center;
+  color: var(--inchiostro-tenue);
+  font-size: 12px;
+}
+.scelta .icona { color: var(--accento); }
+
+.nome { flex: 1; font-size: 13px; }
+
+.suggerimento {
+  flex: none;
+  color: var(--tenue);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}

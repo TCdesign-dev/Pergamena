@@ -1,0 +1,96 @@
+.barra { padding: calc(var(--u) * 1.5); user-select: none; }
+
+.testa {
+  display: flex;
+  align-items: center;
+  height: calc(var(--u) * 4.5);
+  padding: 0 calc(var(--u) * 0.75);
+  margin-bottom: calc(var(--u) * 2);
+}
+.marchio {
+  flex: 1;
+  font-family: var(--font-testo);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.piu {
+  width: 22px; height: 22px;
+  border-radius: var(--raggio);
+  color: var(--tenue);
+  font-size: 15px;
+  line-height: 1;
+}
+.piu:hover { background: var(--linea); color: var(--inchiostro); }
+
+.vuoto {
+  padding: calc(var(--u) * 2);
+  color: var(--tenue);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.quaderno { margin-bottom: calc(var(--u) * 2.5); }
+
+.titoloQuaderno {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  padding: 0 calc(var(--u) * 0.75);
+  margin-bottom: calc(var(--u) * 0.5);
+}
+.pallino { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }
+.nome, .campoNome {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  color: var(--inchiostro-tenue);
+  text-align: left;
+}
+.nome {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.campoNome {
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  color: var(--inchiostro);
+}
+.campoNome::placeholder { color: var(--tenue); text-transform: none; letter-spacing: 0; }
+
+.elenco { list-style: none; margin: 0; padding: 0; }
+
+.voce {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u);
+  width: 100%;
+  padding: 5px calc(var(--u) * 0.75);
+  border-radius: var(--raggio);
+  text-align: left;
+}
+.voce:hover { background: var(--linea); }
+.vocePiena { background: var(--carta); box-shadow: inset 0 0 0 1px var(--linea); }
+.vocePiena:hover { background: var(--carta); }
+
+.voceTitolo {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+.voceData { flex: none; color: var(--tenue); font-size: 10.5px; font-variant-numeric: tabular-nums; }

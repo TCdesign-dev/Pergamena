@@ -1,0 +1,7 @@
+.nulla {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--tenue);
+  font-size: 13px;
+}
