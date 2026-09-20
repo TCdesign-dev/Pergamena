@@ -7,15 +7,17 @@ import type { Fuoco } from '../editor/Editor'
 import {
   ORDINI, ETICHETTE_ORDINE, leggiOrdine, salvaOrdine, ordina, type Ordine,
 } from '../documento/ordinamento'
+import { StatoSincronia } from './StatoSincronia'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
-  quaderni, documenti, apertoId, onApri,
+  quaderni, documenti, apertoId, onApri, onAccedi,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   apertoId: string | null
   onApri: (id: string, fuoco?: Fuoco) => void
+  onAccedi: () => void
 }) {
   // la materia appena creata nasce già in modifica: niente finestrelle
   const [inRinomina, setInRinomina] = useState<string | null>(null)
@@ -121,6 +123,8 @@ export function BarraLaterale({
           </ul>
         </section>
       ))}
+
+      <StatoSincronia onAccedi={onAccedi} />
     </nav>
   )
 }

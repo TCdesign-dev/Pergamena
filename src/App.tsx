@@ -7,6 +7,9 @@ import { Comandi } from './layout/Comandi'
 import { esponi } from './lib/dev'
 import { PannelloImmagini } from './layout/PannelloImmagini'
 import { iscrivitiPannello, leggiPannello, apriPannello } from './immagini/statoPannello'
+import { FinestraAccesso } from './sync/FinestraAccesso'
+import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
+import { accendiSincronia, spegniSincronia } from './sync/sincronia'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -23,6 +26,14 @@ export function App() {
   const [comandiAperti, setComandiAperti] = useState(false)
   const rifEditore: RifEditore = useRef(null)
   const pannello = useSyncExternalStore(iscrivitiPannello, leggiPannello)
+  const accesso = useSyncExternalStore(iscrivitiAccesso, leggiAccesso)
+  const [mostraAccesso, setMostraAccesso] = useState(false)
+
+  // la sincronia segue l'accesso: entri e parte, esci e si ferma
+  useEffect(() => {
+    if (accesso.utente) accendiSincronia()
+    else spegniSincronia()
+  }, [accesso.utente])
 
   const apri = useCallback((id: string, dove: Fuoco = 'corpo') => {
     setApertoId(id)
@@ -81,6 +92,7 @@ export function App() {
           documenti={documenti}
           apertoId={apertoId}
           onApri={apri}
+          onAccedi={() => setMostraAccesso(true)}
         />
       }
       centro={
@@ -93,6 +105,7 @@ export function App() {
         )
       }
     />
+    {mostraAccesso && <FinestraAccesso onChiudi={() => setMostraAccesso(false)} />}
     {comandiAperti && (
       <Comandi
         quaderni={quaderni}

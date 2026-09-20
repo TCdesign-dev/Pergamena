@@ -1,0 +1,75 @@
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 16vh;
+  background: rgb(0 0 0 / 0.3);
+}
+
+.pannello {
+  width: min(400px, calc(100vw - var(--u) * 6));
+  padding: calc(var(--u) * 3);
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: calc(var(--raggio) * 2.5);
+  box-shadow: var(--ombra);
+}
+
+.titolo { margin: 0 0 var(--u); font-size: 16px; font-weight: 600; }
+
+.spiega {
+  margin: 0 0 calc(var(--u) * 2.5);
+  color: var(--inchiostro-tenue);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.campo {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+}
+.campo:focus { border-color: var(--accento); }
+.cifre { font-family: var(--font-mono); font-size: 20px; letter-spacing: 0.3em; text-align: center; }
+
+.errore {
+  margin: var(--u) 0 0;
+  color: var(--c-rosso);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.piede {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  margin-top: calc(var(--u) * 2.5);
+}
+
+.secondario {
+  color: var(--tenue);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.secondario:hover { color: var(--inchiostro-tenue); }
+
+.principale {
+  margin-left: auto;
+  padding: 8px 16px;
+  border-radius: var(--raggio);
+  background: var(--accento);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 550;
+}
+.principale:disabled { opacity: 0.55; }

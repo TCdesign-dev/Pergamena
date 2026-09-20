@@ -3,6 +3,7 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import { nanoid } from 'nanoid'
 import { COLORI } from '../stili/colori'
 import { esponi } from '../lib/dev'
+import { registraStanza, dimenticaStanza } from '../sync/sincronia'
 import type { Quaderno, Documento } from './tipi'
 
 /*  Tutto è Yjs, anche l'indice.
@@ -19,6 +20,8 @@ const PREFISSO = 'pergamena'
 export const indice = new Y.Doc()
 const persistenzaIndice = new IndexeddbPersistence(`${PREFISSO}:indice`, indice)
 export const prontoIndice = persistenzaIndice.whenSynced
+
+registraStanza('indice', indice)
 
 export const mappaQuaderni = indice.getMap<Quaderno>('quaderni')
 export const mappaDocumenti = indice.getMap<Documento>('documenti')
@@ -40,6 +43,8 @@ export function apriDocumento(id: string) {
   const p = new IndexeddbPersistence(`${PREFISSO}:doc:${id}`, doc)
   const voce = { doc, pronto: p.whenSynced }
   aperti.set(id, voce)
+  // la sincronia parte da sola, se c'è un accesso attivo
+  void voce.pronto.then(() => registraStanza(`doc:${id}`, doc))
   return voce
 }
 
@@ -86,6 +91,7 @@ export function rinominaQuaderno(id: string, nome: string) {
 /** Elimina documento e contenuto. In fase 4 questo diventa il
  *  gestore dell'archivio: cancella anche audio e trascrizione. */
 export async function eliminaDocumento(id: string) {
+  dimenticaStanza(`doc:${id}`)
   mappaDocumenti.delete(id)
   aperti.get(id)?.doc.destroy()
   aperti.delete(id)
