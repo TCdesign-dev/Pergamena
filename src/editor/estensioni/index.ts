@@ -36,3 +36,23 @@ export function estensioni(doc: Y.Doc) {
     Collaboration.configure({ document: doc, field: 'contenuto' }),
   ]
 }
+
+/*  Sul telefono si legge e basta.
+ *
+ *  Si riusa lo stesso schema — stesso ProseMirror, stessi nodi — così
+ *  una pagina si vede identica a come l'hai scritta sul Mac. Restano
+ *  fuori solo le estensioni che servono a SCRIVERE: il menu «/», le
+ *  frecce automatiche, la sintassi delle immagini, il segnaposto.
+ *  Un renderer statico separato avrebbe voluto dire due schemi da
+ *  tenere allineati, e prima o poi due rese diverse. */
+export function estensioniLettura(doc: Y.Doc) {
+  return [
+    StarterKit.configure({ undoRedo: false, heading: { levels: [1, 2, 3] } }),
+    Highlight.configure({ multicolor: false }),
+    IdStabile,
+    SegnoAi,
+    ColoreTesto,
+    Immagine,
+    Collaboration.configure({ document: doc, field: 'contenuto' }),
+  ]
+}

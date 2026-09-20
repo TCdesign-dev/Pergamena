@@ -280,9 +280,35 @@ e la modifica resta in coda; rete ripristinata → riparte da sola in
 9 s; svuotato *tutto* il locale → quaderni, documenti e il testo
 scritto offline tornano giù da Supabase identici.
 
-### Fase 1c — telefono
+### ✅ Fase 1c — telefono
 
-PWA **in sola lettura** da resa statica: niente editor su mobile.
+App installabile, **in sola lettura**. Materie con le loro copertine,
+pagine, lettura, e la ricerca che guarda anche dentro agli appunti.
+
+Non è una limitazione mascherata da scelta: portare un editor a
+blocchi sul touch è una settimana di lavoro e di guai con selezione e
+tastiera, per un caso d'uso che non c'è — gli appunti si prendono sul
+Mac, a lezione. Sul telefono serve ritrovarli.
+
+**Stesso ProseMirror, in sola lettura.** Una pagina si vede identica a
+come l'hai scritta: restano fuori solo le estensioni che servono a
+scrivere (il menu «/», le frecce, la sintassi delle immagini). Un
+renderer statico separato avrebbe voluto dire due schemi da tenere
+allineati, e prima o poi due rese diverse.
+
+**Caricamento diviso.** Il telefono non scarica palette, pannello
+immagini e scelta copertine: `main.tsx` importa il guscio giusto in
+modo pigro. La soglia è la larghezza (720px), non il tipo di
+dispositivo, così una finestra stretta sul Mac prende comunque quello
+che ci sta meglio.
+
+Il service worker tiene in cache il guscio: dopo la prima apertura
+parte anche senza rete. Gli appunti non passano di lì — vivono in
+IndexedDB e li gestisce Yjs.
+
+L'icona è un segnaposto: `public/icona.svg`. Per l'aggiunta alla
+schermata Home di iOS ci vuole un PNG, ed è una decisione di design,
+non mia.
 
 ### ✅ Fase 2 — immagini
 

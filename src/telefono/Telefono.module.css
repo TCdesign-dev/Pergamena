@@ -1,0 +1,107 @@
+.telefono {
+  min-height: 100dvh;
+  padding: 0 var(--u) calc(var(--u) * 6);
+  background: var(--carta);
+}
+
+/* ── testa appiccicata ──────────────────────────────────────── */
+.testa {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  height: 46px;
+  padding: 0 calc(var(--u) * 0.5);
+  background: color-mix(in srgb, var(--carta) 86%, transparent);
+  backdrop-filter: blur(12px);
+}
+.marchio { flex: 1; font-size: 15px; font-weight: 620; letter-spacing: -0.01em; }
+.indietro { flex: 1; color: var(--accento); font-size: 15px; text-align: left; }
+
+.spia { width: 7px; height: 7px; border-radius: 50%; background: var(--tenue); flex: none; }
+.allineato { background: var(--c-verde); }
+.invio, .collego { background: var(--c-arancio); }
+.offline { background: var(--c-rosso); }
+
+/* ── ricerca ────────────────────────────────────────────────── */
+.cerca {
+  width: 100%;
+  padding: 11px 13px;
+  margin-bottom: calc(var(--u) * 2);
+  border: none;
+  border-radius: var(--raggio-g);
+  background: var(--carta-alt);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: 16px;   /* sotto i 16px iOS ingrandisce la pagina da solo */
+  outline: none;
+}
+
+/* ── materie ────────────────────────────────────────────────── */
+.griglia { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 2); }
+
+.scheda { display: block; text-align: left; }
+.copertina {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--raggio-g);
+  background: var(--carta-alt);
+  color: var(--inchiostro-tenue);
+  font-size: 28px;
+  font-weight: 300;
+  box-shadow: var(--ombra-bassa);
+}
+.copertina img { width: 100%; height: 100%; object-fit: cover; }
+.copertina[data-colore="rosso"]   { background: color-mix(in srgb, var(--c-rosso) 16%, var(--carta-alt)); }
+.copertina[data-colore="arancio"] { background: color-mix(in srgb, var(--c-arancio) 16%, var(--carta-alt)); }
+.copertina[data-colore="verde"]   { background: color-mix(in srgb, var(--c-verde) 16%, var(--carta-alt)); }
+.copertina[data-colore="blu"]     { background: color-mix(in srgb, var(--c-blu) 16%, var(--carta-alt)); }
+.copertina[data-colore="viola"]   { background: color-mix(in srgb, var(--c-viola) 16%, var(--carta-alt)); }
+
+.nomeMateria { display: block; margin-top: var(--u); font-size: 14px; font-weight: 550; }
+.contoPagine { display: block; margin-top: 1px; color: var(--tenue); font-size: 12px; }
+
+.titoloMateria { margin: var(--u) 0 calc(var(--u) * 2); font-size: 24px; font-weight: 640; letter-spacing: -0.02em; }
+
+/* ── elenco pagine ──────────────────────────────────────────── */
+.elenco { display: flex; flex-direction: column; }
+
+.voce {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u);
+  width: 100%;
+  padding: 13px calc(var(--u) * 1.5);
+  border-bottom: 1px solid var(--linea);
+  text-align: left;
+}
+.voce:active { background: var(--sfiorata); }
+.voceTitolo { flex: 1; font-size: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.voceMateria { flex: none; color: var(--tenue); font-size: 12px; }
+
+.nulla { padding: calc(var(--u) * 3) calc(var(--u) * 1.5); color: var(--tenue); font-size: 14px; }
+
+/* ── lettura ────────────────────────────────────────────────── */
+.lettura { padding: var(--u) calc(var(--u) * 1.25) calc(var(--u) * 8); }
+.titoloPagina {
+  margin: 0 0 calc(var(--u) * 3);
+  font-size: 26px;
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  line-height: 1.22;
+}
+.attesa { padding: calc(var(--u) * 4); color: var(--tenue); text-align: center; }
+
+.benvenuto { padding: calc(var(--u) * 8) calc(var(--u) * 2); text-align: center; }
+.benvenuto h1 { margin: 0 0 var(--u); font-size: 24px; font-weight: 640; }
+.benvenuto p { margin: 0; color: var(--inchiostro-tenue); font-size: 14px; line-height: 1.6; }
+
+/*  Sul telefono la colonna è tutta la larghezza, e il testo respira
+ *  un po' meno di quanto respira sul Mac. */
+.lettura :global(.ProseMirror) { font-size: 16px; line-height: 1.62; }
+.lettura :global(.ProseMirror figure) { width: 100% !important; float: none !important; margin: calc(var(--u) * 2) 0; }

@@ -1,0 +1,13 @@
+{
+  "name": "Pergamena",
+  "short_name": "Pergamena",
+  "description": "I tuoi appunti, sempre con te.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/icona.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
