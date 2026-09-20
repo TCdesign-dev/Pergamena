@@ -1,8 +1,16 @@
 import type { User } from '@supabase/supabase-js'
 import { supabase, configurato } from './cliente'
 
-/*  Due strade, perché i modelli di email di Supabase possono mandare
- *  l'una o l'altra cosa:
+/*  Tre strade, in ordine di sensatezza per un'app personale:
+ *
+ *  · la PASSWORD — nessuna mail, nessun limite di invio, nessuna
+ *    attesa. L'utente si crea una volta dal pannello di Supabase con
+ *    «Auto Confirm User» spuntato, e da lì in poi si entra e basta.
+ *    È la strada principale, ed è anche l'unica che non dipende da un
+ *    servizio di posta quando sei in aula col wi-fi della scuola.
+ *
+ *  Le altre due restano perché ogni tanto servono, e perché i modelli
+ *  di email di Supabase possono mandare l'una o l'altra cosa:
  *
  *  · il LINK — è il predefinito. Si clicca, si torna sull'app e il
  *    client raccoglie i gettoni dall'indirizzo. Comodo sul Mac.
@@ -41,6 +49,15 @@ if (supabase) {
   supabase.auth.onAuthStateChange((_evento, sessione) => {
     pubblica({ pronto: true, utente: sessione?.user ?? null })
   })
+}
+
+export async function entraConPassword(email: string, password: string) {
+  if (!supabase) throw new Error('Supabase non configurato')
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  })
+  if (error) throw error
 }
 
 export async function inviaCodice(email: string) {

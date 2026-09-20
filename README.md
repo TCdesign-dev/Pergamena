@@ -219,18 +219,29 @@ migrazione quando cambia la forma degli appunti.
 Prima volta: incolla `supabase/schema.sql` nel SQL Editor del
 progetto. È sicuro rilanciarlo.
 
-**Accesso.** Si entra con l'email. Supabase manda un **link** con i
-modelli predefiniti: cliccandolo si torna sull'app già dentro. Se
-preferisci un **codice** a sei cifre — indispensabile dal telefono, o
-quando leggi la posta su un altro dispositivo — vai su
-*Authentication › Email Templates*, apri **Magic Link** e **Confirm
-signup**, e aggiungi al corpo:
+**Accesso: con la password.** Per un'app che usa una persona sola la
+posta è solo un intralcio — l'SMTP integrato di Supabase manda poche
+mail all'ora, e quando finiscono resti fuori.
+
+L'utente si crea una volta sola dal pannello, senza mandare niente:
+
+> *Authentication › Users › Add user › Create new user*
+> email, password, e **spunta «Auto Confirm User»**
+
+Da lì in poi si entra con email e password, sul Mac e sul telefono,
+senza dipendere da un servizio di posta proprio quando sei in aula.
+
+Restano due strade di riserva, dietro a *entra via email*: il **link**
+(che i modelli predefiniti mandano, e che riporta dentro l'app) e il
+**codice** a sei cifre. Per avere il codice invece del link, in
+*Authentication › Email Templates* apri **Magic Link** e **Confirm
+signup** e aggiungi al corpo:
 
 ```html
 <p>Il tuo codice: <b>{{ .Token }}</b></p>
 ```
 
-L'app accetta entrambe le strade senza sapere quale arriverà.
+L'app accetta tutte e tre le strade senza sapere quale arriverà.
 
 **Come viaggia.** Gli aggiornamenti si accumulano 1,5 s e si
 uniscono prima di partire — senza, una lezione da un'ora sarebbe

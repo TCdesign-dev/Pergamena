@@ -1,13 +1,20 @@
 import { useState } from 'react'
-import { inviaCodice, verificaCodice } from './accesso'
+import { entraConPassword, inviaCodice, verificaCodice } from './accesso'
 import s from './FinestraAccesso.module.css'
 
-/*  Due passi: l'indirizzo, poi il codice che arriva per posta.
- *  Nessuna password da ricordare, nessun link da aprire. */
+/*  La password è la strada principale: nessuna mail, nessun limite di
+ *  invio, nessuna attesa. L'utente si crea una volta sola dal pannello
+ *  di Supabase con «Auto Confirm User» spuntato.
+ *
+ *  La posta resta come seconda strada per quando non ricordi la
+ *  password, o per entrare al volo da un dispositivo nuovo. */
+
+type Passo = 'password' | 'email' | 'codice'
 
 export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
-  const [passo, setPasso] = useState<'email' | 'codice'>('email')
+  const [passo, setPasso] = useState<Passo>('password')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [codice, setCodice] = useState('')
   const [inCorso, setInCorso] = useState(false)
   const [errore, setErrore] = useState('')
@@ -17,7 +24,10 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
     setErrore('')
     setInCorso(true)
     try {
-      if (passo === 'email') {
+      if (passo === 'password') {
+        await entraConPassword(email, password)
+        onChiudi()
+      } else if (passo === 'email') {
         await inviaCodice(email)
         setPasso('codice')
       } else {
@@ -25,7 +35,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
         onChiudi()
       }
     } catch (err) {
-      setErrore(err instanceof Error ? err.message : 'qualcosa è andato storto')
+      setErrore(traduci(err instanceof Error ? err.message : 'qualcosa è andato storto'))
     } finally {
       setInCorso(false)
     }
@@ -35,26 +45,44 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
     <div className={s.velo} onMouseDown={onChiudi}>
       <form className={s.pannello} onMouseDown={(e) => e.stopPropagation()} onSubmit={prosegui}>
         <h2 className={s.titolo}>
-          {passo === 'email' ? 'Sincronizza gli appunti' : 'Controlla la posta'}
+          {passo === 'codice' ? 'Controlla la posta' : 'Sincronizza gli appunti'}
         </h2>
 
         <p className={s.spiega}>
-          {passo === 'email'
-            ? 'Gli appunti restano su questo Mac. L’accesso serve a copiarli al sicuro e a leggerli dal telefono.'
-            : `Abbiamo scritto a ${email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.`}
+          {passo === 'password' &&
+            'Gli appunti restano su questo Mac. L’accesso serve a copiarli al sicuro e a leggerli dal telefono.'}
+          {passo === 'email' &&
+            'Ti mandiamo un link (o un codice) per entrare senza password.'}
+          {passo === 'codice' &&
+            `Abbiamo scritto a ${email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.`}
         </p>
 
-        {passo === 'email' ? (
+        {passo !== 'codice' && (
           <input
             className={s.campo}
             type="email"
             autoFocus
             required
+            autoComplete="username"
             value={email}
             placeholder="tu@esempio.it"
             onChange={(e) => setEmail(e.target.value)}
           />
-        ) : (
+        )}
+
+        {passo === 'password' && (
+          <input
+            className={`${s.campo} ${s.sotto}`}
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            placeholder="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
+
+        {passo === 'codice' && (
           <input
             className={`${s.campo} ${s.cifre}`}
             inputMode="numeric"
@@ -70,16 +98,39 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
         {errore && <p className={s.errore}>{errore}</p>}
 
         <div className={s.piede}>
-          {passo === 'codice' && (
+          {passo === 'password' && (
             <button type="button" className={s.secondario} onClick={() => setPasso('email')}>
-              cambia indirizzo
+              entra via email
+            </button>
+          )}
+          {passo !== 'password' && (
+            <button type="button" className={s.secondario} onClick={() => setPasso('password')}>
+              usa la password
             </button>
           )}
           <button type="submit" className={s.principale} disabled={inCorso}>
-            {inCorso ? '…' : passo === 'email' ? 'Mandami il codice' : 'Entra'}
+            {inCorso ? '…' : passo === 'email' ? 'Mandami il link' : 'Entra'}
           </button>
         </div>
       </form>
     </div>
   )
+}
+
+/** I messaggi di Supabase sono in inglese e poco chiari sul da farsi. */
+function traduci(messaggio: string) {
+  const m = messaggio.toLowerCase()
+  if (m.includes('rate limit') || m.includes('after') && m.includes('seconds')) {
+    return 'Troppe email richieste. Usa la password: si crea in un minuto dal pannello di Supabase, in Authentication › Users.'
+  }
+  if (m.includes('invalid login credentials')) {
+    return 'Email o password sbagliate. Se non hai ancora una password, creala dal pannello di Supabase in Authentication › Users.'
+  }
+  if (m.includes('email not confirmed')) {
+    return 'Utente non confermato. Nel pannello di Supabase, in Authentication › Users, spunta «Auto Confirm User».'
+  }
+  if (m.includes('token has expired') || m.includes('invalid')) {
+    return 'Codice scaduto o già usato. Chiedine un altro.'
+  }
+  return messaggio
 }
