@@ -309,7 +309,7 @@ allineati, e prima o poi due rese diverse.
 
 **Caricamento diviso.** Il telefono non scarica palette, pannello
 immagini e scelta copertine: `main.tsx` importa il guscio giusto in
-modo pigro. La soglia è la larghezza (720px), non il tipo di
+modo pigro. La soglia è la larghezza (600px), non il tipo di
 dispositivo, così una finestra stretta sul Mac prende comunque quello
 che ci sta meglio.
 
