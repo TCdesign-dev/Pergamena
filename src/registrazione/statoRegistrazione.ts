@@ -15,12 +15,13 @@ export type StatoRegistrazione = {
   dispositivo: string | null // da dove si sta ascoltando
   silenzio: boolean          // 6 s senza suono: probabilmente il microfono sbagliato
   virtuale: boolean          // il dispositivo è un ingresso virtuale (BlackHole & c.)
+  scollegato: boolean        // il collegamento col server è caduto: si sta riprovando
 }
 
 const FERMO: StatoRegistrazione = {
   attiva: false, avvio: 'fermo', id: null, documentoId: null,
   inizio: null, livello: -160, provvisorio: '', errore: null,
-  dispositivo: null, silenzio: false, virtuale: false,
+  dispositivo: null, silenzio: false, virtuale: false, scollegato: false,
 }
 
 let stato = FERMO

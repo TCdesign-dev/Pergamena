@@ -18,6 +18,7 @@ import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
 import { accendiSincronia, spegniSincronia } from './sync/sincronia'
 import { allineaTutto } from './sync/allineaTutto'
 import { Striscia } from './registrazione/PulsanteRegistra'
+import { chiudiOrfane, recuperaInterrotte, riprendiSeInCorso } from './registrazione/registrazione'
 import { Revisione } from './merge/Revisione'
 import { SchedaMateria } from './materia/SchedaMateria'
 import s from './App.module.css'
@@ -87,6 +88,12 @@ export function App() {
 
   useEffect(() => esponi({ apri }), [apri])
 
+  /*  Una registrazione rimasta a metà. Se la pagina è stata ricaricata
+   *  mentre registravi, il microfono è ancora acceso: ci si ricollega.
+   *  Se invece era ripartito il server, la registrazione è rimasta «in
+   *  corso» per sempre: si chiude con le frasi che contiene. */
+  useEffect(() => { void riprendiSeInCorso().then(recuperaInterrotte) }, [])
+
   const chiudiComandi = useCallback(() => {
     setComandiAperti(false)
     requestAnimationFrame(() => rifEditore.current?.commands.focus())
@@ -129,6 +136,12 @@ export function App() {
   const materiaScheda = schedaAperta ? quaderni.find((q) => q.id === schedaAperta) ?? null : null
   const mostraHome = !materiaScheda && (inHome || !aperto)
   const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
+
+  useEffect(() => {
+    if (!aperto) return
+    const { doc, pronto } = apriDocumento(aperto.id)
+    void pronto.then(() => chiudiOrfane(doc))
+  }, [aperto?.id])
 
   return (
     <>

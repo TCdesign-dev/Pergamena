@@ -5,6 +5,8 @@
  *    doc.getMap('registrazioni')
  *      <id> → Y.Map {
  *        inizio, fine, audio
+ *        avviato  : quando il microfono è partito davvero (ms)
+ *        interrotta: true se si è fermata da sola (server riavviato)
  *        segmenti : Y.Array<Segmento>   ciò che ha detto il professore
  *        ancore   : Y.Array<Ancora>     dove eri negli appunti, e quando
  *        integrata: numero di proposte fatte dal merge, se fatto
@@ -35,4 +37,5 @@ export type Registrazione = {
   segmenti: Segmento[]
   ancore: Ancora[]
   integrata: number | null
+  interrotta: boolean
 }
