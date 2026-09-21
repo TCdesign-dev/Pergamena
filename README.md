@@ -43,7 +43,8 @@ src/
 │   ├── token.css        tutto il progetto grafico: colori, tipografia, ritmo
 │   ├── colori.ts        la tavolozza: la usano il testo E il pallino materia
 │   ├── base.css         azzeramenti
-│   └── editor.css       stile del CONTENUTO (selettori veri, non utility)
+│   ├── editor.css       stile del CONTENUTO (selettori veri, non utility)
+│   └── movimento.css    tempi, curve e animazioni: tutte da qui
 │
 ├── documento/
 │   ├── tipi.ts          Quaderno · Documento · Argomento
@@ -53,6 +54,7 @@ src/
 │
 ├── lib/
 │   ├── testo.ts         normalizzazione per le ricerche (accenti, maiuscole)
+│   ├── modello.ts       le chiamate al modello che rispondono in JSON
 │   └── dev.ts           la maniglia `pergamena` in console (solo in sviluppo)
 │
 ├── ricerca/
@@ -81,6 +83,7 @@ src/
 │   │   ├── segnoAi.ts   marca il testo che non hai scritto tu
 │   │   ├── coloreTesto.ts  i cinque colori + scorciatoie
 │   │   ├── frecce.ts    -> diventa →,  --> diventa ⟶
+│   │   ├── elenchi.ts   Tab e sottoelenchi, «1. » e «- » dentro un elenco
 │   │   ├── slash.ts     il plugin di «/» (intercetta frecce e Invio)
 │   │   ├── immagine.ts  il nodo, più incolla e trascina
 │   │   └── richiestaImmagine.ts   la sintassi !…!
@@ -96,6 +99,8 @@ src/
     ├── Guscio.tsx       tre zone (la terza arriva in fase 2)
     ├── BarraLaterale.tsx
     ├── Comandi.tsx      la palette ⌘K
+    ├── Attesa.tsx       rotellina, barra, tessere: i segni dell'attesa
+    ├── Miniatura.tsx    un'immagine che arriva: riflesso, poi dissolvenza
     └── PannelloImmagini.tsx
 ```
 
@@ -426,7 +431,8 @@ rinunciata, come fa l'app Claude — macOS negava in silenzio.
 **Le chiamate al modello** hanno un tempo massimo (90 s il merge) e un
 secondo tentativo, e OpenRouter preferisce i fornitori veloci: lo
 stesso modello gira su decine di fornitori, e uno ha tenuto un merge
-aperto per più di due minuti e mezzo.
+aperto per più di due minuti e mezzo. Il ragionamento è **spento**:
+vedi sotto.
 
 **La revisione vale finché la selezione è sulla proposta.** Se clicchi
 altrove nel testo stai scrivendo, e Invio torna ad andare a capo.
@@ -471,6 +477,66 @@ calendario locali, così «domani» resta domani a qualunque ora.
 Sul telefono la scheda è la prima riga dell'elenco delle pagine, in sola
 lettura. Guardarla non crea niente: se la materia non ha ancora note
 libere si vedono solo i campi.
+
+### ✅ Dopo le prime lezioni vere
+
+**«Il modello non ha risposto in JSON».** Riprodotto sulla lezione di
+Materiali: col ragionamento acceso DeepSeek V4 Flash, una volta su tre,
+ragionava finché non finivano i 4000 token e la risposta arrivava
+vuota. Spento il ragionamento (`lib/modello.ts`):
+
+| | ragionamento basso | spento |
+|---|---|---|
+| tempo | 14–23 s | **4 s** |
+| costo | 0,0005–0,0007 $ | **0,00016 $** |
+| JSON valido | 2 su 3 (a 4000 token) | 3 su 3 |
+| ripetizioni | «Divisa in 2 parti» + «Parte 1…» + «Parte 2…» | una proposta per dato |
+
+Se la risposta è comunque illeggibile si riprova da soli, una volta.
+
+**Le ripetizioni.** La trascrizione non duplica: le ripetizioni che si
+leggono sono del professore («il loro computer, il loro computer»). Le
+proposte invece ripetevano: il prompt ora chiede un dato una volta sola,
+e `merge/doppioni.ts` controlla — scarta ciò che è già negli appunti o
+già in un'altra proposta, confrontando le parole che contano (radici,
+numeri interi: «4 domande» non è «10 domande»). Fra due proposte con lo
+stesso dato resta la più completa. Le proposte per lo stesso blocco ora
+entrano **nell'ordine giusto** (prima uscivano al contrario), e le
+àncore su una riga vuota valgono per la riga piena di sopra: prima il
+modello riceveva un id che negli appunti non c'era.
+
+**Se il server si ferma mentre registri.** Le frasi finite sono nel
+documento man mano, quindi erano già salve; mancavano tre cose:
+
+- *Server ripartito*: il programma di ascolto muore col server, ma le
+  sue ultime frasi le scrive quando nessuno ascolta più. Il server le
+  mette in `~/Library/Application Support/Pergamena/sospese/`, la
+  pagina le recupera appena torna. La registrazione si chiude da sola,
+  segnata **interrotta**, e resta integrabile. (Prima restava «in
+  corso» per sempre, senza il pulsante del merge.)
+- *Pagina ricaricata*: il microfono restava acceso con nessuno ad
+  ascoltarlo, e tutto quello che veniva detto dopo andava perso. Ora la
+  pagina si ricollega e il server le rimanda tutte le frasi, senza
+  doppioni.
+- *Collegamento che cade*: ogni evento ha un numero, il browser dice
+  l'ultimo che ha visto e il server rimanda i mancanti. Se il server
+  non torna entro 15 s la registrazione si chiude, invece di far correre
+  un cronometro che non registra.
+
+Collaudato con una lezione sintetizzata da 49 s: riavvio del server a
+metà → 3 frasi su 3 salve (1 già scritta + 2 recuperate dal file);
+pagina ricaricata a metà → 5 frasi su 5, zero doppioni, àncore riprese.
+
+**Elenchi.** Tab su un elenco numerato che sta sotto un puntato lo
+sposta dentro come sottoelenco (anche più voci selezionate insieme);
+«1. » in una voce puntata la fa diventare numerata, «- » il contrario.
+Il Tab non porta più il cursore fuori dall'editor.
+
+**Movimento e attesa.** Pannelli e finestre compaiono in 200 ms; il
+merge dice a che punto è (prepara, confronta, riprova, inserisce, cerca
+immagini) con i secondi che passano; le immagini luccicano finché non
+arrivano e poi affiorano. Con «Riduci movimento» del Mac non si muove
+niente.
 
 ### Fase 4 — argomenti, ripasso e archivio
 - Titoli degli argomenti proposti a fine lezione.
