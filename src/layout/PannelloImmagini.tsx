@@ -9,6 +9,7 @@ import { TIPO_TRASCINAMENTO } from '../editor/estensioni/immagine'
 import type { Trovata } from '../immagini/commons'
 import type { RifEditore } from '../editor/Editor'
 import { leggiImpostazioni, iscrivitiImpostazioni, imposta } from '../impostazioni'
+import { NOMI_FONTI } from '../immagini/web'
 import { Miniatura } from './Miniatura'
 import { Rotella, Tessere } from './Attesa'
 import s from './PannelloImmagini.module.css'
@@ -188,11 +189,26 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
 
   return (
     <>
+      {/* il web trova quasi tutto; Commons ha licenze pulite e schede d'autore */}
+      <div className={s.fonti} role="radiogroup" aria-label="Dove cercare">
+        {(['web', 'commons'] as const).map((f) => (
+          <button
+            key={f}
+            role="radio"
+            aria-checked={impostazioni.fonteImmagini === f}
+            className={impostazioni.fonteImmagini === f ? s.fonteScelta : undefined}
+            onClick={() => imposta('fonteImmagini', f)}
+          >
+            {f === 'web' ? 'Web' : 'Commons'}
+          </button>
+        ))}
+      </div>
+
       <form className={s.cerca} onSubmit={(e) => { e.preventDefault(); void avviaRicerca(query); setQuery('') }}>
         <input
           className={s.campo}
           value={query}
-          placeholder="Cerca su Wikimedia Commons…"
+          placeholder={impostazioni.fonteImmagini === 'web' ? 'Cerca immagini sul web…' : 'Cerca su Wikimedia Commons…'}
           onChange={(e) => setQuery(e.target.value)}
         />
       </form>
@@ -219,12 +235,16 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
             <div className={s.intestazione}>
               <span className={s.query}>{r.query}</span>
               {r.origine === 'sintassi' && <span className={s.marchio}>dagli appunti</span>}
+              {r.fonte && <span className={s.marchio}>{NOMI_FONTI[r.fonte] ?? r.fonte}</span>}
               <button className={s.scarta} title="Togli" onClick={() => scartaRicerca(r.id)}>×</button>
             </div>
 
             {r.stato === 'in-corso' && <div className={s.griglia}><Tessere quante={6} classe={s.tesseraAttesa} /></div>}
             {r.stato === 'errore' && <p className={s.stato}>{r.errore}</p>}
-            {r.stato === 'pronta' && r.risultati.length === 0 && <p className={s.stato}>niente su Commons</p>}
+            {r.stato === 'pronta' && r.risultati.length === 0 && <p className={s.stato}>niente su {NOMI_FONTI[r.fonte ?? 'commons'] ?? 'Commons'}</p>}
+            {r.fonte === 'openverse' && r.risultati.length > 0 && (
+              <p className={s.stato}>Immagini libere da Openverse. Con una chiave Serper nel .env.local arrivano quelle di Google Immagini.</p>
+            )}
 
             <div className={s.griglia}>
               {r.risultati.map((t) => (

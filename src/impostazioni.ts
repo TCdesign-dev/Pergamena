@@ -6,12 +6,13 @@ export type Impostazioni = {
   sintassiImmagini: boolean   // !Basilica di Superga! fa partire la ricerca
   salvaAudio: boolean         // oltre alla trascrizione, tiene l'audio della lezione
   microfono: string | null    // uid del dispositivo; null = quello di sistema
+  fonteImmagini: 'web' | 'commons'   // dove cercano le ricerche del pannello
 }
 
 /*  L'audio è spento di partenza: il disco è pieno al 97%, e la
  *  trascrizione dal vivo basta per il merge. Si accende quando serve
  *  riascoltare il professore, o una seconda passata più accurata. */
-const PREDEFINITE: Impostazioni = { sintassiImmagini: true, salvaAudio: false, microfono: null }
+const PREDEFINITE: Impostazioni = { sintassiImmagini: true, salvaAudio: false, microfono: null, fonteImmagini: 'web' }
 const CHIAVE = 'pergamena:impostazioni'
 
 let valori: Impostazioni = (() => {

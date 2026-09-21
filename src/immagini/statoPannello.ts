@@ -1,4 +1,6 @@
 import { cercaSuCommons, type Trovata } from './commons'
+import { cercaSulWeb } from './web'
+import { leggiImpostazioni } from '../impostazioni'
 
 /*  Il pannello è una pila di ricerche, dalla più recente.
  *  Ci finiscono sia quelle scritte a mano sia quelle nate dalla
@@ -12,6 +14,8 @@ export type Ricerca = {
   stato: 'in-corso' | 'pronta' | 'errore'
   risultati: Trovata[]
   errore?: string
+  /** da dove sono arrivati: Commons, Google Immagini, Openverse… */
+  fonte?: string
 }
 
 export type Scheda = 'consigliate' | 'cercate'
@@ -65,7 +69,12 @@ export async function avviaRicerca(query: string, origine: Ricerca['origine'] = 
     })
 
   try {
-    aggiorna({ risultati: await cercaSuCommons(q), stato: 'pronta' })
+    if (leggiImpostazioni().fonteImmagini === 'commons') {
+      aggiorna({ risultati: await cercaSuCommons(q), stato: 'pronta', fonte: 'commons' })
+    } else {
+      const { fonte, risultati } = await cercaSulWeb(q)
+      aggiorna({ risultati: risultati.map((t) => ({ ...t, fonte })), stato: 'pronta', fonte })
+    }
   } catch (e) {
     aggiorna({ stato: 'errore', errore: e instanceof Error ? e.message : 'ricerca fallita' })
   }

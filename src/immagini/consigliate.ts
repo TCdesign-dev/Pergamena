@@ -2,6 +2,7 @@ import * as Y from 'yjs'
 import { useEffect, useState } from 'react'
 import type { Editor } from '@tiptap/core'
 import { cercaSuCommons, type Trovata } from './commons'
+import { cercaSulWeb } from './web'
 import { blocchiDi } from '../merge/applica'
 import { normalizza } from '../lib/testo'
 import { esponi } from '../lib/dev'
@@ -67,7 +68,12 @@ export async function aggiungiConsigli(editor: Editor, doc: Y.Doc, richieste: Ri
 
   let aggiunti = 0
   for (const r of scelte) {
-    const risultati = await cercaSuCommons(r.query, 4).catch(() => [] as Trovata[])
+    // prima Commons (licenze pulite); se non ha niente, il web
+    let risultati = await cercaSuCommons(r.query, 4).catch(() => [] as Trovata[])
+    if (!risultati.length) {
+      const web = await cercaSulWeb(r.query, 4).catch(() => null)
+      risultati = (web?.risultati ?? []).map((t) => ({ ...t, fonte: web!.fonte })).slice(0, 4)
+    }
     if (!risultati.length) continue
     const testo = blocchi.get(r.blocco) ?? ''
     const id = `c-${Date.now().toString(36)}-${aggiunti}`

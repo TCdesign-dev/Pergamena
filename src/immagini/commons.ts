@@ -15,6 +15,8 @@ export type Trovata = {
   autore: string
   licenza: string
   pagina: string
+  /** da dove arriva: Commons, oppure il web (vedi web.ts) */
+  fonte?: 'commons' | 'google' | 'brave' | 'openverse'
 }
 
 const API = 'https://commons.wikimedia.org/w/api.php'
@@ -84,9 +86,36 @@ export async function cercaSuCommons(query: string, limite = 12): Promise<Trovat
 }
 
 /** Scarica i byte veri. Commons manda CORS aperto, quindi si può
- *  leggere il blob e conservarlo nel deposito locale. */
+ *  leggere il blob e conservarlo nel deposito locale. Un'immagine del
+ *  web invece la scarica il server (i siti non lo permettono al
+ *  browser): prima l'originale, e se il sito lo nega la miniatura. */
 export async function scarica(t: Trovata) {
+  if (t.fonte && t.fonte !== 'commons') {
+    for (const url of [t.originale, t.miniatura]) {
+      const r = await fetch(`/api/immagini/scarica?url=${encodeURIComponent(url)}`).catch(() => null)
+      if (r?.ok) return rimpicciolisci(await r.blob())
+    }
+    throw new Error('il sito non lascia scaricare l’immagine: provane un’altra')
+  }
   const risposta = await fetch(t.miniatura)
   if (!risposta.ok) throw new Error(`Scaricamento fallito (${risposta.status})`)
   return risposta.blob()
+}
+
+/*  Le foto dal web arrivano anche da 5000 pixel e 8 MB: negli appunti
+ *  ne bastano 1600, e il deposito (e il backup) ringraziano. */
+const LATO_MASSIMO = 1600
+
+async function rimpicciolisci(blob: Blob): Promise<Blob> {
+  try {
+    const bmp = await createImageBitmap(blob)
+    const scala = Math.min(1, LATO_MASSIMO / Math.max(bmp.width, bmp.height))
+    if (scala >= 1 && blob.size < 1_500_000) { bmp.close(); return blob }
+    const tela = new OffscreenCanvas(Math.round(bmp.width * scala), Math.round(bmp.height * scala))
+    tela.getContext('2d')!.drawImage(bmp, 0, 0, tela.width, tela.height)
+    bmp.close()
+    return await tela.convertToBlob({ type: 'image/jpeg', quality: 0.86 })
+  } catch {
+    return blob
+  }
 }
