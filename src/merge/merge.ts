@@ -2,7 +2,8 @@ import type { Editor } from '@tiptap/core'
 import * as Y from 'yjs'
 import { allinea } from './allinea'
 import { costruisciPrompt } from './prompt'
-import { applica, blocchiDi, righeDi, rimappaBlocchi, type Proposta } from './applica'
+import { applica, applicaTitoli, blocchiDi, righeDi, rimappaBlocchi, type Proposta, type Titolo } from './applica'
+import { istruzioniDiStile, stileDellaPagina } from './marcatura'
 import { togliDoppioni } from './doppioni'
 import { leggiRegistrazioni, mappaRegistrazioni } from '../registrazione/registrazione'
 import { chiediJson } from '../lib/modello'
@@ -39,12 +40,14 @@ export async function integraLezione(
   const tratti = allinea(reg.segmenti, reg.ancore.map((a) => ({ t: a.t, blocco: rimappa(a.blocco) })))
 
   avanza('chiedo')
-  const { json, costo } = await chiediJson('merge', costruisciPrompt(materia, blocchi, tratti), {
+  const stile = istruzioniDiStile(stileDellaPagina(editor.state.doc))
+  const { json, costo } = await chiediJson('merge', costruisciPrompt(materia, blocchi, tratti, stile), {
     maxToken: 8000,
     riprovo: () => avanza('riprovo'),
   })
   const proposte = (Array.isArray(json.proposte) ? json.proposte : []) as Proposta[]
   const richiesteImmagini = (Array.isArray(json.immagini) ? json.immagini : []) as Richiesta[]
+  const titoli = (Array.isArray(json.titoli) ? json.titoli : []) as Titolo[]
 
   avanza('inserisco')
   // si tiene solo ciò che è ben formato e punta a un blocco che esiste
@@ -60,7 +63,8 @@ export async function integraLezione(
     .slice(0, MASSIMO)
     .sort((a, b) => a.ordine - b.ordine)
 
-  const fatte = applica(editor, buone)
+  const titoliBuoni = titoli.filter((t) => t && typeof t.titolo === 'string' && t.titolo.trim() && idValidi.has(t.prima))
+  const fatte = applica(editor, buone) + applicaTitoli(editor, titoliBuoni)
   mappaRegistrazioni(doc).get(idRegistrazione)?.set('integrata', fatte)
 
   // i consigli di immagini arrivano gratis con la stessa chiamata

@@ -1,4 +1,5 @@
 import { normalizza } from '../lib/testo'
+import { senzaMarcatura } from './marcatura'
 
 /*  Le ripetizioni nelle proposte.
  *
@@ -24,7 +25,7 @@ const VUOTE = new Set([
 
 export function parole(testo: string): Set<string> {
   const insieme = new Set<string>()
-  for (const p of normalizza(testo).split(/[^a-z0-9]+/)) {
+  for (const p of normalizza(senzaMarcatura(testo)).split(/[^a-z0-9]+/)) {
     if (/^\d+$/.test(p)) insieme.add(p)
     else if (p.length > 2 && !VUOTE.has(p)) insieme.add(p.slice(0, 5))
   }
