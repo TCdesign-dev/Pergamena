@@ -1,0 +1,52 @@
+.registra {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.registra:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.inCorso { color: var(--c-rosso); }
+.inCorso:hover { color: var(--c-rosso); }
+
+.pallino {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+.acceso { background: var(--c-rosso); opacity: 1; animation: respiro 1.6s ease-in-out infinite; }
+@keyframes respiro { 50% { opacity: 0.35; } }
+
+.tempo { min-width: 34px; }
+
+.tacche { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; }
+.tacche i { width: 2px; background: var(--linea-forte); border-radius: 1px; }
+.tacche i:nth-child(1) { height: 4px; }
+.tacche i:nth-child(2) { height: 7px; }
+.tacche i:nth-child(3) { height: 11px; }
+.tacche i.tacca { background: var(--c-rosso); }
+
+.altrove { color: var(--c-rosso); font-size: 11px; opacity: 0.8; padding: 0 6px; }
+
+/* ── la frase in formazione ─────────────────────────────────── */
+.striscia {
+  flex: none;
+  padding: 8px calc(var(--u) * 3) 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: rtl;             /* si vede la FINE della frase, che è la parte nuova */
+  text-align: left;
+  color: var(--tenue);
+  font-size: 12.5px;
+  border-top: 1px solid var(--linea);
+  background: var(--carta);
+}
+.striscia span { direction: ltr; unicode-bidi: plaintext; }
+.attesa { font-style: italic; }
+.errore { color: var(--c-rosso); }

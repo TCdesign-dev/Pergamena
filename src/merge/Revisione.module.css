@@ -1,0 +1,41 @@
+.invito, .barra {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 30;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  box-shadow: var(--ombra);
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.invito {
+  padding: 7px 14px;
+  background: var(--accento);
+  color: #fff;
+  font-weight: 550;
+}
+.invito:hover { filter: brightness(1.07); }
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  background: var(--inchiostro);
+  color: var(--carta);
+}
+.conto { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tasti { opacity: 0.75; }
+.tasti kbd {
+  display: inline-block;
+  min-width: 16px;
+  margin: 0 1px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--carta) 18%, transparent);
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  text-align: center;
+}

@@ -17,6 +17,8 @@ import { FinestraAccesso } from './sync/FinestraAccesso'
 import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
 import { accendiSincronia, spegniSincronia } from './sync/sincronia'
 import { allineaTutto } from './sync/allineaTutto'
+import { Striscia } from './registrazione/PulsanteRegistra'
+import { Revisione } from './merge/Revisione'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -138,11 +140,14 @@ export function App() {
                 quaderno={materiaAperta}
                 documento={aperto!}
                 pannelloAperto={pannello.aperto}
+                rifEditore={rifEditore}
                 onHome={() => setInHome(true)}
                 onPannello={() => apriPannello(!pannello.aperto)}
                 onElimina={() => setDaEliminare({ tipo: 'pagina', documento: aperto! })}
               />
               <Editor documento={aperto!} fuoco={fuoco} rifEditore={rifEditore} />
+              <Striscia documentoId={aperto!.id} />
+              <Revisione key={aperto!.id} rifEditore={rifEditore} />
             </div>
           )
         }

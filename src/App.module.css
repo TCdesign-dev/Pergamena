@@ -1,3 +1,4 @@
-/*  La colonna centrale: una barra sottile sopra, e sotto tutto lo
- *  spazio per scrivere. */
-.colonna { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+/*  La colonna centrale: una barra sottile sopra, sotto tutto lo
+ *  spazio per scrivere, e in fondo la frase che il professore sta
+ *  dicendo, quando si registra. */
+.colonna { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; }

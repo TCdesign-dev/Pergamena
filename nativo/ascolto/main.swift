@@ -107,6 +107,42 @@ final class UltimoFinale: @unchecked Sendable {
     var valore: Double { blocco.lock(); defer { blocco.unlock() }; return fine }
 }
 
+/// Scrive l'audio in AAC 32 kbps mono. Usato dal microfono e — per
+/// poterlo collaudare senza un microfono — anche dalla sorgente file.
+final class Registratore: @unchecked Sendable {
+    private let file: AVAudioFile
+    private let conv: AVAudioConverter
+    private let blocco = NSLock()
+
+    init?(dove: URL, da formato: AVAudioFormat) {
+        do {
+            try FileManager.default.createDirectory(at: dove.deletingLastPathComponent(), withIntermediateDirectories: true)
+            let f = try AVAudioFile(
+                forWriting: dove,
+                settings: [
+                    AVFormatIDKey: kAudioFormatMPEG4AAC,
+                    AVSampleRateKey: 16_000,
+                    AVNumberOfChannelsKey: 1,
+                    AVEncoderBitRateKey: 32_000,
+                ],
+                commonFormat: .pcmFormatFloat32,
+                interleaved: false
+            )
+            guard let c = AVAudioConverter(from: formato, to: f.processingFormat) else { return nil }
+            file = f
+            conv = c
+        } catch {
+            emetti(["evento": "errore", "messaggio": "non riesco a salvare l'audio: \(error.localizedDescription)"])
+            return nil
+        }
+    }
+
+    func scrivi(_ b: AVAudioPCMBuffer) {
+        blocco.lock(); defer { blocco.unlock() }
+        if let c = converti(b, con: conv) { try? file.write(from: c) }
+    }
+}
+
 // ── il lavoro vero ──────────────────────────────────────────────────
 
 @main
@@ -264,6 +300,8 @@ struct Ascolto {
                 emetti(["evento": "pronto", "sorgente": "file-dal-vivo",
                         "durata": Double(audio.length) / audio.fileFormat.sampleRate])
 
+                var registratore = opzioni.salva.flatMap { Registratore(dove: $0, da: audio.processingFormat) }
+                chiudiSorgente = { registratore = nil }   // chiude il file AAC
                 let passo: AVAudioFrameCount = 4096
                 Task.detached {
                     while audio.framePosition < audio.length {
@@ -272,6 +310,7 @@ struct Ascolto {
                         if b.frameLength == 0 { break }
                         if let db = livello(b) { emetti(["evento": "livello", "db": (db * 10).rounded() / 10]) }
                         if let c = converti(b, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
+                        registratore?.scrivi(b)
                         try? await Task.sleep(nanoseconds: UInt64(Double(b.frameLength) / audio.processingFormat.sampleRate * 1_000_000_000))
                     }
                     DispatchQueue.main.async { ferma() }
@@ -290,33 +329,12 @@ struct Ascolto {
             }
 
             // l'audio si tiene solo se richiesto: il disco è pieno al 97%
-            var registratore: (file: AVAudioFile, conv: AVAudioConverter)?
-            if let dove = opzioni.salva {
-                do {
-                    try FileManager.default.createDirectory(at: dove.deletingLastPathComponent(), withIntermediateDirectories: true)
-                    let file = try AVAudioFile(
-                        forWriting: dove,
-                        settings: [
-                            AVFormatIDKey: kAudioFormatMPEG4AAC,
-                            AVSampleRateKey: 16_000,
-                            AVNumberOfChannelsKey: 1,
-                            AVEncoderBitRateKey: 32_000,
-                        ],
-                        commonFormat: .pcmFormatFloat32,
-                        interleaved: false
-                    )
-                    if let c = AVAudioConverter(from: naturale, to: file.processingFormat) {
-                        registratore = (file, c)
-                    }
-                } catch {
-                    emetti(["evento": "errore", "messaggio": "non riesco a salvare l'audio: \(error.localizedDescription)"])
-                }
-            }
+            var registratore = opzioni.salva.flatMap { Registratore(dove: $0, da: naturale) }
 
             var ultimoLivello = Date.distantPast
             ingresso.installTap(onBus: 0, bufferSize: 4096, format: naturale) { buffer, _ in
                 if let c = converti(buffer, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
-                if let r = registratore, let c = converti(buffer, con: r.conv) { try? r.file.write(from: c) }
+                registratore?.scrivi(buffer)
                 if Date().timeIntervalSince(ultimoLivello) > 0.2, let db = livello(buffer) {
                     ultimoLivello = Date()
                     emetti(["evento": "livello", "db": (db * 10).rounded() / 10])

@@ -1,4 +1,5 @@
 .barra {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--u);
@@ -41,11 +42,17 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
 
-.azioni { display: flex; gap: 2px; flex: none; }
-.azioni button {
-  width: 26px; height: 26px;
+.azioni { display: flex; align-items: center; gap: 2px; flex: none; }
+/*  Solo i pulsanti-icona sono quadrati. Una regola su «tutti i
+ *  pulsanti della barra» stringeva a 26px anche «Registra», che
+ *  finiva sopra a «Lezioni». */
+.icona, .testo {
+  height: 26px;
   border-radius: var(--raggio);
   color: var(--tenue); font-size: 12px; line-height: 1;
 }
-.azioni button:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.icona { width: 26px; }
+.icona:hover, .testo:hover { background: var(--sfiorata); color: var(--inchiostro); }
 .attivo { background: var(--premuta); color: var(--inchiostro) !important; }
+
+.testo { padding: 0 8px; }

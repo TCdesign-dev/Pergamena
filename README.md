@@ -344,22 +344,66 @@ paragrafo: inserire lì un blocco lo spezza e lascia un paragrafo
 vuoto. L'immagine va sopra o sotto al blocco, secondo la metà in cui
 hai lasciato la presa.
 
-### Fase 3 — registrazione e merge
-- Guscio **Tauri**.
-- Trascrizione **in diretta** con `SpeechTranscriber` di macOS 26
-  (on-device, `it-IT` già installato, consumo basso: si registra a
-  batteria senza problemi).
-- **La trascrizione live è la fonte primaria.** Il merge lavora su
-  quella.
-- Ancore temporali del cursore: ogni 5 s si annota in quale blocco
-  eri. È ciò che permette di allineare la lezione agli appunti.
-- **Il merge è per singola lezione e su richiesta** — si fa in un'ora
-  buca, non in un batch serale da ore.
-- Salvataggio dell'audio **opzionale**: se lo tieni, si può fare una
-  passata più profonda con DeepSeek, e puoi riascoltare il professore
-  cliccando un blocco.
-- Massimo 5-8 patch per lezione: il resto finisce in note a margine
-  ripiegate. Revisione da tastiera: `J`/`K`, `↵` accetta, `X` rifiuta.
+### ✅ Fase 3 — registrazione e merge
+
+**Registra** nella barra in alto. Il microfono lo ascolta
+`pergamena-ascolto`, un piccolo programma nativo che trascrive in
+italiano con `SpeechTranscriber` di macOS 26 — sul Mac, senza mandare
+l'audio da nessuna parte. La prima volta macOS chiede il permesso del
+microfono per l'app da cui hai lanciato `npm run dev`.
+
+```
+nativo/ascolto/       il programma nativo (Swift)  ─┐  righe JSON
+server/ascolto.ts     lo lancia, gira le righe      ├─ Server-Sent Events
+src/registrazione/    le scrive nel documento      ─┘
+src/merge/            allineamento, prompt, proposte, revisione
+server/llm.ts         proxy verso OpenRouter: la chiave non va nel browser
+```
+
+`npm run dev` lo compila da solo se manca (`npm run ascolto` per
+ricompilarlo).
+
+**Dove finisce la lezione.** Dentro al documento Yjs della pagina, in
+una mappa separata dal testo: si sincronizza col resto, si cancella
+con la pagina, l'editor non la vede. I segmenti entrano man mano che
+il riconoscitore li chiude — se il Mac si spegne a metà, fino a lì è
+salvo.
+
+**Le àncore.** Ogni 5 secondi, se il cursore è passato a un altro
+blocco, si annota «al secondo *t* stavo scrivendo qui». È ciò che
+permette di sapere quale pezzo di lezione corrisponde a quale pezzo di
+appunti — con 4 secondi di ritardo, perché si scrive *dopo* aver
+sentito.
+
+**Il merge** è una chiamata sola per lezione (col tetto delle chiamate
+gratuite, tre separate avrebbero fatto sei lezioni al giorno). Il
+modello non riscrive mai gli appunti: propone **aggiunte**, ognuna
+agganciata al blocco dopo cui va, e prende la forma del posto in cui
+va — dopo un elenco diventa una voce di quell'elenco. Per lo stile non
+c'è una descrizione a parole: ci sono gli appunti stessi, e
+l'istruzione di imitarli.
+
+**La revisione** è una modalità, e va dichiarata: `J` `K` scorrono,
+`↵` accetta, `X` rifiuta, `⌘↵` accetta tutte, `esc` esce. Fuori dalla
+revisione quei tasti tornano a scrivere. Il testo accettato resta
+riconoscibile, sottolineato a puntini.
+
+**Lezioni** nella barra: trascrizioni, merge, riascolto dal minuto
+cliccato (se l'audio è salvato), eliminazione. L'audio è spento di
+partenza — circa 17 MB l'ora in AAC 32 kbps, e il disco è al 97%.
+
+Collaudato su una lezione sintetizzata con la voce Alice:
+
+| | |
+|---|---|
+| trascrizione | 28,6 s di audio in 2 s; 4 segmenti con tempi per parola |
+| merge (DeepSeek V4 Flash) | 3 proposte giuste, 22 s, **0,00043 $** |
+| proposte | «costruita 1717-1731 come ex voto dopo assedio 1706» dopo il paragrafo di Superga; «recinzione delle terre» come voce dell'elenco dei fattori |
+| audio | AAC mono 16 kHz, 34,1 s, riascolto dal secondo 20 |
+
+Da verificare su una lezione vera: i **nomi propri**. «Juvarra» esce
+«Ivarra» o «Iubarra» anche col vocabolario di contesto — ma a
+pronunciarlo era una voce sintetica.
 
 ### Fase 4 — argomenti, ripasso e archivio
 - Titoli degli argomenti proposti a fine lezione.

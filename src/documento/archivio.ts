@@ -91,16 +91,22 @@ export function rinominaQuaderno(id: string, nome: string) {
 }
 
 /*  Eliminare una pagina deve eliminarla DAVVERO: il contenuto, le sue
- *  immagini (byte compresi, in locale e sul server) e la storia
- *  remota. Altrimenti lo spazio si riempie di roba che nessuno
- *  guarderà più, e al prossimo dispositivo la pagina ricomparirebbe.
- *
- *  In fase 3 qui si aggiungono registrazione e trascrizione. */
+ *  immagini (byte compresi, in locale e sul server), le trascrizioni,
+ *  l'audio delle lezioni e la storia remota. Altrimenti lo spazio si
+ *  riempie di roba che nessuno guarderà più, e al prossimo
+ *  dispositivo la pagina ricomparirebbe. */
 export async function eliminaDocumento(id: string) {
   // prima si legge quali immagini usa, finché il documento c'è ancora
   const voce = aperti.get(id) ?? apriDocumento(id)
   await voce.pronto
   const immagini = immaginiDi(voce.doc)
+
+  // le trascrizioni stanno dentro al documento e se ne vanno con lui;
+  // l'audio invece sta sul disco, e va tolto a mano
+  const audio: string[] = []
+  voce.doc.getMap<Y.Map<unknown>>('registrazioni').forEach((m, idReg) => {
+    if (m.get('audio')) audio.push(idReg)
+  })
 
   dimenticaStanza(`doc:${id}`)
   mappaDocumenti.delete(id)
@@ -110,6 +116,7 @@ export async function eliminaDocumento(id: string) {
 
   await Promise.allSettled([
     ...immagini.map((i) => eliminaImmagine(i)),
+    ...audio.map((a) => fetch(`/api/audio/${encodeURIComponent(a)}`, { method: 'DELETE' })),
     cancellaStanzaRemota(`doc:${id}`),
     indexedDB.deleteDatabase(`${PREFISSO}:doc:${id}`),
   ])

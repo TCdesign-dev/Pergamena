@@ -1,4 +1,10 @@
+import { useMemo, useState } from 'react'
 import type { Quaderno, Documento } from '../documento/tipi'
+import type { RifEditore } from '../editor/Editor'
+import { apriDocumento } from '../documento/archivio'
+import { PulsanteRegistra } from '../registrazione/PulsanteRegistra'
+import { PannelloLezioni } from '../registrazione/PannelloLezioni'
+import { useRegistrazioni } from '../registrazione/useRegistrazioni'
 import s from './BarraSuperiore.module.css'
 
 /*  Una riga sottile che dice dove sei e poco altro. Serve a non
@@ -6,15 +12,20 @@ import s from './BarraSuperiore.module.css'
  *  dalla colonna di scrittura i comandi che non servono mentre scrivi. */
 
 export function BarraSuperiore({
-  quaderno, documento, pannelloAperto, onHome, onPannello, onElimina,
+  quaderno, documento, pannelloAperto, rifEditore, onHome, onPannello, onElimina,
 }: {
   quaderno: Quaderno | null
   documento: Documento
   pannelloAperto: boolean
+  rifEditore: RifEditore
   onHome: () => void
   onPannello: () => void
   onElimina: () => void
 }) {
+  const doc = useMemo(() => apriDocumento(documento.id).doc, [documento.id])
+  const lezioni = useRegistrazioni(doc)
+  const [lezioniAperte, setLezioniAperte] = useState(false)
+
   return (
     <header className={s.barra}>
       <nav className={s.percorso}>
@@ -33,15 +44,32 @@ export function BarraSuperiore({
       </nav>
 
       <div className={s.azioni}>
+        <PulsanteRegistra documentoId={documento.id} materia={quaderno?.nome ?? ''} rifEditore={rifEditore} />
         <button
-          className={pannelloAperto ? s.attivo : undefined}
+          className={`${s.testo} ${lezioniAperte ? s.attivo : ''}`}
+          title="Lezioni registrate in questa pagina"
+          onClick={() => setLezioniAperte((v) => !v)}
+        >
+          Lezioni{lezioni.length ? ` · ${lezioni.length}` : ''}
+        </button>
+        <button
+          className={`${s.icona} ${pannelloAperto ? s.attivo : ''}`}
           title="Pannello delle immagini  ⌘/"
           onClick={onPannello}
         >
           ◫
         </button>
-        <button title="Elimina questa pagina" onClick={onElimina}>⌫</button>
+        <button className={s.icona} title="Elimina questa pagina" onClick={onElimina}>⌫</button>
       </div>
+
+      {lezioniAperte && (
+        <PannelloLezioni
+          doc={doc}
+          materia={quaderno?.nome ?? ''}
+          rifEditore={rifEditore}
+          onChiudi={() => setLezioniAperte(false)}
+        />
+      )}
     </header>
   )
 }

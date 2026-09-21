@@ -1,0 +1,79 @@
+.pannello {
+  position: absolute;
+  top: 40px;
+  right: 12px;
+  z-index: 60;
+  width: 380px;
+  max-height: min(560px, 76vh);
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--u) * 1.5);
+  background: var(--carta);
+  border-radius: var(--raggio-g);
+  box-shadow: var(--ombra);
+}
+
+.testa { display: flex; align-items: center; margin-bottom: var(--u); }
+.titolo { flex: 1; font-size: 12.5px; font-weight: 600; }
+.chiudi { width: 22px; height: 22px; border-radius: var(--raggio); color: var(--tenue); font-size: 15px; }
+.chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+.vuoto { margin: var(--u) 0; color: var(--tenue); font-size: 12px; line-height: 1.6; }
+
+.elenco { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+.lezione { padding: calc(var(--u) * 1.25) 0; border-bottom: 1px solid var(--linea); }
+.lezione:last-child { border-bottom: none; }
+
+.riga { display: flex; align-items: baseline; gap: var(--u); }
+.data { font-size: 12.5px; font-weight: 550; }
+.misure { color: var(--tenue); font-size: 11px; }
+
+.stato { margin: 4px 0 0; color: var(--inchiostro-tenue); font-size: 11.5px; }
+
+.azioni { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--u); }
+.azioni button {
+  padding: 4px 9px;
+  border-radius: var(--raggio);
+  background: var(--sfiorata);
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+}
+.azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
+.azioni button:disabled { opacity: 0.5; }
+.azioni .principale { background: var(--accento); color: #fff; }
+.azioni .principale:hover { background: var(--accento); color: #fff; filter: brightness(1.07); }
+.azioni .pericolo:hover { color: var(--c-rosso); }
+
+.trascrizione {
+  margin-top: var(--u);
+  max-height: 220px;
+  overflow-y: auto;
+  padding: var(--u);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.trascrizione p { margin: 0 0 6px; }
+.minuto {
+  margin-right: 6px;
+  color: var(--accento);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+.minuto:disabled { color: var(--tenue); cursor: default; }
+
+.opzione {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin-top: var(--u);
+  padding-top: var(--u);
+  border-top: 1px solid var(--linea);
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.opzione em { color: var(--tenue); font-style: normal; }
+
+.lettore { width: 100%; height: 30px; margin-top: var(--u); }
+.lettore:not([src]) { display: none; }
