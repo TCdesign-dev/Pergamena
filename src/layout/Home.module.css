@@ -101,6 +101,18 @@
 .campoNome { border: none; background: none; padding: 0; outline: none; }
 .campoNome::placeholder { color: var(--tenue); font-weight: 400; }
 
+.esame {
+  display: block;
+  margin-top: 3px;
+  padding: 0;
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+  text-align: left;
+}
+.esame:hover { color: var(--inchiostro); }
+.esameVicino { color: var(--accento); font-weight: 550; }
+.esameVicino:hover { color: var(--accento); }
+
 .conteggio {
   display: block;
   margin-top: 2px;

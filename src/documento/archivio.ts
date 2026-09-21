@@ -85,6 +85,37 @@ export function segnaModificato(id: string) {
   if (d) mappaDocumenti.set(id, { ...d, modificato: Date.now() })
 }
 
+/** Aggiorna uno o più campi di una materia. */
+export function aggiornaQuaderno(id: string, modifiche: Partial<Omit<Quaderno, 'id'>>) {
+  const q = mappaQuaderni.get(id)
+  if (q) mappaQuaderni.set(id, { ...q, ...modifiche })
+}
+
+/** La scheda della materia, se esiste già. Chi legge soltanto (il
+ *  telefono) usa questa: guardare non deve creare niente. */
+export function schedaEsistente(quadernoId: string): Documento | null {
+  return [...mappaDocumenti.values()].find((d) => d.quadernoId === quadernoId && d.scheda) ?? null
+}
+
+/** La scheda della materia: si crea la prima volta che serve. */
+export function schedaDi(quadernoId: string): Documento {
+  const esistente = schedaEsistente(quadernoId)
+  if (esistente) return esistente
+  const d: Documento = {
+    id: nanoid(10),
+    quadernoId,
+    titolo: 'Scheda della materia',
+    creato: Date.now(),
+    modificato: Date.now(),
+    scheda: true,
+  }
+  mappaDocumenti.set(d.id, d)
+  return d
+}
+
+/** Le pagine degli appunti, senza la scheda. */
+export const soloPagine = (d: Documento) => !d.scheda
+
 export function rinominaQuaderno(id: string, nome: string) {
   const q = mappaQuaderni.get(id)
   if (q) mappaQuaderni.set(id, { ...q, nome })
@@ -165,7 +196,7 @@ export async function togliCopertina(quadernoId: string) {
 
 esponi({
   archivio: {
-    creaQuaderno, creaDocumento, rinominaQuaderno, rinominaDocumento,
+    creaQuaderno, creaDocumento, rinominaQuaderno, rinominaDocumento, aggiornaQuaderno, schedaDi,
     eliminaDocumento, eliminaQuaderno, apriDocumento, mappaQuaderni, mappaDocumenti,
   },
 })

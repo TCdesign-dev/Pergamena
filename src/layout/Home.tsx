@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { creaQuaderno, creaDocumento, rinominaQuaderno } from '../documento/archivio'
+import { creaQuaderno, creaDocumento, rinominaQuaderno, soloPagine } from '../documento/archivio'
+import { prossimoEsame, comeDetto, mancano } from '../lib/esami'
 import type { Quaderno, Documento } from '../documento/tipi'
 import { useImmagine } from '../immagini/useImmagine'
 import s from './Home.module.css'
@@ -9,15 +10,17 @@ import s from './Home.module.css'
  *  guardare — è uno scaffale. */
 
 export function Home({
-  quaderni, documenti, onApri, onCopertina, onElimina,
+  quaderni, documenti, onApri, onScheda, onCopertina, onElimina,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (idDocumento: string) => void
+  onScheda: (quadernoId: string) => void
   onCopertina: (quaderno: Quaderno) => void
   onElimina: (quaderno: Quaderno) => void
 }) {
   const [inRinomina, setInRinomina] = useState<string | null>(null)
+  const pagineTutte = documenti.filter(soloPagine)
 
   return (
     <div className={s.pagina}>
@@ -26,7 +29,7 @@ export function Home({
         <p className={s.sottotitolo}>
           {quaderni.length === 0
             ? 'Non ce n’è ancora nessuna.'
-            : `${quaderni.length} materie · ${documenti.length} pagine`}
+            : `${quaderni.length} materie · ${pagineTutte.length} pagine`}
         </p>
       </header>
 
@@ -35,8 +38,9 @@ export function Home({
           <Scheda
             key={q.id}
             quaderno={q}
-            pagine={documenti.filter((d) => d.quadernoId === q.id)}
+            pagine={pagineTutte.filter((d) => d.quadernoId === q.id)}
             inRinomina={inRinomina === q.id}
+            onScheda={() => onScheda(q.id)}
             onRinomina={() => setInRinomina(q.id)}
             onFineRinomina={() => setInRinomina(null)}
             onApri={onApri}
@@ -62,11 +66,12 @@ export function Home({
 }
 
 function Scheda({
-  quaderno, pagine, inRinomina, onRinomina, onFineRinomina, onApri, onCopertina, onElimina,
+  quaderno, pagine, inRinomina, onScheda, onRinomina, onFineRinomina, onApri, onCopertina, onElimina,
 }: {
   quaderno: Quaderno
   pagine: Documento[]
   inRinomina: boolean
+  onScheda: () => void
   onRinomina: () => void
   onFineRinomina: () => void
   onApri: (id: string) => void
@@ -75,6 +80,8 @@ function Scheda({
 }) {
   const copertina = useImmagine(quaderno.copertinaId)
   const recente = [...pagine].sort((a, b) => b.modificato - a.modificato)[0]
+  const esame = prossimoEsame(quaderno)
+  const vicino = esame ? mancano(esame.data) <= 14 : false
 
   return (
     <article className={s.scheda}>
@@ -94,6 +101,7 @@ function Scheda({
       </button>
 
       <div className={s.comandi}>
+        <button title="Scheda della materia" onClick={onScheda}>ⓘ</button>
         <button title="Cambia copertina" onClick={onCopertina}>◫</button>
         <button title="Elimina la materia" onClick={onElimina}>⌫</button>
       </div>
@@ -117,6 +125,12 @@ function Scheda({
         <span className={s.conteggio}>
           {pagine.length === 0 ? 'vuota' : `${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
         </span>
+        {/* il prossimo esame: è il motivo per cui la data è un campo e non testo */}
+        {esame && (
+          <button className={`${s.esame} ${vicino ? s.esameVicino : ''}`} onClick={onScheda} title="Apri la scheda">
+            {esame.nome || 'Esame'} {comeDetto(esame.data)}
+          </button>
+        )}
       </div>
     </article>
   )

@@ -14,7 +14,7 @@ import { RichiestaImmagine } from './richiestaImmagine'
 
 /** L'elenco delle estensioni sta in un posto solo: da qui in poi
  *  aggiungere una funzione all'editor è aggiungere una riga qui. */
-export function estensioni(doc: Y.Doc) {
+export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string } = {}) {
   return [
     StarterKit.configure({
       // l'undo lo gestisce Yjs, non ProseMirror: altrimenti i due
@@ -24,7 +24,7 @@ export function estensioni(doc: Y.Doc) {
     }),
     Highlight.configure({ multicolor: false }),
     Placeholder.configure({
-      placeholder: 'Scrivi, oppure premi / per i blocchi…',
+      placeholder: opzioni.segnaposto ?? 'Scrivi, oppure premi / per i blocchi…',
     }),
     IdStabile,
     SegnoAi,

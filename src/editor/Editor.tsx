@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { useEditor, EditorContent, type Editor as EditoreTipTap } from '@tiptap/react'
 import { apriDocumento, rinominaDocumento, segnaModificato } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
@@ -20,10 +20,14 @@ export type RifEditore = RefObject<EditoreTipTap | null>
 /** Aspetta che IndexedDB abbia restituito il documento, poi monta
  *  l'editor vero. Il `key` fa sì che cambiando documento si riparta
  *  pulito invece di riciclare uno stato che non c'entra più. */
-export function Editor({ documento, fuoco, rifEditore }: {
+export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto }: {
   documento: Documento
   fuoco: Fuoco
   rifEditore: RifEditore
+  /** Al posto del titolo della pagina: la scheda della materia ci mette
+   *  copertina, nome e campi, nella stessa colonna che scorre. */
+  intestazione?: ReactNode
+  segnaposto?: string
 }) {
   const voce = useMemo(() => apriDocumento(documento.id), [documento.id])
   const [pronto, setPronto] = useState(false)
@@ -37,21 +41,31 @@ export function Editor({ documento, fuoco, rifEditore }: {
 
   if (!pronto) return <div className={s.attesa}>…</div>
   return (
-    <Tela key={documento.id} documento={documento} doc={voce.doc} fuoco={fuoco} rifEditore={rifEditore} />
+    <Tela
+      key={documento.id}
+      documento={documento}
+      doc={voce.doc}
+      fuoco={fuoco}
+      rifEditore={rifEditore}
+      intestazione={intestazione}
+      segnaposto={segnaposto}
+    />
   )
 }
 
-function Tela({ documento, doc, fuoco, rifEditore }: {
+function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   documento: Documento
   doc: ReturnType<typeof apriDocumento>['doc']
   fuoco: Fuoco
   rifEditore: RifEditore
+  intestazione?: ReactNode
+  segnaposto?: string
 }) {
   const timer = useRef<number | undefined>(undefined)
   const rifTitolo = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
-    extensions: estensioni(doc),
+    extensions: estensioni(doc, { segnaposto }),
     autofocus: fuoco === 'corpo' ? 'end' : false,
     onUpdate: () => {
       // non scriviamo l'indice a ogni battuta
@@ -78,7 +92,7 @@ function Tela({ documento, doc, fuoco, rifEditore }: {
   return (
     <div className={s.tela}>
       <div className={s.colonna}>
-        <input
+        {intestazione ?? <input
           ref={rifTitolo}
           className={s.titolo}
           defaultValue={documento.titolo}
@@ -90,7 +104,7 @@ function Tela({ documento, doc, fuoco, rifEditore }: {
               editor?.chain().focus('start').run()
             }
           }}
-        />
+        />}
         {editor && <MenuSelezione editor={editor} />}
         <EditorContent editor={editor} />
         <MenuSlash />

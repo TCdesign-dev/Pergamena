@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { creaQuaderno, creaDocumento } from '../documento/archivio'
+import { creaQuaderno, creaDocumento, soloPagine } from '../documento/archivio'
+import { prossimoEsame, mancano } from '../lib/esami'
 import type { Quaderno, Documento } from '../documento/tipi'
 import type { Fuoco } from '../editor/Editor'
 import {
@@ -9,13 +10,15 @@ import { StatoSincronia } from './StatoSincronia'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
-  quaderni, documenti, apertoId, inHome, onApri, onHome, onAccedi, onEliminaPagina, onEliminaMateria,
+  quaderni, documenti, apertoId, inHome, schedaAperta, onApri, onScheda, onHome, onAccedi, onEliminaPagina, onEliminaMateria,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   apertoId: string | null
   inHome: boolean
+  schedaAperta: string | null
   onApri: (id: string, fuoco?: Fuoco) => void
+  onScheda: (quadernoId: string) => void
   onHome: () => void
   onAccedi: () => void
   onEliminaPagina: (d: Documento) => void
@@ -38,7 +41,7 @@ export function BarraLaterale({
     })
   }
 
-  const inOrdine = ordina(documenti, ordine)
+  const inOrdine = ordina(documenti.filter(soloPagine), ordine)
 
   return (
     <nav className={s.barra}>
@@ -64,6 +67,8 @@ export function BarraLaterale({
         {quaderni.map((q) => {
           const pagine = inOrdine.filter((d) => d.quadernoId === q.id)
           const chiuso = chiusi.has(q.id)
+          const esame = prossimoEsame(q)
+          const giorni = esame ? mancano(esame.data) : null
 
           return (
             <section key={q.id} className={s.materia}>
@@ -72,8 +77,17 @@ export function BarraLaterale({
                   <span className={`${s.freccia} ${chiuso ? s.chiusa : ''}`}>▾</span>
                 </button>
                 <span className={s.pallino} data-colore={q.colore} />
-                <button className={s.nome} onClick={() => piega(q.id)}>{q.nome || 'Senza nome'}</button>
+                <button className={`${s.nome} ${schedaAperta === q.id ? s.nomeScheda : ''}`} onClick={() => piega(q.id)}>
+                  {q.nome || 'Senza nome'}
+                </button>
+                {/* un esame vicino si vede anche da qui, in piccolo */}
+                {giorni !== null && giorni <= 14 && (
+                  <span className={s.esameVicino} title={`${esame!.nome || 'Esame'}: ${giorni === 0 ? 'oggi' : giorni === 1 ? 'domani' : `fra ${giorni} giorni`}`}>
+                    {giorni === 0 ? 'oggi' : `${giorni}g`}
+                  </span>
+                )}
                 <div className={s.azioni}>
+                  <button title="Scheda della materia: esami, docente, programma" onClick={() => onScheda(q.id)}>ⓘ</button>
                   <button title="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}>+</button>
                   <button title="Elimina la materia" onClick={() => onEliminaMateria(q)}>⌫</button>
                 </div>

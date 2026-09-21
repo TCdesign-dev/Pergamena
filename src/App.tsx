@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useIndice } from './documento/useIndice'
-import { apriDocumento, eliminaDocumento, eliminaQuaderno } from './documento/archivio'
+import { apriDocumento, eliminaDocumento, eliminaQuaderno, mappaDocumenti, soloPagine } from './documento/archivio'
 import type { Quaderno, Documento } from './documento/tipi'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
@@ -19,6 +19,7 @@ import { accendiSincronia, spegniSincronia } from './sync/sincronia'
 import { allineaTutto } from './sync/allineaTutto'
 import { Striscia } from './registrazione/PulsanteRegistra'
 import { Revisione } from './merge/Revisione'
+import { SchedaMateria } from './materia/SchedaMateria'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -33,6 +34,7 @@ export function App() {
   const [apertoId, setApertoId] = useState<string | null>(leggiUltimo)
   const [fuoco, setFuoco] = useState<Fuoco>('corpo')
   const [inHome, setInHome] = useState(false)
+  const [schedaAperta, setSchedaAperta] = useState<string | null>(null)   // id della materia
   const [latoAperto, setLatoAperto] = useState(true)
   const [comandiAperti, setComandiAperti] = useState(false)
   const [mostraAccesso, setMostraAccesso] = useState(false)
@@ -60,9 +62,27 @@ export function App() {
   }, [accesso.utente, elenco])
 
   const apri = useCallback((id: string, dove: Fuoco = 'corpo') => {
+    // la scheda di una materia si apre nella sua vista, non come pagina
+    const d = mappaDocumenti.get(id)
+    if (d?.scheda) {
+      setSchedaAperta(d.quadernoId)
+      setInHome(false)
+      return
+    }
     setApertoId(id)
     setFuoco(dove)
     setInHome(false)
+    setSchedaAperta(null)
+  }, [])
+
+  const apriScheda = useCallback((quadernoId: string) => {
+    setSchedaAperta(quadernoId)
+    setInHome(false)
+  }, [])
+
+  const vaiHome = useCallback(() => {
+    setInHome(true)
+    setSchedaAperta(null)
   }, [])
 
   useEffect(() => esponi({ apri }), [apri])
@@ -74,8 +94,9 @@ export function App() {
 
   // si riapre dove eri: nessuna schermata di benvenuto, mai
   useEffect(() => {
-    if (apertoId && documenti.some((d) => d.id === apertoId)) return
-    setApertoId(documenti[0]?.id ?? null)
+    const pagine = documenti.filter(soloPagine)
+    if (apertoId && pagine.some((d) => d.id === apertoId)) return
+    setApertoId(pagine[0]?.id ?? null)
   }, [documenti, apertoId])
 
   useEffect(() => {
@@ -103,16 +124,17 @@ export function App() {
     else await eliminaQuaderno(cosa.quaderno.id)
   }
 
-  const aperto = documenti.find((d) => d.id === apertoId) ?? null
+  const aperto = documenti.find((d) => d.id === apertoId && !d.scheda) ?? null
   const materiaAperta = aperto ? quaderni.find((q) => q.id === aperto.quadernoId) ?? null : null
-  const mostraHome = inHome || !aperto
+  const materiaScheda = schedaAperta ? quaderni.find((q) => q.id === schedaAperta) ?? null : null
+  const mostraHome = !materiaScheda && (inHome || !aperto)
   const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
 
   return (
     <>
       <Guscio
         latoAperto={latoAperto}
-        destra={!mostraHome && pannello.aperto && docAperto
+        destra={!mostraHome && !materiaScheda && pannello.aperto && docAperto
           ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
         lato={
@@ -121,19 +143,30 @@ export function App() {
             documenti={documenti}
             apertoId={apertoId}
             inHome={mostraHome}
+            schedaAperta={materiaScheda?.id ?? null}
             onApri={apri}
-            onHome={() => setInHome(true)}
+            onScheda={apriScheda}
+            onHome={vaiHome}
             onAccedi={() => setMostraAccesso(true)}
             onEliminaPagina={(d) => setDaEliminare({ tipo: 'pagina', documento: d })}
             onEliminaMateria={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}
           />
         }
         centro={
-          mostraHome ? (
+          materiaScheda ? (
+            <SchedaMateria
+              key={materiaScheda.id}
+              quaderno={materiaScheda}
+              rifEditore={rifEditore}
+              onHome={vaiHome}
+              onCopertina={setCopertinaDi}
+            />
+          ) : mostraHome ? (
             <Home
               quaderni={quaderni}
               documenti={documenti}
               onApri={apri}
+              onScheda={apriScheda}
               onCopertina={setCopertinaDi}
               onElimina={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}
             />
@@ -144,7 +177,8 @@ export function App() {
                 documento={aperto!}
                 pannelloAperto={pannello.aperto}
                 rifEditore={rifEditore}
-                onHome={() => setInHome(true)}
+                onHome={vaiHome}
+                onScheda={apriScheda}
                 onPannello={() => apriPannello(!pannello.aperto)}
                 onElimina={() => setDaEliminare({ tipo: 'pagina', documento: aperto! })}
               />

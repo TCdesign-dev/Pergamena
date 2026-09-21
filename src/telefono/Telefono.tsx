@@ -11,6 +11,9 @@ import { allineaTutto } from '../sync/allineaTutto'
 import { FinestraAccesso } from '../sync/FinestraAccesso'
 import { iscrivitiSync, leggiSync } from '../sync/statoSync'
 import { Lettore } from './Lettore'
+import { SchedaLettura } from './SchedaLettura'
+import { soloPagine, schedaEsistente } from '../documento/archivio'
+import { prossimoEsame, comeDetto } from '../lib/esami'
 import s from './Telefono.module.css'
 
 /*  Sul telefono si consulta, non si scrive.
@@ -24,6 +27,7 @@ type Dove =
   | { vista: 'materie' }
   | { vista: 'pagine'; quaderno: Quaderno }
   | { vista: 'lettura'; documento: Documento }
+  | { vista: 'scheda'; quaderno: Quaderno }
 
 export function Telefono() {
   const { quaderni, documenti } = useIndice()
@@ -73,11 +77,15 @@ export function Telefono() {
               setDove(
                 dove.vista === 'lettura'
                   ? { vista: 'pagine', quaderno: quaderni.find((k) => k.id === dove.documento.quadernoId)! }
-                  : { vista: 'materie' },
+                  : dove.vista === 'scheda'
+                    ? { vista: 'pagine', quaderno: dove.quaderno }
+                    : { vista: 'materie' },
               )
             }
           >
-            ‹ {dove.vista === 'lettura' ? (quaderni.find((k) => k.id === dove.documento.quadernoId)?.nome || 'Indietro') : 'Materie'}
+            ‹ {dove.vista === 'lettura'
+              ? (quaderni.find((k) => k.id === dove.documento.quadernoId)?.nome || 'Indietro')
+              : dove.vista === 'scheda' ? (dove.quaderno.nome || 'Indietro') : 'Materie'}
           </button>
         ) : (
           <span className={s.marchio}>Pergamena</span>
@@ -98,7 +106,10 @@ export function Telefono() {
             <div className={s.elenco}>
               {[...perTitolo, ...nelContenuto.filter((r) => !gia.has(r.documentoId)).map((r) =>
                 documenti.find((d) => d.id === r.documentoId)!).filter(Boolean)].map((d) => (
-                <button key={d.id} className={s.voce} onClick={() => setDove({ vista: 'lettura', documento: d })}>
+                <button key={d.id} className={s.voce} onClick={() => {
+                  const k = quaderni.find((x) => x.id === d.quadernoId)
+                  setDove(d.scheda && k ? { vista: 'scheda', quaderno: k } : { vista: 'lettura', documento: d })
+                }}>
                   <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
                   <span className={s.voceMateria}>
                     {quaderni.find((k) => k.id === d.quadernoId)?.nome || 'Senza nome'}
@@ -115,7 +126,7 @@ export function Telefono() {
                 <SchedaMateria
                   key={k.id}
                   quaderno={k}
-                  pagine={documenti.filter((d) => d.quadernoId === k.id).length}
+                  pagine={documenti.filter((d) => d.quadernoId === k.id && soloPagine(d)).length}
                   onApri={() => setDove({ vista: 'pagine', quaderno: k })}
                 />
               ))}
@@ -133,7 +144,13 @@ export function Telefono() {
         <>
           <h1 className={s.titoloMateria}>{dove.quaderno.nome || 'Senza nome'}</h1>
           <div className={s.elenco}>
-            {ordina(documenti.filter((d) => d.quadernoId === dove.quaderno.id), 'modifica').map((d) => (
+            <button className={`${s.voce} ${s.voceScheda}`} onClick={() => setDove({ vista: 'scheda', quaderno: dove.quaderno })}>
+              <span className={s.voceTitolo}>Scheda della materia</span>
+              <span className={s.voceMateria}>
+                {(() => { const e = prossimoEsame(dove.quaderno); return e ? `${e.nome || 'esame'} ${comeDetto(e.data)}` : 'esami, docente, programma' })()}
+              </span>
+            </button>
+            {ordina(documenti.filter((d) => d.quadernoId === dove.quaderno.id && soloPagine(d)), 'modifica').map((d) => (
               <button key={d.id} className={s.voce} onClick={() => setDove({ vista: 'lettura', documento: d })}>
                 <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
                 <span className={s.voceMateria}>{quando(d.modificato)}</span>
@@ -144,6 +161,21 @@ export function Telefono() {
       )}
 
       {dove.vista === 'lettura' && <Lettore documento={dove.documento} />}
+
+      {dove.vista === 'scheda' && (() => {
+        // la materia aggiornata, non quella fotografata quando l'hai aperta
+        const k = quaderni.find((x) => x.id === dove.quaderno.id) ?? dove.quaderno
+        const pagina = schedaEsistente(k.id)
+        // senza note libere si mostrano solo i campi: guardare non crea niente
+        return pagina ? (
+          <Lettore documento={pagina} titolo={k.nome || 'Senza nome'} intestazione={<SchedaLettura quaderno={k} />} />
+        ) : (
+          <article className={s.lettura}>
+            <h1 className={s.titoloPagina}>{k.nome || 'Senza nome'}</h1>
+            <SchedaLettura quaderno={k} />
+          </article>
+        )
+      })()}
     </div>
   )
 }

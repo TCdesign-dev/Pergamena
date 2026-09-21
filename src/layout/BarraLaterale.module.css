@@ -53,6 +53,19 @@
 .pallino[data-colore="blu"]     { background: var(--c-blu); }
 .pallino[data-colore="viola"]   { background: var(--c-viola); }
 
+.nomeScheda { color: var(--inchiostro); }
+.esameVicino {
+  flex: none;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accento) 13%, transparent);
+  color: var(--accento);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.intestazione:hover .esameVicino { display: none; }   /* lascia posto alle azioni */
 .nome {
   flex: 1; min-width: 0;
   font-size: 12.5px; font-weight: 550; color: var(--inchiostro-tenue);

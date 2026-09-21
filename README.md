@@ -59,6 +59,12 @@ src/
 │   ├── indice.ts        legge il testo dai documenti Yjs, cache e ricerca
 │   └── useRicerca.ts    il ponte verso React, con attesa
 │
+├── materia/
+│   ├── SchedaMateria.tsx   la vista: campi in cima, note libere sotto
+│   ├── Testata.tsx         copertina, nome, campi
+│   ├── Esami.tsx           le prove d'esame, una riga ciascuna
+│   └── Collegamenti.tsx    i link
+│
 ├── immagini/
 │   ├── deposito.ts      i byte in IndexedDB, con attribuzione
 │   ├── commons.ts       Wikimedia Commons (nessuna chiave)
@@ -437,6 +443,34 @@ Collaudato su una lezione sintetizzata con la voce Alice:
 Da verificare su una lezione vera: i **nomi propri**. «Juvarra» esce
 «Ivarra» o «Iubarra» anche col vocabolario di contesto — ma a
 pronunciarlo era una voce sintetica.
+
+### ✅ La scheda della materia
+
+Ogni materia ha una scheda: **ⓘ** nella barra laterale e sulla
+copertina in Home, oppure il nome della materia in cima a una pagina.
+
+In cima, come le proprietà di una pagina di Notion, **pochi campi
+strutturati — solo quelli che fanno qualcosa**:
+
+- **Esami** — più prove (parziale, scritto, orale), ognuna con data e
+  nota. La data diventa un conto alla rovescia sulla copertina in Home
+  («Scritto fra 10 giorni», in evidenza sotto le due settimane) e un
+  piccolo «10g» nella barra laterale. Le prove passate scivolano in fondo
+  barrate.
+- **Docente, email, ricevimento** — l'email si apre nella posta.
+- **Link** — Moodle, il sito del corso: si aprono davvero anche scritti
+  senza `https://`.
+
+Sotto, **testo libero**: programma, libri, regole d'esame. È una pagina
+vera, con lo stesso editor, che si sincronizza, si trova con ⌘K e se ne
+va insieme alla materia — ma non compare fra le pagine degli appunti.
+
+Le date d'esame sono giorni, non istanti: si confrontano come giorni di
+calendario locali, così «domani» resta domani a qualunque ora.
+
+Sul telefono la scheda è la prima riga dell'elenco delle pagine, in sola
+lettura. Guardarla non crea niente: se la materia non ha ancora note
+libere si vedono solo i campi.
 
 ### Fase 4 — argomenti, ripasso e archivio
 - Titoli degli argomenti proposti a fine lezione.

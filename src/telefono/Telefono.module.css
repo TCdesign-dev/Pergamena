@@ -105,3 +105,25 @@
  *  un po' meno di quanto respira sul Mac. */
 .lettura :global(.ProseMirror) { font-size: 16px; line-height: 1.62; }
 .lettura :global(.ProseMirror figure) { width: 100% !important; float: none !important; margin: calc(var(--u) * 2) 0; }
+
+/* ── scheda della materia ───────────────────────────────────── */
+.voceScheda .voceTitolo { font-weight: 550; }
+
+.campiScheda {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px 12px;
+  margin: 0 0 calc(var(--u) * 3);
+  padding-bottom: calc(var(--u) * 2);
+  border-bottom: 1px solid var(--linea);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.campiScheda dt { color: var(--tenue); font-size: 13px; padding-top: 1px; }
+.campiScheda dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.campiScheda dd p { margin: 0 0 4px; }
+.campiScheda a { color: var(--accento); text-decoration: none; }
+.campiScheda b { font-weight: 600; }
+.vicino { color: var(--accento); font-weight: 600; }
+.passato { color: var(--tenue); text-decoration: line-through; }
+.notaEsame { color: var(--inchiostro-tenue); }

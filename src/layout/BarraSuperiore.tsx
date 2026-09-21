@@ -12,13 +12,14 @@ import s from './BarraSuperiore.module.css'
  *  dalla colonna di scrittura i comandi che non servono mentre scrivi. */
 
 export function BarraSuperiore({
-  quaderno, documento, pannelloAperto, rifEditore, onHome, onPannello, onElimina,
+  quaderno, documento, pannelloAperto, rifEditore, onHome, onScheda, onPannello, onElimina,
 }: {
   quaderno: Quaderno | null
   documento: Documento
   pannelloAperto: boolean
   rifEditore: RifEditore
   onHome: () => void
+  onScheda: (quadernoId: string) => void
   onPannello: () => void
   onElimina: () => void
 }) {
@@ -33,10 +34,10 @@ export function BarraSuperiore({
         {quaderno && (
           <>
             <span className={s.sbarra}>/</span>
-            <span className={s.passo} data-materia>
+            <button className={s.passo} title="Scheda della materia" onClick={() => onScheda(quaderno.id)}>
               <span className={s.pallino} data-colore={quaderno.colore} />
               {quaderno.nome || 'Senza nome'}
-            </span>
+            </button>
           </>
         )}
         <span className={s.sbarra}>/</span>
