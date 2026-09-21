@@ -9,6 +9,8 @@
   border-radius: calc(var(--raggio) * 2);
   box-shadow: var(--ombra);
   font-family: var(--font-ui);
+  transform-origin: top left;
+  animation: var(--entra-tendina);
 }
 
 .voce {

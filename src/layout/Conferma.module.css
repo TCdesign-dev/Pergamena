@@ -7,6 +7,7 @@
   align-items: flex-start;
   padding-top: 20vh;
   background: #00000047;
+  animation: var(--entra-velo);
 }
 
 .pannello {
@@ -15,6 +16,7 @@
   background: var(--carta);
   border-radius: var(--raggio-g);
   box-shadow: var(--ombra);
+  animation: var(--entra-finestra);
 }
 
 .titolo { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }

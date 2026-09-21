@@ -9,6 +9,8 @@ import { TIPO_TRASCINAMENTO } from '../editor/estensioni/immagine'
 import type { Trovata } from '../immagini/commons'
 import type { RifEditore } from '../editor/Editor'
 import { leggiImpostazioni, iscrivitiImpostazioni, imposta } from '../impostazioni'
+import { Miniatura } from './Miniatura'
+import { Rotella, Tessere } from './Attesa'
 import s from './PannelloImmagini.module.css'
 
 /*  Due schede, perché sono due cose diverse.
@@ -117,7 +119,7 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
             Dopo una lezione integrata compaiono da sole; per questa pagina puoi chiederle adesso.
           </p>
           <button className={s.suggerisci} onClick={() => void chiediConsigli()} disabled={lavoro === 'leggo gli appunti…'}>
-            {lavoro === 'leggo gli appunti…' ? 'Leggo gli appunti…' : 'Suggerisci immagini'}
+            {lavoro === 'leggo gli appunti…' ? <><Rotella /> Leggo gli appunti…</> : 'Suggerisci immagini'}
           </button>
           {lavoro && lavoro !== 'leggo gli appunti…' && <p className={s.stato}>{lavoro}</p>}
         </div>
@@ -139,14 +141,14 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
             }}
             onDragEnd={(e) => { if (e.dataTransfer.dropEffect !== 'none') cambiaStato(doc, c.id, 'inserito') }}
           >
-            <img src={c.risultati[0].miniatura} alt={c.concetto} draggable={false} />
+            <Miniatura src={c.risultati[0].miniatura} alt={c.concetto} draggable={false} />
             <span className={s.credito}>{c.risultati[0].licenza}</span>
           </button>
           {c.risultati.length > 1 && (
             <div className={s.alternative}>
               {c.risultati.slice(1, 4).map((t, i) => (
                 <button key={t.chiave} title="Usa questa" onClick={() => scegliFoto(doc, c.id, i + 1)}>
-                  <img src={t.miniatura} alt="" loading="lazy" draggable={false} />
+                  <Miniatura src={t.miniatura} alt="" loading="lazy" draggable={false} />
                 </button>
               ))}
             </div>
@@ -165,7 +167,7 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
 
       {consigli.length > 0 && consigli.length < 5 && (
         <button className={s.ancora} onClick={() => void chiediConsigli()} disabled={lavoro === 'leggo gli appunti…'}>
-          {lavoro === 'leggo gli appunti…' ? 'Leggo gli appunti…' : 'Suggerisci altre'}
+          {lavoro === 'leggo gli appunti…' ? <><Rotella /> Leggo gli appunti…</> : 'Suggerisci altre'}
         </button>
       )}
     </div>
@@ -220,7 +222,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
               <button className={s.scarta} title="Togli" onClick={() => scartaRicerca(r.id)}>×</button>
             </div>
 
-            {r.stato === 'in-corso' && <p className={s.stato}>cerco…</p>}
+            {r.stato === 'in-corso' && <div className={s.griglia}><Tessere quante={6} classe={s.tesseraAttesa} /></div>}
             {r.stato === 'errore' && <p className={s.stato}>{r.errore}</p>}
             {r.stato === 'pronta' && r.risultati.length === 0 && <p className={s.stato}>niente su Commons</p>}
 
@@ -237,7 +239,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
                   }}
                   onClick={() => inserisci(t)}
                 >
-                  <img src={t.miniatura} alt={t.titolo} loading="lazy" draggable={false} />
+                  <Miniatura src={t.miniatura} alt={t.titolo} loading="lazy" draggable={false} />
                   <span className={s.credito}>{t.licenza}</span>
                 </button>
               ))}

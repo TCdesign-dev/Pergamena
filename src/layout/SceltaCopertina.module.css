@@ -3,6 +3,7 @@
   display: flex; justify-content: center; align-items: flex-start;
   padding-top: 10vh;
   background: #00000047;
+  animation: var(--entra-velo);
 }
 
 .pannello {
@@ -13,6 +14,7 @@
   background: var(--carta);
   border-radius: var(--raggio-g);
   box-shadow: var(--ombra);
+  animation: var(--entra-finestra);
 }
 
 .testa { display: flex; align-items: center; margin-bottom: calc(var(--u) * 2); }
@@ -66,3 +68,6 @@
   text-decoration: underline; text-underline-offset: 2px;
 }
 .togli:hover { color: var(--c-rosso); }
+
+.tesseraAttesa { aspect-ratio: 4 / 3; }
+.stato { display: flex; align-items: center; gap: 7px; }

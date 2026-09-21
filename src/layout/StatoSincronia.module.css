@@ -14,7 +14,7 @@
 
 .spia { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--tenue); }
 .allineato { background: var(--c-verde); }
-.invio, .collego { background: var(--c-arancio); }
+.invio, .collego { background: var(--c-arancio); animation: var(--pulsa); }
 .offline { background: var(--c-rosso); }
 .spento { background: var(--tenue); }
 

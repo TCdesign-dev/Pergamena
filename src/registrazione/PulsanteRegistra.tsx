@@ -1,8 +1,9 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { RifEditore } from '../editor/Editor'
 import { iscrivitiRegistrazione, leggiRegistrazione, azzera } from './statoRegistrazione'
-import { avviaRegistrazione, fermaRegistrazione } from './registrazione'
+import { avviaRegistrazione, collegaEditore, fermaRegistrazione } from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
+import { Rotella } from '../layout/Attesa'
 import s from './Registrazione.module.css'
 
 function durata(ms: number) {
@@ -20,6 +21,9 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
 }) {
   const r = useSyncExternalStore(iscrivitiRegistrazione, leggiRegistrazione)
   const [ora, setOra] = useState(Date.now())
+
+  // chi riprende una registrazione dopo un ricaricamento deve trovare l'editor
+  useEffect(() => collegaEditore(documentoId, () => rifEditore.current), [documentoId, rifEditore])
 
   useEffect(() => {
     if (r.avvio !== 'ascolto') return
@@ -55,8 +59,8 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
   return (
     <button className={`${s.registra} ${s.inCorso}`} title="Ferma la registrazione" onClick={() => void fermaRegistrazione()}>
       <span className={`${s.pallino} ${s.acceso}`} />
-      {r.avvio === 'parto' && 'mi preparo…'}
-      {r.avvio === 'chiudo' && 'chiudo…'}
+      {r.avvio === 'parto' && <span className={s.preparo}><Rotella /> mi preparo…</span>}
+      {r.avvio === 'chiudo' && <span className={s.preparo}><Rotella /> chiudo…</span>}
       {r.avvio === 'ascolto' && (
         <>
           <span className={s.tempo}>{durata(ora - (r.inizio ?? ora))}</span>
@@ -86,6 +90,13 @@ export function Striscia({ documentoId }: { documentoId: string }) {
   }
 
   if (!r.attiva || r.documentoId !== documentoId) return null
+  if (r.scollegato) {
+    return (
+      <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">
+        <span className={s.attesa}>Collegamento con il server perso: riprovo…</span>
+      </div>
+    )
+  }
   if (r.silenzio) {
     return (
       <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">

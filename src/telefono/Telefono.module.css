@@ -22,7 +22,7 @@
 
 .spia { width: 7px; height: 7px; border-radius: 50%; background: var(--tenue); flex: none; }
 .allineato { background: var(--c-verde); }
-.invio, .collego { background: var(--c-arancio); }
+.invio, .collego { background: var(--c-arancio); animation: var(--pulsa); }
 .offline { background: var(--c-rosso); }
 
 /* ── ricerca ────────────────────────────────────────────────── */

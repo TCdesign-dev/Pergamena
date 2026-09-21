@@ -1,0 +1,63 @@
+/*  Il movimento di Pergamena.
+ *
+ *  Poco e breve: le cose compaiono, non ballano. Un pannello scende di
+ *  quattro pixel, una finestra cresce del tre per cento, e in 200 ms è
+ *  finito tutto. Chi ha chiesto al Mac di ridurre il movimento
+ *  (Accessibilità → Schermo) non ne vede affatto.
+ *
+ *  Le animazioni sono globali e i moduli CSS le usano attraverso le
+ *  variabili: dentro var() il nome non viene rinominato dai CSS
+ *  Modules, e ogni componente scrive solo `animation: var(--entra)`. */
+
+:root {
+  --veloce: 120ms;
+  --medio: 200ms;
+  --lento: 320ms;
+  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --entra: pg-compare var(--medio) var(--curva) both;          /* un elemento che arriva */
+  --entra-tendina: pg-scende var(--medio) var(--curva) both;    /* sotto al pulsante che l'ha aperto */
+  --entra-finestra: pg-cresce var(--medio) var(--curva) both;   /* al centro, sopra tutto */
+  --entra-velo: pg-affiora var(--medio) ease both;              /* il fondo scuro dietro, o un cambio di pagina */
+  --entra-lato: pg-scivola var(--lento) var(--curva) both;      /* il pannello a destra */
+  --entra-conferma: pg-schiocco var(--lento) var(--curva) both; /* «fatto» */
+
+  --gira: pg-gira 0.7s linear infinite;
+  --scorre: pg-scorre 1.2s var(--curva) infinite;
+  --pulsa: pg-pulsa 1.4s ease-in-out infinite;
+  --luccichio: pg-luccica 1.4s ease-in-out infinite;
+
+  /* dove sta per arrivare qualcosa: un riflesso che passa */
+  --scheletro: linear-gradient(100deg, var(--sfiorata) 30%, var(--premuta) 50%, var(--sfiorata) 70%) 0 0 / 250% 100%;
+}
+
+@keyframes pg-compare  { from { opacity: 0; transform: translateY(4px); } }
+@keyframes pg-scende   { from { opacity: 0; transform: translateY(-4px) scale(0.985); } }
+@keyframes pg-cresce   { from { opacity: 0; transform: scale(0.97); } }
+@keyframes pg-affiora  { from { opacity: 0; } }
+@keyframes pg-scivola  { from { opacity: 0; transform: translateX(10px); } }
+@keyframes pg-schiocco { 0% { opacity: 0; transform: scale(0.9); } 60% { opacity: 1; transform: scale(1.03); } }
+@keyframes pg-gira     { to { transform: rotate(360deg); } }
+@keyframes pg-scorre   { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@keyframes pg-pulsa    { 50% { opacity: 0.3; } }
+@keyframes pg-luccica  { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+
+/* il passaggio del mouse si addolcisce, ovunque */
+button, a {
+  transition:
+    background-color var(--veloce) ease,
+    color var(--veloce) ease,
+    opacity var(--veloce) ease,
+    box-shadow var(--veloce) ease,
+    filter var(--veloce) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

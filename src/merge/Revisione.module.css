@@ -39,3 +39,7 @@
   font-size: 10.5px;
   text-align: center;
 }
+
+/* arrivano dal basso; il translateX tiene il centro durante il movimento */
+.invito, .barra { animation: sale var(--lento) var(--curva) both; }
+@keyframes sale { from { opacity: 0; transform: translate(-50%, 10px); } }

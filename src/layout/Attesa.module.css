@@ -1,0 +1,44 @@
+.rotella {
+  display: inline-block;
+  flex: none;
+  width: 0.9em;
+  height: 0.9em;
+  vertical-align: -0.1em;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.75;
+  animation: var(--gira);
+}
+
+.barra {
+  position: relative;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 1px;
+  background: var(--sfiorata);
+}
+.barra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  border-radius: inherit;
+  background: var(--accento);
+  animation: var(--scorre);
+}
+
+.tessera {
+  display: block;
+  border-radius: var(--raggio);
+  background: var(--scheletro);
+  animation: var(--luccichio);
+}
+
+/* ── le immagini che arrivano (Miniatura) ──────────────────── */
+.inArrivo {
+  background: var(--scheletro);
+  animation: var(--luccichio);
+}
+.arrivata { animation: var(--entra-velo); }

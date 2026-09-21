@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { cercaSuCommons, scarica, type Trovata } from '../immagini/commons'
 import { impostaCopertina, togliCopertina } from '../documento/archivio'
 import type { Quaderno } from '../documento/tipi'
+import { Miniatura } from './Miniatura'
+import { Rotella, Tessere } from './Attesa'
 import s from './SceltaCopertina.module.css'
 
 export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; onChiudi: () => void }) {
@@ -65,14 +67,14 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
         </form>
 
         <div className={s.griglia}>
-          {stato === 'cerco' && <p className={s.stato}>cerco…</p>}
-          {stato === 'salvo' && <p className={s.stato}>salvo…</p>}
+          {stato === 'cerco' && <Tessere quante={8} classe={s.tesseraAttesa} />}
+          {stato === 'salvo' && <p className={s.stato}><Rotella /> Salvo la copertina…</p>}
           {stato === 'ferma' && risultati.length === 0 && (
             <p className={s.stato}>Niente su Commons. Prova un altro termine, o carica un’immagine tua.</p>
           )}
           {risultati.map((t) => (
             <button key={t.chiave} className={s.scheda} title={`${t.autore} · ${t.licenza}`} onClick={() => void scegli(t)}>
-              <img src={t.miniatura} alt={t.titolo} loading="lazy" />
+              <Miniatura src={t.miniatura} alt={t.titolo} loading="lazy" />
             </button>
           ))}
         </div>

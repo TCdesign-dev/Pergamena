@@ -6,6 +6,7 @@ import { estensioni } from './estensioni'
 import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
+import { Tessere } from '../layout/Attesa'
 import s from './Editor.module.css'
 
 /** Dove deve andare il cursore quando si apre un documento.
@@ -39,7 +40,7 @@ export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto 
     return () => { vivo = false }
   }, [voce])
 
-  if (!pronto) return <div className={s.attesa}>…</div>
+  if (!pronto) return <div className={s.attesa} aria-busy><Tessere quante={4} /></div>
   return (
     <Tela
       key={documento.id}

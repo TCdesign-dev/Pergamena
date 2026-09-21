@@ -1,4 +1,4 @@
-.pannello { display: flex; flex-direction: column; height: 100%; }
+.pannello { display: flex; flex-direction: column; height: 100%; animation: var(--entra-lato); }
 
 .testa {
   display: flex;
@@ -243,3 +243,8 @@
 .suggerisci:hover, .ancora:hover { background: var(--premuta); }
 .suggerisci:disabled, .ancora:disabled { opacity: 0.6; }
 .ancora { display: block; width: 100%; margin-top: var(--u); color: var(--inchiostro-tenue); }
+
+/* ── attese e arrivi ───────────────────────────────────────── */
+.tesseraAttesa { aspect-ratio: 4 / 3; }
+.gruppo, .consiglio, .chiuso { animation: var(--entra); }
+.suggerisci, .ancora { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }

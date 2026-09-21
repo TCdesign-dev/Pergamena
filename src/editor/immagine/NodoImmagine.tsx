@@ -1,6 +1,7 @@
 import { useEffect, useState, type PointerEvent as PointerReact } from 'react'
 import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react'
 import { urlDi } from '../../immagini/deposito'
+import { Miniatura } from '../../layout/Miniatura'
 import s from './NodoImmagine.module.css'
 
 const ALLINEAMENTI = [
@@ -20,11 +21,15 @@ export function NodoImmagine({ node, updateAttributes, selected, editor }: NodeV
   }
 
   const [src, setSrc] = useState<string | null>(url)
+  // finché il deposito non risponde non è «non trovata»: sta arrivando
+  const [cerco, setCerco] = useState(!url && !!idLocale)
 
   useEffect(() => {
     if (!idLocale) return
     let vivo = true
-    urlDi(idLocale).then((u) => { if (vivo && u) setSrc(u) })
+    urlDi(idLocale)
+      .then((u) => { if (vivo && u) setSrc(u) })
+      .finally(() => { if (vivo) setCerco(false) })
     return () => { vivo = false }
   }, [idLocale])
 
@@ -62,7 +67,9 @@ export function NodoImmagine({ node, updateAttributes, selected, editor }: NodeV
     >
       <div className={s.cornice}>
         {src ? (
-          <img className={s.immagine} src={src} alt={didascalia} draggable={false} />
+          <Miniatura className={s.immagine} src={src} alt={didascalia} draggable={false} />
+        ) : cerco ? (
+          <div className={s.arriva} aria-busy />
         ) : (
           <div className={s.assente}>immagine non trovata nel deposito</div>
         )}

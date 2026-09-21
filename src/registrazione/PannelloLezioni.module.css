@@ -11,6 +11,8 @@
   background: var(--carta);
   border-radius: var(--raggio-g);
   box-shadow: var(--ombra);
+  transform-origin: top right;
+  animation: var(--entra-tendina);
 }
 
 .testa { display: flex; align-items: center; margin-bottom: var(--u); }
@@ -21,7 +23,7 @@
 .vuoto { margin: var(--u) 0; color: var(--tenue); font-size: 12px; line-height: 1.6; }
 
 .elenco { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
-.lezione { padding: calc(var(--u) * 1.25) 0; border-bottom: 1px solid var(--linea); }
+.lezione { padding: calc(var(--u) * 1.25) 0; border-bottom: 1px solid var(--linea); animation: var(--entra); }
 .lezione:last-child { border-bottom: none; }
 
 .riga { display: flex; align-items: baseline; gap: var(--u); }
@@ -40,7 +42,7 @@
 }
 .azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
 .azioni button:disabled { opacity: 0.5; }
-.azioni .principale { background: var(--accento); color: #fff; }
+.azioni .principale { display: inline-flex; align-items: center; gap: 6px; background: var(--accento); color: #fff; }
 .azioni .principale:hover { background: var(--accento); color: #fff; filter: brightness(1.07); }
 .azioni .pericolo:hover { color: var(--c-rosso); }
 
@@ -99,3 +101,22 @@
 
 .lettore { width: 100%; height: 30px; margin-top: var(--u); }
 .lettore:not([src]) { display: none; }
+
+/* ── il merge mentre lavora, e quando ha finito ─────────────── */
+.avanzamento { display: flex; flex-direction: column; gap: 6px; margin-top: var(--u); }
+.fase { margin: 0; animation: var(--entra); }
+.secondi { margin-left: 6px; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.fatto { display: flex; align-items: center; gap: 6px; color: var(--c-verde); animation: var(--entra-conferma); }
+.spunta { font-weight: 700; }
+.guasto { color: var(--c-rosso); line-height: 1.5; animation: var(--entra); }
+
+.dalVivo {
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: var(--c-rosso);
+  vertical-align: 1px;
+  animation: var(--pulsa);
+}
+.interrotta { color: var(--c-arancio); cursor: help; }

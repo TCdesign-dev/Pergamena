@@ -14,6 +14,7 @@ import { Lettore } from './Lettore'
 import { SchedaLettura } from './SchedaLettura'
 import { soloPagine, schedaEsistente } from '../documento/archivio'
 import { prossimoEsame, comeDetto } from '../lib/esami'
+import { Miniatura } from '../layout/Miniatura'
 import s from './Telefono.module.css'
 
 /*  Sul telefono si consulta, non si scrive.
@@ -185,7 +186,7 @@ function SchedaMateria({ quaderno, pagine, onApri }: { quaderno: Quaderno; pagin
   return (
     <button className={s.scheda} onClick={onApri}>
       <span className={s.copertina} data-colore={quaderno.colore}>
-        {copertina ? <img src={copertina} alt="" /> : <span>{(quaderno.nome || '?').charAt(0).toUpperCase()}</span>}
+        {copertina ? <Miniatura src={copertina} alt="" /> : <span>{(quaderno.nome || '?').charAt(0).toUpperCase()}</span>}
       </span>
       <span className={s.nomeMateria}>{quaderno.nome || 'Senza nome'}</span>
       <span className={s.contoPagine}>{pagine} {pagine === 1 ? 'pagina' : 'pagine'}</span>

@@ -96,3 +96,11 @@
   color: var(--tenue);
   font-size: 10.5px;
 }
+
+/* mentre arriva dal deposito: il suo posto, che luccica */
+.arriva {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--raggio);
+  background: var(--scheletro);
+  animation: var(--luccichio);
+}

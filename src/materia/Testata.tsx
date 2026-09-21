@@ -4,6 +4,7 @@ import { aggiornaQuaderno, rinominaQuaderno } from '../documento/archivio'
 import { useImmagine } from '../immagini/useImmagine'
 import { Esami } from './Esami'
 import { Collegamenti } from './Collegamenti'
+import { Miniatura } from '../layout/Miniatura'
 import s from './Scheda.module.css'
 
 /*  Copertina, nome e i pochi campi strutturati, in cima alla scheda,
@@ -19,7 +20,7 @@ export function Testata({ quaderno, onCopertina }: { quaderno: Quaderno; onCoper
     <header className={s.testata}>
       {copertina ? (
         <div className={s.copertina}>
-          <img src={copertina} alt="" draggable={false} />
+          <Miniatura src={copertina} alt="" draggable={false} />
           <button className={s.cambiaCopertina} onClick={onCopertina}>Cambia copertina</button>
         </div>
       ) : (

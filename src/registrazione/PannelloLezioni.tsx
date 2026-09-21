@@ -4,10 +4,11 @@ import type { RifEditore } from '../editor/Editor'
 import type { Registrazione } from './tipi'
 import { useRegistrazioni } from './useRegistrazioni'
 import { eliminaRegistrazione } from './registrazione'
-import { integraLezione } from '../merge/merge'
+import { integraLezione, type FaseMerge } from '../merge/merge'
 import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
+import { Barra, Rotella } from '../layout/Attesa'
 import s from './PannelloLezioni.module.css'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
@@ -18,6 +19,43 @@ import s from './PannelloLezioni.module.css'
 function quando(t: number) {
   return new Date(t).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
+/*  Il merge dura da 4 a 30 secondi: si dice a che punto è, e da
+ *  quanto si aspetta. Una frase ferma per mezzo minuto sembra un
+ *  programma bloccato; una fase che cambia e i secondi che passano no. */
+type Lavoro = { id: string; fase: FaseMerge | 'fatto' | 'errore'; messaggio?: string; inizio: number }
+
+const FASI: Record<FaseMerge, string> = {
+  preparo: 'Preparo la lezione…',
+  chiedo: 'Il modello confronta la lezione con i tuoi appunti…',
+  riprovo: 'Risposta illeggibile: riprovo…',
+  inserisco: 'Inserisco le proposte…',
+  immagini: 'Cerco le immagini su Commons…',
+}
+
+function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
+  const inCorso = lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'
+  const [ora, setOra] = useState(Date.now())
+  useEffect(() => {
+    if (!inCorso) return
+    const t = setInterval(() => setOra(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [inCorso])
+
+  if (lavoro.fase === 'fatto') return <p className={`${s.stato} ${s.fatto}`}><span className={s.spunta}>✓</span>{lavoro.messaggio}</p>
+  if (lavoro.fase === 'errore') return <p className={`${s.stato} ${s.guasto}`}>{lavoro.messaggio}</p>
+
+  const secondi = Math.max(0, Math.floor((ora - lavoro.inizio) / 1000))
+  return (
+    <div className={s.avanzamento}>
+      <Barra />
+      <p key={lavoro.fase} className={`${s.stato} ${s.fase}`}>
+        {FASI[lavoro.fase]}
+        {secondi >= 2 && <span className={s.secondi}>{secondi} s</span>}
+      </p>
+    </div>
+  )
+}
+
 function minuti(r: Registrazione) {
   const fine = r.segmenti.length ? r.segmenti[r.segmenti.length - 1].fine : 0
   return Math.max(1, Math.round(fine / 60))
@@ -32,7 +70,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
   const lezioni = useRegistrazioni(doc)
   const impostazioni = useSyncExternalStore(iscrivitiImpostazioni, leggiImpostazioni)
   const [aperta, setAperta] = useState<string | null>(null)
-  const [lavoro, setLavoro] = useState<{ id: string; messaggio: string } | null>(null)
+  const [lavoro, setLavoro] = useState<Lavoro | null>(null)
   const lettore = useRef<HTMLAudioElement>(null)
   const [microfoni, setMicrofoni] = useState<{ uid: string; nome: string; virtuale: boolean; sistema: boolean }[]>([])
 
@@ -48,11 +86,14 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
   async function integra(r: Registrazione) {
     const editor = rifEditore.current
     if (!editor) return
-    setLavoro({ id: r.id, messaggio: 'confronto la lezione con i tuoi appunti…' })
+    const inizio = Date.now()
+    setLavoro({ id: r.id, fase: 'preparo', inizio })
     try {
-      const esito = await integraLezione(editor, doc, r.id, materia)
+      const esito = await integraLezione(editor, doc, r.id, materia, (fase) => setLavoro({ id: r.id, fase, inizio }))
       setLavoro({
         id: r.id,
+        fase: 'fatto',
+        inizio,
         messaggio: esito.proposte
           ? `${esito.proposte} ${esito.proposte === 1 ? 'proposta' : 'proposte'} negli appunti`
           : 'Non manca niente di importante.',
@@ -63,7 +104,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
       if (esito.immagini) apriPannello(true, 'consigliate')
       if (esito.proposte) { onChiudi(); avviaRevisione() }
     } catch (e) {
-      setLavoro({ id: r.id, messaggio: e instanceof Error ? e.message : 'merge fallito' })
+      setLavoro({ id: r.id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : 'merge fallito' })
     }
   }
 
@@ -92,20 +133,29 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
             <div className={s.riga}>
               <span className={s.data}>{quando(r.inizio)}</span>
               <span className={s.misure}>
-                {r.fine === null ? 'in corso' : `${minuti(r)} min · ${r.segmenti.length} frasi`}
+                {r.fine === null
+                  ? <><span className={s.dalVivo} /> in corso</>
+                  : `${minuti(r)} min · ${r.segmenti.length} ${r.segmenti.length === 1 ? 'frase' : 'frasi'}`}
                 {r.audio && ' · audio'}
+                {r.interrotta && (
+                  <span className={s.interrotta} title="Si è fermata da sola, per esempio perché il server si è riavviato. Quello che era già trascritto è salvo.">
+                    {' '}· interrotta
+                  </span>
+                )}
               </span>
             </div>
 
             {r.integrata !== null && (
               <p className={s.stato}>integrata · {r.integrata} {r.integrata === 1 ? 'proposta' : 'proposte'}</p>
             )}
-            {lavoro?.id === r.id && <p className={s.stato}>{lavoro.messaggio}</p>}
+            {lavoro?.id === r.id && <Avanzamento lavoro={lavoro} />}
 
             <div className={s.azioni}>
               {r.fine !== null && r.segmenti.length > 0 && (
-                <button className={s.principale} onClick={() => void integra(r)} disabled={lavoro?.id === r.id && lavoro.messaggio.endsWith('…')}>
-                  {r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
+                <button className={s.principale} onClick={() => void integra(r)} disabled={lavoro?.id === r.id && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'}>
+                  {lavoro?.id === r.id && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'
+                    ? <><Rotella /> Integro…</>
+                    : r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
                 </button>
               )}
               <button onClick={() => setAperta(aperta === r.id ? null : r.id)}>

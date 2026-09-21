@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import './stili/token.css'
 import './stili/base.css'
 import './stili/editor.css'
+import './stili/movimento.css'
 
 /*  Sul telefono si consulta, sul Mac si scrive: due gusci diversi,
  *  stessi dati. La soglia è la larghezza, non il tipo di dispositivo:

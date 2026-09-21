@@ -7,6 +7,7 @@
   align-items: flex-start;   /* altrimenti il pannello si stira a 60vh */
   padding-top: 14vh;
   background: rgb(0 0 0 / 0.28);
+  animation: var(--entra-velo);
 }
 
 .pannello {
@@ -19,6 +20,7 @@
   border: 1px solid var(--linea);
   border-radius: calc(var(--raggio) * 2.5);
   box-shadow: var(--ombra);
+  animation: var(--entra-finestra);
 }
 
 .campo {

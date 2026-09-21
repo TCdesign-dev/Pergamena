@@ -3,6 +3,7 @@ import { creaQuaderno, creaDocumento, rinominaQuaderno, soloPagine } from '../do
 import { prossimoEsame, comeDetto, mancano } from '../lib/esami'
 import type { Quaderno, Documento } from '../documento/tipi'
 import { useImmagine } from '../immagini/useImmagine'
+import { Miniatura } from './Miniatura'
 import s from './Home.module.css'
 
 /*  La prima cosa che vedi quando non stai scrivendo: le materie, con
@@ -94,7 +95,7 @@ function Scheda({
         }}
       >
         {copertina ? (
-          <img src={copertina} alt="" draggable={false} />
+          <Miniatura src={copertina} alt="" draggable={false} />
         ) : (
           <span className={s.iniziale}>{(quaderno.nome || '?').trim().charAt(0).toUpperCase()}</span>
         )}
