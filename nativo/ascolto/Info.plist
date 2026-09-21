@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>it.pergamena.ascolto</string>
+  <key>CFBundleName</key>
+  <string>Pergamena · ascolto</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Pergamena ascolta la lezione per trascriverla e completare i tuoi appunti.</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>La trascrizione avviene sul tuo Mac, senza mandare l'audio da nessuna parte.</string>
+</dict>
+</plist>
