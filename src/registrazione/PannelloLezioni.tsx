@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type * as Y from 'yjs'
 import type { RifEditore } from '../editor/Editor'
 import type { Registrazione } from './tipi'
@@ -33,6 +33,16 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
   const [aperta, setAperta] = useState<string | null>(null)
   const [lavoro, setLavoro] = useState<{ id: string; messaggio: string } | null>(null)
   const lettore = useRef<HTMLAudioElement>(null)
+  const [microfoni, setMicrofoni] = useState<{ uid: string; nome: string; virtuale: boolean; sistema: boolean }[]>([])
+
+  useEffect(() => {
+    fetch('/api/ascolto/dispositivi')
+      .then((r) => r.json())
+      .then((j) => setMicrofoni(Array.isArray(j.elenco) ? j.elenco : []))
+      .catch(() => setMicrofoni([]))
+  }, [])
+
+  const diSistema = microfoni.find((m) => m.sistema)
 
   async function integra(r: Registrazione) {
     const editor = rifEditore.current
@@ -119,6 +129,24 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
           </li>
         ))}
       </ul>
+
+      {microfoni.length > 0 && (
+        <label className={s.microfono}>
+          <span>Microfono</span>
+          <select
+            value={impostazioni.microfono ?? ''}
+            onChange={(e) => imposta('microfono', e.target.value || null)}
+          >
+            <option value="">Come il sistema{diSistema ? ` · ${diSistema.nome}` : ''}</option>
+            {/* i virtuali in fondo: servono solo per l'audio di altre app */}
+            {[...microfoni].sort((a, b) => Number(a.virtuale) - Number(b.virtuale)).map((m) => (
+              <option key={m.uid} value={m.uid}>
+                {m.nome}{m.virtuale ? ' — virtuale' : ''}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <label className={s.opzione}>
         <input

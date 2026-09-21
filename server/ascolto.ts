@@ -1,4 +1,4 @@
-import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
+import { execFile, spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { createReadStream, existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -55,6 +55,9 @@ function avvia(corpo: Record<string, unknown>) {
     mkdirSync(CARTELLA_AUDIO, { recursive: true })
     args.push('--salva', join(CARTELLA_AUDIO, `${corpo.id}.m4a`))
   }
+  if (typeof corpo.dispositivo === 'string' && corpo.dispositivo) {
+    args.push('--dispositivo', corpo.dispositivo)
+  }
   if (Array.isArray(corpo.contesto) && corpo.contesto.length) {
     args.push('--contesto', corpo.contesto.filter((x) => typeof x === 'string').slice(0, 100).join(','))
   }
@@ -108,6 +111,15 @@ export function ascolto(): Plugin {
           return
         }
 
+        if (req.method === 'GET' && url.startsWith('/dispositivi')) {
+          if (!existsSync(BINARIO)) return rispondi(res, 503, { errore: 'programma di ascolto non compilato' })
+          execFile(BINARIO, ['--dispositivi'], { timeout: 8000 }, (err, stdout) => {
+            if (err) return rispondi(res, 500, { errore: err.message })
+            try { rispondi(res, 200, JSON.parse(stdout.trim().split('\n').pop() ?? '{}')) }
+            catch { rispondi(res, 500, { errore: 'risposta illeggibile' }) }
+          })
+          return
+        }
         if (req.method === 'POST' && url.startsWith('/avvia')) return rispondi(res, 200, avvia(await leggiCorpo(req)))
         if (req.method === 'POST' && url.startsWith('/ferma')) return rispondi(res, 200, ferma())
         if (req.method === 'GET' && url.startsWith('/stato')) return rispondi(res, 200, { attivo: !!processo, id: idCorrente })

@@ -50,3 +50,24 @@
 .striscia span { direction: ltr; unicode-bidi: plaintext; }
 .attesa { font-style: italic; }
 .errore { color: var(--c-rosso); }
+
+/* nessun suono: le tacche diventano un trattino tratteggiato */
+.muto i { background: transparent !important; outline: 1px dashed var(--c-arancio); }
+
+.avviso {
+  direction: ltr;
+  white-space: normal;
+  color: var(--c-arancio);
+  background: color-mix(in srgb, var(--c-arancio) 9%, var(--carta));
+}
+
+.guasto {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u);
+  color: var(--c-rosso);
+  background: color-mix(in srgb, var(--c-rosso) 8%, var(--carta));
+}
+.guasto span { flex: 1; }
+.chiudiAvviso { flex: none; color: inherit; opacity: 0.7; font-size: 15px; line-height: 1; }
+.chiudiAvviso:hover { opacity: 1; }

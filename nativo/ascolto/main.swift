@@ -17,9 +17,46 @@
 // ─────────────────────────────────────────────────────────────────────
 
 import AVFoundation
+import CoreAudio
 import CoreMedia
 import Foundation
 import Speech
+
+// ── rispondere di sé stessi, per il permesso del microfono ──────────
+//
+//  macOS chiede il microfono a nome del processo «responsabile»: di
+//  solito l'app da cui tutto è partito. Ma se il server è stato
+//  lanciato con la responsabilità rinunciata (come fa l'app Claude),
+//  non c'è più nessuna app a cui chiedere, e il permesso viene negato
+//  in silenzio.
+//
+//  Allora il programma si rilancia AL PROPRIO POSTO — stesso pid,
+//  stessi stdin/stdout — rinunciando a sua volta alla responsabilità
+//  ereditata: diventa responsabile di sé, e macOS chiede il permesso
+//  a nome suo, con la descrizione cucita nel binario. Se la funzione
+//  privata non c'è, si va avanti come prima.
+
+func diventaResponsabile() {
+    let chiave = "PERGAMENA_ASCOLTO_AUTONOMO"
+    if getenv(chiave) != nil { return }
+    setenv(chiave, "1", 1)
+
+    typealias Rinuncia = @convention(c) (UnsafeMutablePointer<posix_spawnattr_t?>, Int32) -> Int32
+    guard let simbolo = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "responsibility_spawnattrs_setdisclaim"),
+          let eseguibile = Bundle.main.executablePath else { return }
+    let rinuncia = unsafeBitCast(simbolo, to: Rinuncia.self)
+
+    var attributi: posix_spawnattr_t?
+    posix_spawnattr_init(&attributi)
+    defer { posix_spawnattr_destroy(&attributi) }
+    guard rinuncia(&attributi, 1) == 0 else { return }
+    posix_spawnattr_setflags(&attributi, Int16(POSIX_SPAWN_SETEXEC))
+
+    var argv: [UnsafeMutablePointer<CChar>?] = CommandLine.arguments.map { strdup($0) } + [nil]
+    var pid: pid_t = 0
+    // con SETEXEC, se riesce questa chiamata non ritorna
+    _ = posix_spawn(&pid, eseguibile, nil, &attributi, &argv, environ)
+}
 
 // ── uscita: una riga JSON per evento ────────────────────────────────
 
@@ -46,6 +83,8 @@ struct Opzioni {
     var salva: URL?
     var tempoReale = false
     var contesto: [String] = []
+    var dispositivo: String?     // uid; se manca, quello di sistema
+    var elenca = false           // --dispositivi: stampa gli ingressi ed esce
 }
 
 func leggiOpzioni() -> Opzioni {
@@ -56,6 +95,8 @@ func leggiOpzioni() -> Opzioni {
         case "--file": if let v = args.next() { o.file = URL(fileURLWithPath: v) }
         case "--salva": if let v = args.next() { o.salva = URL(fileURLWithPath: v) }
         case "--tempo-reale": o.tempoReale = true
+        case "--dispositivo": o.dispositivo = args.next()
+        case "--dispositivi": o.elenca = true
         case "--contesto":
             if let v = args.next() {
                 o.contesto = v.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
@@ -65,6 +106,80 @@ func leggiOpzioni() -> Opzioni {
     }
     return o
 }
+
+// ── dispositivi d'ingresso ──────────────────────────────────────────
+//
+//  Il microfono «di sistema» non è sempre un microfono. Qui era
+//  BlackHole, un dispositivo virtuale che restituisce solo l'audio che
+//  altre app gli mandano: senza nessuno che gli mandi niente, silenzio
+//  perfetto, e il timer che corre come se tutto andasse bene.
+
+struct Ingresso {
+    let id: AudioDeviceID
+    let uid: String
+    let nome: String
+    let virtuale: Bool
+}
+
+func indirizzo(_ s: AudioObjectPropertySelector, _ ambito: AudioObjectPropertyScope = kAudioObjectPropertyScopeGlobal) -> AudioObjectPropertyAddress {
+    AudioObjectPropertyAddress(mSelector: s, mScope: ambito, mElement: kAudioObjectPropertyElementMain)
+}
+
+func stringa(_ id: AudioObjectID, _ s: AudioObjectPropertySelector) -> String {
+    var ind = indirizzo(s)
+    var valore: Unmanaged<CFString>?
+    var dim = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+    guard AudioObjectGetPropertyData(id, &ind, 0, nil, &dim, &valore) == noErr,
+          let v = valore?.takeRetainedValue() else { return "" }
+    return v as String
+}
+
+func canaliIngresso(_ id: AudioDeviceID) -> Int {
+    var ind = indirizzo(kAudioDevicePropertyStreamConfiguration, kAudioObjectPropertyScopeInput)
+    var dim: UInt32 = 0
+    guard AudioObjectGetPropertyDataSize(id, &ind, 0, nil, &dim) == noErr, dim > 0 else { return 0 }
+    let memoria = UnsafeMutableRawPointer.allocate(byteCount: Int(dim), alignment: MemoryLayout<AudioBufferList>.alignment)
+    defer { memoria.deallocate() }
+    guard AudioObjectGetPropertyData(id, &ind, 0, nil, &dim, memoria) == noErr else { return 0 }
+    let lista = UnsafeMutableAudioBufferListPointer(memoria.assumingMemoryBound(to: AudioBufferList.self))
+    return lista.reduce(0) { $0 + Int($1.mNumberChannels) }
+}
+
+func ingressi() -> [Ingresso] {
+    var ind = indirizzo(kAudioHardwarePropertyDevices)
+    var dim: UInt32 = 0
+    guard AudioObjectGetPropertyDataSize(AudioObjectID(kAudioObjectSystemObject), &ind, 0, nil, &dim) == noErr else { return [] }
+    var id = [AudioDeviceID](repeating: 0, count: Int(dim) / MemoryLayout<AudioDeviceID>.size)
+    guard AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &ind, 0, nil, &dim, &id) == noErr else { return [] }
+
+    return id.compactMap { d in
+        guard canaliIngresso(d) > 0 else { return nil }
+        var ti = indirizzo(kAudioDevicePropertyTransportType)
+        var trasporto: UInt32 = 0
+        var dt = UInt32(MemoryLayout<UInt32>.size)
+        AudioObjectGetPropertyData(d, &ti, 0, nil, &dt, &trasporto)
+        return Ingresso(
+            id: d,
+            uid: stringa(d, kAudioDevicePropertyDeviceUID),
+            nome: stringa(d, kAudioObjectPropertyName),
+            virtuale: trasporto == kAudioDeviceTransportTypeVirtual || trasporto == kAudioDeviceTransportTypeAggregate
+        )
+    }
+}
+
+func ingressoDiSistema() -> AudioDeviceID {
+    var ind = indirizzo(kAudioHardwarePropertyDefaultInputDevice)
+    var id: AudioDeviceID = 0
+    var dim = UInt32(MemoryLayout<AudioDeviceID>.size)
+    AudioObjectGetPropertyData(AudioObjectID(kAudioObjectSystemObject), &ind, 0, nil, &dim, &id)
+    return id
+}
+
+/// I sorgenti dei segnali devono vivere quanto il processo. In una
+/// variabile locale Swift può liberarli dopo l'ultimo uso: a quel
+/// punto SIGINT, impostato su «ignora», veniva buttato e lo stop non
+/// fermava più niente.
+var segnaliVivi: [DispatchSourceSignal] = []
 
 // ── conversione di formato ──────────────────────────────────────────
 
@@ -148,8 +263,17 @@ final class Registratore: @unchecked Sendable {
 @main
 struct Ascolto {
     static func main() async {
+        diventaResponsabile()
         let opzioni = leggiOpzioni()
         let locale = Locale(identifier: "it-IT")
+
+        if opzioni.elenca {
+            let sistema = ingressoDiSistema()
+            emetti(["evento": "dispositivi", "elenco": ingressi().map {
+                ["uid": $0.uid, "nome": $0.nome, "virtuale": $0.virtuale, "sistema": $0.id == sistema]
+            }])
+            exit(0)
+        }
 
         guard SpeechTranscriber.isAvailable else { muori("SpeechTranscriber non disponibile su questo Mac") }
         guard let supportato = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
@@ -276,13 +400,12 @@ struct Ascolto {
 
         signal(SIGINT, SIG_IGN)
         signal(SIGTERM, SIG_IGN)
-        let segnali = [SIGINT, SIGTERM].map { s -> DispatchSourceSignal in
+        segnaliVivi = [SIGINT, SIGTERM].map { s -> DispatchSourceSignal in
             let sorgente = DispatchSource.makeSignalSource(signal: s, queue: .main)
             sorgente.setEventHandler { ferma() }
             sorgente.resume()
             return sorgente
         }
-        _ = segnali
 
         // se chi ci ha lanciati muore, stdin si chiude: ci si ferma
         Thread.detachNewThread {
@@ -320,8 +443,33 @@ struct Ascolto {
             }
         } else {
             // ── microfono ──
+            switch AVCaptureDevice.authorizationStatus(for: .audio) {
+            case .authorized: break
+            case .notDetermined:
+                if !(await AVCaptureDevice.requestAccess(for: .audio)) {
+                    muori("microfono non autorizzato: Impostazioni di Sistema › Privacy e sicurezza › Microfono › attiva «pergamena-ascolto»")
+                }
+            default:
+                muori("microfono non autorizzato: Impostazioni di Sistema › Privacy e sicurezza › Microfono › attiva «pergamena-ascolto»")
+            }
+
             let motore = AVAudioEngine()
             let ingresso = motore.inputNode
+
+            // il dispositivo scelto nell'app, altrimenti quello di sistema;
+            // va impostato PRIMA di chiedere il formato, che dipende da lui
+            let tutti = ingressi()
+            var scelto = tutti.first { $0.id == ingressoDiSistema() }
+            if let uid = opzioni.dispositivo {
+                if let d = tutti.first(where: { $0.uid == uid }), var id = Optional(d.id), let au = ingresso.audioUnit {
+                    let esito = AudioUnitSetProperty(au, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global,
+                                                     0, &id, UInt32(MemoryLayout<AudioDeviceID>.size))
+                    if esito == noErr { scelto = d }
+                } else {
+                    emetti(["evento": "stato", "messaggio": "il microfono scelto non c'è più: uso quello di sistema"])
+                }
+            }
+
             let naturale = ingresso.outputFormat(forBus: 0)
             guard naturale.sampleRate > 0 else { muori("nessun microfono disponibile") }
             guard let conv = AVAudioConverter(from: naturale, to: formatoAnalisi) else {
@@ -331,13 +479,28 @@ struct Ascolto {
             // l'audio si tiene solo se richiesto: il disco è pieno al 97%
             var registratore = opzioni.salva.flatMap { Registratore(dove: $0, da: naturale) }
 
+            /*  Guardia del silenzio: se per 6 secondi non arriva niente
+             *  sopra il rumore di fondo, lo si dice. Un timer che corre
+             *  su un microfono muto è il modo peggiore di rompersi:
+             *  scopri a fine lezione di non aver registrato niente. */
             var ultimoLivello = Date.distantPast
+            var ultimoSuono = Date()
+            var avvisato = false
+            let nomeIngresso = scelto?.nome ?? "microfono"
+
             ingresso.installTap(onBus: 0, bufferSize: 4096, format: naturale) { buffer, _ in
                 if let c = converti(buffer, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
                 registratore?.scrivi(buffer)
-                if Date().timeIntervalSince(ultimoLivello) > 0.2, let db = livello(buffer) {
-                    ultimoLivello = Date()
-                    emetti(["evento": "livello", "db": (db * 10).rounded() / 10])
+                guard Date().timeIntervalSince(ultimoLivello) > 0.2, let db = livello(buffer) else { return }
+                ultimoLivello = Date()
+                emetti(["evento": "livello", "db": (db * 10).rounded() / 10])
+
+                if db > -55 {
+                    ultimoSuono = Date()
+                    if avvisato { avvisato = false; emetti(["evento": "suono"]) }
+                } else if !avvisato, Date().timeIntervalSince(ultimoSuono) > 6 {
+                    avvisato = true
+                    emetti(["evento": "silenzio", "dispositivo": nomeIngresso, "virtuale": scelto?.virtuale ?? false])
                 }
             }
 
@@ -347,7 +510,9 @@ struct Ascolto {
                 motore.stop()
                 registratore = nil   // chiude il file AAC
             }
-            emetti(["evento": "pronto", "sorgente": "microfono", "salva": opzioni.salva?.path ?? NSNull()])
+            emetti(["evento": "pronto", "sorgente": "microfono",
+                    "dispositivo": nomeIngresso, "virtuale": scelto?.virtuale ?? false,
+                    "salva": opzioni.salva?.path ?? NSNull()])
         }
 
         /*  Finalizzazione di sicurezza. Il riconoscitore chiude una

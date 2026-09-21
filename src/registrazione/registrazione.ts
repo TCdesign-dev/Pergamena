@@ -4,6 +4,7 @@ import { apriDocumento } from '../documento/archivio'
 import { aggiorna, azzera, leggiRegistrazione } from './statoRegistrazione'
 import type { Segmento, Ancora, Registrazione } from './tipi'
 import { esponi } from '../lib/dev'
+import { leggiImpostazioni } from '../impostazioni'
 
 /*  Avvia e ferma l'ascolto, e scrive nel documento ciò che arriva.
  *
@@ -94,6 +95,7 @@ export async function avviaRegistrazione(opzioni: {
       id,
       salvaAudio: opzioni.salvaAudio,
       contesto: ed ? vocabolario(ed, opzioni.materia) : [opzioni.materia],
+      dispositivo: leggiImpostazioni().microfono,
       file: opzioni.file,
     }),
   }).then((x) => x.json()).catch(() => ({ ok: false, errore: 'server non raggiungibile' }))
@@ -112,7 +114,12 @@ function ricevi(
 ) {
   switch (evento.evento) {
     case 'pronto': {
-      aggiorna({ avvio: 'ascolto', inizio: Date.now() })
+      aggiorna({
+        avvio: 'ascolto',
+        inizio: Date.now(),
+        dispositivo: typeof evento.dispositivo === 'string' ? evento.dispositivo : null,
+        virtuale: evento.virtuale === true,
+      })
       // ogni 5 s: se il cursore è passato a un altro blocco, àncora
       timerAncore = window.setInterval(() => annotaAncora(voce, opzioni), OGNI)
       annotaAncora(voce, opzioni)
@@ -120,6 +127,12 @@ function ricevi(
     }
     case 'livello':
       aggiorna({ livello: Number(evento.db) })
+      break
+    case 'silenzio':
+      aggiorna({ silenzio: true })
+      break
+    case 'suono':
+      aggiorna({ silenzio: false })
       break
     case 'testo':
       if (evento.finale) {
@@ -137,11 +150,19 @@ function ricevi(
     case 'errore':
       aggiorna({ errore: String(evento.messaggio) })
       break
-    case 'uscito':
-      voce.set('fine', Date.now())
+    case 'uscito': {
       chiudi()
-      azzera(leggiRegistrazione().errore)
+      const errore = leggiRegistrazione().errore
+      const segmenti = voce.get('segmenti') as Y.Array<Segmento>
+      // un tentativo fallito senza parlato non lascia una lezione vuota
+      if (errore && segmenti.length === 0) {
+        voce.doc?.getMap('registrazioni').forEach((v, k) => { if (v === voce) mappaRegistrazioni(voce.doc!).delete(k) })
+      } else {
+        voce.set('fine', Date.now())
+      }
+      azzera(errore)
       break
+    }
   }
 }
 

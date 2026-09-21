@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { RifEditore } from '../editor/Editor'
-import { iscrivitiRegistrazione, leggiRegistrazione } from './statoRegistrazione'
+import { iscrivitiRegistrazione, leggiRegistrazione, azzera } from './statoRegistrazione'
 import { avviaRegistrazione, fermaRegistrazione } from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
 import s from './Registrazione.module.css'
@@ -60,7 +60,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       {r.avvio === 'ascolto' && (
         <>
           <span className={s.tempo}>{durata(ora - (r.inizio ?? ora))}</span>
-          <span className={s.tacche} aria-hidden>
+          <span className={`${s.tacche} ${r.silenzio ? s.muto : ''}`} aria-hidden title={r.silenzio ? 'nessun suono' : undefined}>
             {[0.15, 0.45, 0.75].map((soglia) => (
               <i key={soglia} className={forza > soglia ? s.tacca : undefined} />
             ))}
@@ -74,12 +74,36 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
 /** La frase che il riconoscitore sta ancora formando, in fondo alla pagina. */
 export function Striscia({ documentoId }: { documentoId: string }) {
   const r = useSyncExternalStore(iscrivitiRegistrazione, leggiRegistrazione)
+
+  // registrazione finita male: l'errore resta finché non lo chiudi
+  if (!r.attiva && r.errore && r.documentoId === documentoId) {
+    return (
+      <div className={`${s.striscia} ${s.avviso} ${s.guasto}`} role="alert">
+        <span>La registrazione si è fermata: {r.errore}</span>
+        <button className={s.chiudiAvviso} onClick={() => azzera()} aria-label="Chiudi">×</button>
+      </div>
+    )
+  }
+
   if (!r.attiva || r.documentoId !== documentoId) return null
+  if (r.silenzio) {
+    return (
+      <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">
+        <span>
+          Non sento niente da «{r.dispositivo}».
+          {r.virtuale
+            ? ' È un ingresso virtuale: scegli il microfono vero da Lezioni.'
+            : ' Controlla che il microfono non sia spento o coperto.'}
+        </span>
+      </div>
+    )
+  }
+
   return (
     <div className={s.striscia} aria-live="polite">
       {r.errore ? <span className={s.errore}>{r.errore}</span>
         : r.provvisorio ? <span>{r.provvisorio}</span>
-        : <span className={s.attesa}>sto ascoltando…</span>}
+        : <span className={s.attesa}>ascolto da {r.dispositivo ?? 'microfono'}…</span>}
     </div>
   )
 }

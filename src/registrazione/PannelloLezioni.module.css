@@ -63,6 +63,28 @@
 }
 .minuto:disabled { color: var(--tenue); cursor: default; }
 
+.microfono {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  margin-top: var(--u);
+  padding-top: var(--u);
+  border-top: 1px solid var(--linea);
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+}
+.microfono select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta);
+  color: var(--inchiostro);
+  font: inherit;
+}
+.microfono + .opzione { border-top: none; padding-top: 4px; margin-top: 4px; }
+
 .opzione {
   display: flex; align-items: flex-start; gap: 6px;
   margin-top: var(--u);
