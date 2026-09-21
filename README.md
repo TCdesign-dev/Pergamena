@@ -84,11 +84,15 @@ src/
 │   │   ├── coloreTesto.ts  i cinque colori + scorciatoie
 │   │   ├── frecce.ts    -> diventa →,  --> diventa ⟶
 │   │   ├── elenchi.ts   Tab e sottoelenchi, «1. » e «- » dentro un elenco
+│   │   ├── spostaBlocchi.ts  ⌘⇧↑/↓ e il gruppo di blocchi (⌘ + selezione)
+│   │   ├── formule.ts   LaTeX con KaTeX: $$…$$ nel testo, $$$…$$$ a sé
 │   │   ├── slash.ts     il plugin di «/» (intercetta frecce e Invio)
 │   │   ├── immagine.ts  il nodo, più incolla e trascina
 │   │   └── richiestaImmagine.ts   la sintassi !…!
 │   ├── immagine/
 │   │   └── NodoImmagine.tsx    ridimensionamento e allineamento
+│   ├── formula/
+│   │   └── EditorFormula.tsx   la finestrella: LaTeX e anteprima
 │   └── menu/
 │       ├── MenuSelezione.tsx   compare solo selezionando: niente barra fissa
 │       ├── MenuSlash.tsx       l'elenco dei blocchi
@@ -577,6 +581,43 @@ merge dice a che punto è (prepara, confronta, riprova, inserisce, cerca
 immagini) con i secondi che passano; le immagini luccicano finché non
 arrivano e poi affiorano. Con «Riduci movimento» del Mac non si muove
 niente.
+
+### ✅ L'editor, come su Notion
+
+**Spostare i blocchi.** A sinistra della riga sotto il mouse compare la
+maniglia ⋮⋮: si trascina per spostare la riga, il titolo, l'immagine o la
+voce d'elenco; un clic seleziona il blocco intero. Tenendo premuto ⌘
+mentre si seleziona col mouse si prendono righe intere: trascinando la
+maniglia si sposta tutto il gruppo. Da tastiera ⌘⇧↑ e ⌘⇧↓ spostano di un
+posto la riga (o la voce d'elenco, o il gruppo). I blocchi spostati
+tengono il loro id: àncore delle lezioni e immagini restano attaccate.
+
+**/h1, /h2, /h3.** «/h1» trova il Titolo 1 nel menu (prima non trovava
+niente: si cercava solo per nome); «/h1» seguito da spazio lo applica
+subito, come «# ».
+
+**Formule.** In LaTeX, disegnate da KaTeX: `$$E=mc^2$$` dentro una riga,
+`$$$…$$$` su una riga da sola (centrata), oppure «/formula» e «/fx» dal
+menu, che aprono una finestrella con l'anteprima dal vivo. Un clic su una
+formula la riapre. Il telefono le mostra, il merge e i quiz le leggono.
+
+**L'AI scrive come te.** Il modello vedeva gli appunti come testo nudo e
+proponeva tutto piatto. Ora li riceve con la formattazione (`**grassetto**`,
+`<rosso>…</rosso>`, `==evidenziato==`) e con lo stile della pagina detto in
+chiaro — «colora di rosso le 1-2 parole più importanti, come fa lui, per
+esempio: …» — e le proposte arrivano col tuo grassetto e il tuo colore
+(al massimo due parti colorate per proposta: una riga tutta rossa non
+evidenzia più niente). Sulla lezione di Materiali: «Prima parte: 10
+domande a risposta multipla…» coi numeri chiave in rosso, come i tuoi.
+
+**Immagini dal web.** Nel pannello Immagini, «Web» oltre a «Commons».
+L'API di Google per le immagini è chiusa ai nuovi utenti (e si spegne a
+gennaio 2027): con `SERPER_API_KEY` arrivano i risultati di Google
+Immagini tramite Serper; senza chiavi, Openverse (immagini libere da
+tutto il web, Flickr compreso). Le immagini le scarica il server — i siti
+non lo lasciano fare al browser — solo da indirizzi pubblici, fino a
+15 MB, e il browser le riduce a 1600 px. I consigli dell'AI provano il
+web quando Commons non ha niente.
 
 ### Fase 4 — argomenti, ripasso e archivio
 - Titoli degli argomenti proposti a fine lezione.
