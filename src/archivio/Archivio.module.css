@@ -1,0 +1,87 @@
+.vista { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+.percorso {
+  display: flex; align-items: center; gap: 5px;
+  flex: none; height: 38px; padding: 0 calc(var(--u) * 2);
+  font-size: 12px;
+}
+.passo { padding: 3px 5px; border-radius: 4px; color: var(--tenue); }
+button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
+.sbarra { color: var(--linea-forte); }
+.qui { padding: 3px 5px; color: var(--inchiostro-tenue); }
+
+.scorre { flex: 1; min-height: 0; overflow-y: auto; }
+.colonna {
+  max-width: var(--colonna);
+  margin: 0 auto;
+  padding: calc(var(--u) * 5) calc(var(--u) * 4) calc(var(--u) * 8);
+  animation: var(--entra-velo);
+}
+.titolo { margin: 0; font-family: var(--font-testo); font-size: 2.1em; font-weight: 600; letter-spacing: -0.02em; }
+.sotto { margin: 6px 0 calc(var(--u) * 3); color: var(--inchiostro-tenue); font-size: 13px; line-height: 1.6; }
+
+.attesa { display: flex; flex-direction: column; gap: 8px; }
+.rigaAttesa { height: 30px; }
+
+.totali {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 8px;
+  animation: var(--entra);
+}
+.totali div { padding: 10px 12px; border-radius: var(--raggio-g); background: var(--carta-alt); }
+.totali dt { color: var(--tenue); font-size: 11px; }
+.totali dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tutto { background: color-mix(in srgb, var(--accento) 10%, var(--carta-alt)) !important; }
+.nota { margin: 0 0 calc(var(--u) * 3); color: var(--tenue); font-size: 12px; }
+
+.materie, .pagine { margin: 0; padding: 0; list-style: none; }
+.materia { border-bottom: 1px solid var(--linea); animation: var(--entra); }
+.rigaMateria {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 4px;
+  text-align: left;
+}
+.rigaMateria:hover { background: var(--sfiorata); }
+.freccia { width: 12px; color: var(--tenue); font-size: 10px; }
+.pallino { width: 7px; height: 7px; border-radius: 50%; background: var(--tenue); }
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }
+.nome { font-size: 14px; font-weight: 600; }
+.dettagli { flex: 1; color: var(--tenue); font-size: 12px; }
+.peso { color: var(--inchiostro-tenue); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.pagina { margin: 0 0 10px 24px; padding: 10px 12px; border-radius: var(--raggio-g); background: var(--carta-alt); animation: var(--entra); }
+.rigaPagina { display: flex; align-items: baseline; gap: 8px; }
+.titoloPagina { flex: 1; text-align: left; font-size: 13.5px; font-weight: 550; }
+.titoloPagina:hover { color: var(--accento); }
+.voci { color: var(--inchiostro-tenue); font-size: 12px; }
+.pagina > .voci { margin: 2px 0 6px; }
+
+.lezione {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--linea);
+}
+.quando { font-size: 12px; font-variant-numeric: tabular-nums; }
+.azioni { display: flex; gap: 4px; }
+.azioni button, .pericolo {
+  padding: 3px 8px;
+  border-radius: var(--raggio);
+  background: var(--sfiorata);
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+}
+.azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
+.fondo { display: flex; justify-content: flex-end; margin-top: 6px; }
+.pericolo:hover { color: var(--c-rosso); }

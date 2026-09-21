@@ -300,6 +300,16 @@ export function ascolto(env: Record<string, string> = {}): Plugin {
       // ── l'audio salvato: si riascolta e si cancella ──
       server.middlewares.use('/api/audio', (req, res) => {
         const id = decodeURIComponent((req.url ?? '').replace(/^\//, '').split('?')[0])
+        // senza id: quanto pesa ogni audio salvato, per il gestore dell'archivio
+        if (!id && req.method === 'GET') {
+          const pesi: Record<string, number> = {}
+          if (existsSync(CARTELLA_AUDIO)) {
+            for (const f of readdirSync(CARTELLA_AUDIO)) {
+              if (f.endsWith('.m4a')) pesi[f.slice(0, -4)] = statSync(join(CARTELLA_AUDIO, f)).size
+            }
+          }
+          return rispondi(res, 200, pesi)
+        }
         if (!idValido(id)) return rispondi(res, 400, { errore: 'id non valido' })
         const file = join(CARTELLA_AUDIO, `${id}.m4a`)
 

@@ -24,6 +24,7 @@ import { SchedaMateria } from './materia/SchedaMateria'
 import { RipassoMateria } from './ripasso/RipassoMateria'
 import { FinestraQuiz } from './ripasso/FinestraQuiz'
 import { registraApertura } from './layout/navigazione'
+import { Archivio } from './archivio/Archivio'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -40,6 +41,7 @@ export function App() {
   const [inHome, setInHome] = useState(false)
   const [schedaAperta, setSchedaAperta] = useState<string | null>(null)   // id della materia
   const [ripassoAperto, setRipassoAperto] = useState<string | null>(null) // id della materia
+  const [archivioAperto, setArchivioAperto] = useState(false)
   const [latoAperto, setLatoAperto] = useState(true)
   const [comandiAperti, setComandiAperti] = useState(false)
   const [mostraAccesso, setMostraAccesso] = useState(false)
@@ -79,16 +81,26 @@ export function App() {
     setInHome(false)
     setSchedaAperta(null)
     setRipassoAperto(null)
+    setArchivioAperto(false)
   }, [])
 
   const apriScheda = useCallback((quadernoId: string) => {
     setSchedaAperta(quadernoId)
     setRipassoAperto(null)
+    setArchivioAperto(false)
     setInHome(false)
   }, [])
 
   const apriRipasso = useCallback((quadernoId: string) => {
     setRipassoAperto(quadernoId)
+    setSchedaAperta(null)
+    setArchivioAperto(false)
+    setInHome(false)
+  }, [])
+
+  const apriArchivio = useCallback(() => {
+    setArchivioAperto(true)
+    setRipassoAperto(null)
     setSchedaAperta(null)
     setInHome(false)
   }, [])
@@ -97,6 +109,7 @@ export function App() {
     setInHome(true)
     setSchedaAperta(null)
     setRipassoAperto(null)
+    setArchivioAperto(false)
   }, [])
 
   useEffect(() => esponi({ apri }), [apri])
@@ -150,7 +163,7 @@ export function App() {
   const materiaAperta = aperto ? quaderni.find((q) => q.id === aperto.quadernoId) ?? null : null
   const materiaScheda = schedaAperta ? quaderni.find((q) => q.id === schedaAperta) ?? null : null
   const materiaRipasso = ripassoAperto ? quaderni.find((q) => q.id === ripassoAperto) ?? null : null
-  const mostraHome = !materiaScheda && !materiaRipasso && (inHome || !aperto)
+  const mostraHome = !archivioAperto && !materiaScheda && !materiaRipasso && (inHome || !aperto)
   const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
 
   useEffect(() => {
@@ -163,7 +176,7 @@ export function App() {
     <>
       <Guscio
         latoAperto={latoAperto}
-        destra={!mostraHome && !materiaScheda && !materiaRipasso && pannello.aperto && docAperto
+        destra={!mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && pannello.aperto && docAperto
           ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
         lato={
@@ -183,7 +196,9 @@ export function App() {
           />
         }
         centro={
-          materiaRipasso ? (
+          archivioAperto ? (
+            <Archivio onHome={vaiHome} onApri={apri} onEliminaPagina={(d) => setDaEliminare({ tipo: 'pagina', documento: d })} />
+          ) : materiaRipasso ? (
             <RipassoMateria key={materiaRipasso.id} quaderno={materiaRipasso} onHome={vaiHome} />
           ) : materiaScheda ? (
             <SchedaMateria
@@ -200,6 +215,7 @@ export function App() {
               onApri={apri}
               onScheda={apriScheda}
               onRipasso={apriRipasso}
+              onArchivio={apriArchivio}
               onCopertina={setCopertinaDi}
               onElimina={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}
             />
@@ -251,7 +267,7 @@ export function App() {
       )}
 
       {comandiAperti && (
-        <Comandi quaderni={quaderni} documenti={documenti} onApri={apri} onRipasso={apriRipasso} onChiudi={chiudiComandi} />
+        <Comandi quaderni={quaderni} documenti={documenti} onApri={apri} onRipasso={apriRipasso} onArchivio={apriArchivio} onChiudi={chiudiComandi} />
       )}
     </>
   )

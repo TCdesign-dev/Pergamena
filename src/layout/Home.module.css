@@ -140,3 +140,6 @@
 }
 .nuova:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); border-color: var(--tenue); }
 .piu { font-size: 22px; font-weight: 200; line-height: 1; }
+
+.archivio { color: var(--tenue); text-decoration: underline; text-underline-offset: 2px; }
+.archivio:hover { color: var(--inchiostro-tenue); }

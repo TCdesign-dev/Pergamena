@@ -61,6 +61,19 @@ src/
 │   ├── indice.ts        legge il testo dai documenti Yjs, cache e ricerca
 │   └── useRicerca.ts    il ponte verso React, con attesa
 │
+├── ripasso/
+│   ├── argomenti.ts     un titolo 1 e ciò che segue
+│   ├── quiz.ts          le domande, dagli appunti e dalla lezione
+│   ├── riepilogo.ts     «dove eravamo rimasti»
+│   ├── risultati.ts     com'è andato l'ultimo quiz
+│   ├── FinestraQuiz.tsx
+│   └── RipassoMateria.tsx
+│
+├── archivio/
+│   ├── misure.ts        quanto occupa cosa
+│   ├── azioni.ts        togliere l'audio, o la trascrizione
+│   └── Archivio.tsx
+│
 ├── materia/
 │   ├── SchedaMateria.tsx   la vista: campi in cima, note libere sotto
 │   ├── Testata.tsx         copertina, nome, campi
@@ -619,13 +632,46 @@ non lo lasciano fare al browser — solo da indirizzi pubblici, fino a
 15 MB, e il browser le riduce a 1600 px. I consigli dell'AI provano il
 web quando Commons non ha niente.
 
-### Fase 4 — argomenti, ripasso e archivio
-- Titoli degli argomenti proposti a fine lezione.
-- Recap degli ultimi argomenti trattati.
-- Quiz su quaderno / argomento / selezione.
-- **Gestore dell'archivio**: quanto occupa ogni materia, ogni lezione,
-  ogni trascrizione — e cancellazione selettiva di quello che non ti
-  serve più. Audio, trascrizione e appunti si eliminano separatamente.
+### ✅ Fase 4 — argomenti, ripasso e archivio
+
+**Gli argomenti.** Un argomento è un titolo 1 e tutto quello che segue,
+fino al titolo 1 successivo; il testo prima del primo titolo è un
+argomento che porta il nome della pagina. Si leggono dal documento ogni
+volta (`ripasso/argomenti.ts`): niente elenco da tenere allineato. Dopo
+una lezione integrata il merge propone i titoli 1 che mancano, con lo
+stesso giro di chiamata, e si rivedono come le altre proposte.
+
+**Il ripasso** di una materia (↺ nella barra laterale e sulle copertine,
+«Ripasso di…» in ⌘K):
+
+- *Dove eravamo rimasti*: il punto sulle ultime due lezioni, da leggere
+  prima di entrare in aula. Una lezione è un GIORNO — le registrazioni
+  si fanno a pezzi — e senza registrazioni si guardano le ultime pagine.
+  Si rifà solo quando ci sono lezioni nuove.
+- *Argomenti*: quelli da ripassare in cima (mai fatto un quiz, meno di
+  sette su dieci, o più di una settimana fa), col risultato dell'ultimo.
+
+**I quiz** — per argomento, su tutta la materia (parte da quelli da
+ripassare), o sul passaggio selezionato («Quiz» nel menu della
+selezione). Scelta multipla e domande aperte, una alla volta, tutto da
+tastiera (1-4, Invio, Esc), con la spiegazione dopo ogni risposta. Per un
+argomento solo, oltre agli appunti il modello legge i passi della
+lezione registrata che gli corrispondono (le àncore dicono quali). Ogni
+domanda sa da quale blocco nasce: a fine giro, per ogni errore, «rileggi»
+porta lì. Le opzioni si rimescolano in casa (i modelli mettono la giusta
+sempre al primo posto) e i nomi dei blocchi non finiscono nel testo.
+Esiti e riepiloghi stanno nell'indice: si sincronizzano col resto.
+
+**L'archivio** (in ⌘K, e «archivio» sotto «Le tue materie»): quanto
+occupano appunti, trascrizioni, audio e immagini, materia per materia,
+le più pesanti in cima; dentro, pagina per pagina e lezione per lezione.
+Si toglie una cosa alla volta: l'audio lasciando la trascrizione, la
+trascrizione lasciando gli appunti, la pagina intera.
+
+Collaudato sulla lezione di Materiali: 2 argomenti letti dalla pagina, il
+punto della lezione in 13 s (sei punti, voto finale 10+10+10), un quiz di
+5 domande in 21 s, «rileggi» sul blocco giusto, l'esito salvato («4 su 5
+· oggi»), un quiz su un passaggio selezionato in 4 s.
 
 ### Fase 5 — correzioni in diretta
 Confronto fra quello che scrivi e quello che il professore ha appena

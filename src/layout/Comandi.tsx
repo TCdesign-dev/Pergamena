@@ -17,12 +17,13 @@ type Riga =
   | { tipo: 'azione'; chiave: string; titolo: string; esegui: () => void }
 
 export function Comandi({
-  quaderni, documenti, onApri, onRipasso, onChiudi,
+  quaderni, documenti, onApri, onRipasso, onArchivio, onChiudi,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (id: string, fuoco?: Fuoco) => void
   onRipasso: (quadernoId: string) => void
+  onArchivio: () => void
   onChiudi: () => void
 }) {
   const [query, setQuery] = useState('')
@@ -71,6 +72,12 @@ export function Comandi({
       })),
       {
         tipo: 'azione' as const,
+        chiave: 'archivio',
+        titolo: 'Archivio: quanto occupa cosa, e cosa togliere',
+        esegui: onArchivio,
+      },
+      {
+        tipo: 'azione' as const,
         chiave: 'nuova-materia',
         titolo: 'Nuova materia',
         esegui: () => onApri(creaDocumento(creaQuaderno('').id).id, 'titolo'),
@@ -78,7 +85,7 @@ export function Comandi({
     ].filter((r) => !q || normalizza(r.titolo).includes(q))
 
     return [...perTitolo, ...perContenuto, ...azioni]
-  }, [quaderni, documenti, query, nelContenuto, onApri, onRipasso])
+  }, [quaderni, documenti, query, nelContenuto, onApri, onRipasso, onArchivio])
 
   useEffect(() => setIndice(0), [query])
   useEffect(() => {

@@ -11,13 +11,14 @@ import s from './Home.module.css'
  *  guardare — è uno scaffale. */
 
 export function Home({
-  quaderni, documenti, onApri, onScheda, onRipasso, onCopertina, onElimina,
+  quaderni, documenti, onApri, onScheda, onRipasso, onArchivio, onCopertina, onElimina,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (idDocumento: string) => void
   onScheda: (quadernoId: string) => void
   onRipasso: (quadernoId: string) => void
+  onArchivio: () => void
   onCopertina: (quaderno: Quaderno) => void
   onElimina: (quaderno: Quaderno) => void
 }) {
@@ -32,6 +33,7 @@ export function Home({
           {quaderni.length === 0
             ? 'Non ce n’è ancora nessuna.'
             : `${quaderni.length} materie · ${pagineTutte.length} pagine`}
+          {quaderni.length > 0 && <> · <button className={s.archivio} onClick={onArchivio}>archivio</button></>}
         </p>
       </header>
 
