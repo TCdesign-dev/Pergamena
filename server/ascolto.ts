@@ -13,8 +13,12 @@ import type { Plugin } from 'vite'
  *  l'app non se ne accorgerà, perché parla sempre con /api/ascolto. */
 
 const BINARIO = resolve(process.cwd(), 'build/pergamena-ascolto')
-export const CARTELLA_AUDIO = join(homedir(), 'Library/Application Support/Pergamena/registrazioni')
-const CARTELLA_SOSPESE = join(homedir(), 'Library/Application Support/Pergamena/sospese')
+/*  Dove vanno l'audio e le frasi messe da parte. Si può spostare con
+ *  PERGAMENA_CARTELLA nel .env.local: una copia di prova dell'app non
+ *  deve mai toccare i file di quella vera — potrebbe prendersi le
+ *  frasi sospese di una lezione vera, o cancellarne l'audio. */
+let CARTELLA_AUDIO = ''
+let CARTELLA_SOSPESE = ''
 
 let processo: ChildProcessWithoutNullStreams | null = null
 let idCorrente: string | null = null
@@ -60,12 +64,14 @@ function daConservare(riga: string) {
   }
 }
 
-/*  Se il server si ferma mentre registri, il programma di ascolto
- *  riceve lo stop, chiude le ultime frasi e le scrive — ma nessuno le
- *  ascolta più: la pagina si è già staccata. Allora le frasi finite
- *  vanno in un file, «sospese», e la pagina le recupera appena torna
- *  il server. Il file si scrive subito (con quello che c'è) e di nuovo
- *  all'uscita (con le ultime), segnato come chiuso. */
+/*  Le frasi finite di ogni registrazione vanno anche in un file,
+ *  «sospese», quando il programma di ascolto esce. Se una pagina le
+ *  stava scrivendo tutte, lo cancella lei. Se no — il server che si
+ *  ferma mentre registri, o nessuna pagina collegata negli ultimi
+ *  minuti (è successo: 12 frasi che esistevano solo in memoria) — la
+ *  prossima pagina che si apre le recupera. Col server che si ferma il
+ *  file si scrive due volte: subito, con quello che c'è, e all'uscita,
+ *  segnato come chiuso. */
 let chiudendo = false
 
 function salvaSospesa(chiusa: boolean) {
@@ -156,7 +162,7 @@ function avvia(corpo: Record<string, unknown>) {
   })
   processo.on('exit', (codice) => {
     if (avanzo.trim()) diffondi(avanzo)
-    if (chiudendo) salvaSospesa(true)
+    salvaSospesa(true)
     diffondi(JSON.stringify({ evento: 'uscito', codice, id: idCorrente }))
     processo = null
     idCorrente = null
@@ -190,7 +196,11 @@ function ferma(corpo: Record<string, unknown>) {
   return { ok: true }
 }
 
-export function ascolto(): Plugin {
+export function ascolto(env: Record<string, string> = {}): Plugin {
+  const base = env.PERGAMENA_CARTELLA || join(homedir(), 'Library/Application Support/Pergamena')
+  CARTELLA_AUDIO = join(base, 'registrazioni')
+  CARTELLA_SOSPESE = join(base, 'sospese')
+
   return {
     name: 'pergamena-ascolto',
     configureServer(server) {

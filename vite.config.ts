@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [react(), ascolto(), llm(env)],
+    plugins: [react(), ascolto(env), llm(env)],
     server: { port: 5180 },
   }
 })

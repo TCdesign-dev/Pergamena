@@ -542,6 +542,18 @@ alla pagina nuova: quattro frasi doppie, e la pagina nuova mostrava
 - le frasi doppie comunque non si leggono mai (merge, trascrizione,
   conti), e alla chiusura si tolgono dal documento.
 
+**Nessuna frase esiste solo in memoria.** Quando il programma di
+ascolto esce, il server mette sempre da parte tutte le frasi finite; la
+pagina che le ha scritte tutte cancella il file, altrimenti la prossima
+pagina che si apre recupera quelle mancanti. È servito il giorno stesso:
+una lezione finita mentre nessuna pagina la scriveva aveva 12 frasi solo
+nella memoria del server, e un riavvio le avrebbe perse.
+
+**Una copia di prova dell'app ha la sua cartella.** Con
+`PERGAMENA_CARTELLA` nel suo `.env.local` (e senza le chiavi di
+Supabase): altrimenti potrebbe prendersi le frasi sospese di una lezione
+vera, o cancellarne l'audio.
+
 **Pausa.** ❚❚ accanto a Registra. In pausa il microfono resta aperto ma
 al riconoscitore e al file arriva **silenzio**: così il tempo continua a
 scorrere e le frasi, le àncore e il minuto da riascoltare restano

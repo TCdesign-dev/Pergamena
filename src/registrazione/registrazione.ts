@@ -6,7 +6,7 @@ import type { Segmento, Ancora } from './tipi'
 import {
   avviatoDi, chiave, chiudiPausa, chiudiVoce, contaPause, mappaRegistrazioni, segnaPausa,
 } from './voci'
-import { recuperaSospese } from './recupero'
+import { recuperaInterrotte, recuperaSospese } from './recupero'
 import { esponi } from '../lib/dev'
 import { leggiImpostazioni } from '../impostazioni'
 
@@ -175,7 +175,9 @@ function segnaAltrove(id: string, documentoId: string | null) {
   window.clearInterval(timerAltrove)
   timerAltrove = window.setInterval(async () => {
     const s = await chiediStato()
-    if (!s?.attivo || s.id !== id) return lasciaAltrove()
+    // finita altrove: se nessuno l'ha scritta fino in fondo, le frasi
+    // mancanti sono nel file del server
+    if (!s?.attivo || s.id !== id) { lasciaAltrove(); return void recuperaInterrotte() }
     if (s.ascoltatori === 0) void riprendiSeInCorso()
   }, SORVEGLIANZA)
 }
@@ -344,6 +346,8 @@ function concludi(voce: Y.Map<unknown>, errore: string | null, interrotta: boole
   }
   chiudiVoce(voce, false, errore, quando)
   azzera(errore)
+  // tutto scritto da qui: le frasi messe da parte dal server non servono
+  if (id) void fetch(`/api/ascolto/sospese/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
 }
 
 function annotaAncora(voce: Y.Map<unknown>, opzioni: Opzioni) {
