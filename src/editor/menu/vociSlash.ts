@@ -1,5 +1,6 @@
 import type { Editor, Range } from '@tiptap/core'
 import { normalizza } from '../../lib/testo'
+import { nuovaFormula } from '../estensioni/formule'
 
 export type VoceSlash = {
   chiave: string
@@ -29,14 +30,25 @@ export const VOCI_SLASH: VoceSlash[] = [
     azione: (e, r) => c(e, r).toggleBlockquote().run() },
   { chiave: 'code', nome: 'Blocco di codice', suggerimento: '```', icona: '‹›', parole: ['codice', 'formula'],
     azione: (e, r) => c(e, r).toggleCodeBlock().run() },
+  { chiave: 'formula', nome: 'Formula', suggerimento: '$$$', icona: '∑', parole: ['latex', 'math', 'matematica', 'equazione'],
+    azione: (e, r) => { c(e, r).run(); nuovaFormula(e, 'blocco') } },
+  { chiave: 'fx', nome: 'Formula nel testo', suggerimento: '$$', icona: 'ƒ', parole: ['latex', 'math', 'inline', 'equazione'],
+    azione: (e, r) => { c(e, r).run(); nuovaFormula(e, 'inline') } },
   { chiave: 'hr', nome: 'Separatore', suggerimento: '---', icona: '—', parole: ['riga', 'linea', 'divisore'],
     azione: (e, r) => c(e, r).setHorizontalRule().run() },
 ]
 
+/*  Si cerca anche per nome corto: «/h1» porta dritto al Titolo 1. Chi
+ *  ha proprio quel nome corto viene prima di tutti; «/h» li mostra
+ *  tutti e tre. Prima «h1» non trovava niente e il menu spariva. */
 export function filtraVoci(query: string): VoceSlash[] {
   const q = normalizza(query.trim())
   if (!q) return VOCI_SLASH
-  return VOCI_SLASH.filter((v) =>
-    normalizza(v.nome).includes(q) || v.parole.some((p) => normalizza(p).includes(q)),
-  )
+  const esatta = VOCI_SLASH.filter((v) => v.chiave === q)
+  const altre = VOCI_SLASH.filter((v) => v.chiave !== q && (
+    v.chiave.startsWith(q) ||
+    normalizza(v.nome).includes(q) ||
+    v.parole.some((p) => normalizza(p).includes(q))
+  ))
+  return [...esatta, ...altre]
 }

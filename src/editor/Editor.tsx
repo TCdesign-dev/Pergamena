@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { useEditor, EditorContent, type Editor as EditoreTipTap } from '@tiptap/react'
+import { DragHandle } from '@tiptap/extension-drag-handle-react'
 import { apriDocumento, rinominaDocumento, segnaModificato } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
 import { estensioni } from './estensioni'
 import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
+import { EditorFormula } from './formula/EditorFormula'
 import { Tessere } from '../layout/Attesa'
 import s from './Editor.module.css'
 
@@ -107,9 +109,37 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
           }}
         />}
         {editor && <MenuSelezione editor={editor} />}
+        {editor && <Maniglia editor={editor} />}
+        {editor && <EditorFormula editor={editor} />}
         <EditorContent editor={editor} />
         <MenuSlash />
       </div>
     </div>
+  )
+}
+
+/*  La maniglia ⋮⋮ a sinistra della riga sotto il mouse: si trascina per
+ *  spostare il blocco (o la voce d'elenco); un clic seleziona il blocco
+ *  intero, e da lì ⌘⇧↑/↓ lo sposta o Canc lo toglie. Se c'è già un
+ *  gruppo selezionato, trascinandola si sposta tutto il gruppo. */
+function Maniglia({ editor }: { editor: EditoreTipTap }) {
+  const sotto = useRef<number | null>(null)
+  return (
+    <DragHandle
+      editor={editor}
+      nested
+      onNodeChange={({ pos }) => { sotto.current = pos }}
+    >
+      <button
+        className={s.maniglia}
+        title="Trascina per spostare · clic per selezionare"
+        aria-label="Sposta il blocco"
+        onClick={() => {
+          if (sotto.current !== null && sotto.current >= 0) editor.chain().focus().setNodeSelection(sotto.current).run()
+        }}
+      >
+        <span aria-hidden>⋮⋮</span>
+      </button>
+    </DragHandle>
   )
 }

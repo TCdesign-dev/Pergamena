@@ -12,6 +12,8 @@ import { Slash } from './slash'
 import { Immagine } from './immagine'
 import { RichiestaImmagine } from './richiestaImmagine'
 import { Elenchi } from './elenchi'
+import { SpostaBlocchi, GruppoDiBlocchi } from './spostaBlocchi'
+import { FormulaASe, FormulaNelTesto, FormuleLettura } from './formule'
 
 /** L'elenco delle estensioni sta in un posto solo: da qui in poi
  *  aggiungere una funzione all'editor è aggiungere una riga qui. */
@@ -22,6 +24,8 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string } = {}) {
       // storici litigano quando l'AI scrive mentre stai scrivendo tu
       undoRedo: false,
       heading: { levels: [1, 2, 3] },
+      // la riga che dice dove cadrà il blocco trascinato
+      dropcursor: { color: 'var(--accento)', width: 2 },
     }),
     Highlight.configure({ multicolor: false }),
     Placeholder.configure({
@@ -32,9 +36,13 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string } = {}) {
     ColoreTesto,
     Frecce,
     Elenchi,
+    SpostaBlocchi,
+    GruppoDiBlocchi.configure({ key: 'Mod' }),
     Slash,
     Immagine,
     RichiestaImmagine,
+    FormulaNelTesto,
+    FormulaASe,
     Collaboration.configure({ document: doc, field: 'contenuto' }),
   ]
 }
@@ -55,6 +63,7 @@ export function estensioniLettura(doc: Y.Doc) {
     SegnoAi,
     ColoreTesto,
     Immagine,
+    ...FormuleLettura,
     Collaboration.configure({ document: doc, field: 'contenuto' }),
   ]
 }

@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core'
+import { Extension, textblockTypeInputRule } from '@tiptap/core'
 import Suggestion from '@tiptap/suggestion'
 import { filtraVoci, type VoceSlash } from '../menu/vociSlash'
 import {
@@ -13,6 +13,16 @@ import {
 
 export const Slash = Extension.create({
   name: 'slash',
+
+  /*  «/h1» seguito da spazio: il titolo subito, senza passare dal menu.
+   *  Lo spazio chiude il menu e la regola scatta sul testo rimasto. */
+  addInputRules() {
+    return [1, 2, 3].map((livello) => textblockTypeInputRule({
+      find: new RegExp(`^\\/h${livello}\\s$`),
+      type: this.editor.schema.nodes.heading,
+      getAttributes: { level: livello },
+    }))
+  },
 
   addProseMirrorPlugins() {
     return [

@@ -123,3 +123,22 @@
   height: 0;
   pointer-events: none;
 }
+
+/* ── blocchi scelti interi (clic sulla maniglia, o ⌘ + selezione) ── */
+.ProseMirror .ProseMirror-selectednoderange,
+.ProseMirror > .ProseMirror-selectednode:not(figure) {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--selezione) 70%, transparent);
+}
+.ProseMirror.ProseMirror-noderangeselection *::selection { background: transparent; }
+
+/* ── formule (KaTeX) ─────────────────────────────────────────── */
+.ProseMirror .tiptap-mathematics-render--editable { cursor: pointer; border-radius: 4px; }
+.ProseMirror .tiptap-mathematics-render--editable:hover { background: var(--sfiorata); }
+.ProseMirror [data-type="inline-math"] { padding: 0 2px; }
+.ProseMirror [data-type="block-math"] { margin: calc(var(--u) * 1.5) 0; padding: 6px 0; overflow-x: auto; text-align: center; }
+.ProseMirror .ProseMirror-selectednode[data-type="inline-math"],
+.ProseMirror .ProseMirror-selectednode[data-type="block-math"] { background: color-mix(in srgb, var(--selezione) 70%, transparent); }
+/* appena messa e ancora vuota: un posto riconoscibile */
+.ProseMirror .tiptap-mathematics-render[data-latex=""]::before { content: 'formula'; color: var(--tenue); font-style: italic; font-size: 0.9em; }
+.ProseMirror .inline-math-error, .ProseMirror .block-math-error { color: var(--c-rosso); font-family: var(--font-mono); font-size: 0.85em; }

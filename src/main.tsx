@@ -5,6 +5,7 @@ import './stili/token.css'
 import './stili/base.css'
 import './stili/editor.css'
 import './stili/movimento.css'
+import 'katex/dist/katex.min.css'
 
 /*  Sul telefono si consulta, sul Mac si scrive: due gusci diversi,
  *  stessi dati. La soglia è la larghezza, non il tipo di dispositivo:
@@ -19,6 +20,12 @@ import './stili/movimento.css'
  *  che serve solo a scrivere. In 4G, per una vista di sola lettura,
  *  sarebbero centinaia di kilobyte buttati. */
 const telefono = window.matchMedia('(max-width: 600px)').matches
+
+/*  Una copia di prova dell'app (quella con cui si collaudano le
+ *  modifiche, su un'altra porta) si riconosce a colpo d'occhio: bordo
+ *  arancio e scritta in alto. Due volte è stata scambiata per l'app
+ *  vera nel pannello del browser, e lì non si salva niente. */
+if (import.meta.env.VITE_COPIA_DI_PROVA) document.documentElement.dataset.prova = ''
 
 const Guscio = lazy(() =>
   telefono

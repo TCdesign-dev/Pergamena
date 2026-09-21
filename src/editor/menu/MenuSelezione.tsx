@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BubbleMenu } from '@tiptap/react/menus'
 import type { Editor } from '@tiptap/react'
+import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 import { COLORI, ETICHETTE, type Colore } from '../../stili/colori'
 import { ultimoColore } from '../estensioni/coloreTesto'
 import s from './MenuSelezione.module.css'
@@ -79,7 +80,18 @@ export function MenuSelezione({ editor }: { editor: Editor }) {
   const coloreMostrato = coloreAttivo ?? ultimoColore()
 
   return (
-    <BubbleMenu editor={editor} className={s.menu}>
+    <BubbleMenu
+      editor={editor}
+      className={s.menu}
+      shouldShow={({ editor: e, element, view, state, from, to }) => {
+        const { selection } = state
+        // formule e immagini hanno la loro finestrella: il menu del testo non serve
+        if (selection instanceof NodeSelection && selection.node.isAtom) return false
+        const vuoto = !state.doc.textBetween(from, to).length && selection instanceof TextSelection
+        const nelMenu = element.contains(document.activeElement)
+        return (view.hasFocus() || nelMenu) && !selection.empty && !vuoto && e.isEditable
+      }}
+    >
       {pannello === 'principale' ? (
         <>
           {VOCI.map((v) =>
