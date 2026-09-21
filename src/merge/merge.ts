@@ -5,6 +5,7 @@ import { costruisciPrompt } from './prompt'
 import { applica, blocchiDi, type Proposta } from './applica'
 import { leggiRegistrazioni, mappaRegistrazioni } from '../registrazione/registrazione'
 import { esponi } from '../lib/dev'
+import { aggiungiConsigli, type Richiesta } from '../immagini/consigliate'
 
 /*  Il merge dopo la lezione: UNA chiamata per lezione.
  *
@@ -14,7 +15,7 @@ import { esponi } from '../lib/dev'
 
 const MASSIMO = 8
 
-export type EsitoMerge = { proposte: number; scartate: number; costo: number | null }
+export type EsitoMerge = { proposte: number; scartate: number; immagini: number; costo: number | null }
 
 export async function integraLezione(editor: Editor, doc: Y.Doc, idRegistrazione: string, materia: string): Promise<EsitoMerge> {
   const reg = leggiRegistrazioni(doc).find((r) => r.id === idRegistrazione)
@@ -43,9 +44,11 @@ export async function integraLezione(editor: Editor, doc: Y.Doc, idRegistrazione
 
   const grezzo = String(dati.choices?.[0]?.message?.content ?? '')
   let proposte: Proposta[]
+  let richiesteImmagini: Richiesta[] = []
   try {
     const j = JSON.parse(grezzo.slice(grezzo.indexOf('{'), grezzo.lastIndexOf('}') + 1))
     proposte = Array.isArray(j.proposte) ? j.proposte : []
+    richiesteImmagini = Array.isArray(j.immagini) ? j.immagini : []
   } catch {
     throw new Error('il modello non ha risposto in JSON')
   }
@@ -61,7 +64,10 @@ export async function integraLezione(editor: Editor, doc: Y.Doc, idRegistrazione
   const fatte = applica(editor, buone)
   mappaRegistrazioni(doc).get(idRegistrazione)?.set('integrata', fatte)
 
-  return { proposte: fatte, scartate: proposte.length - fatte, costo: dati.usage?.cost ?? null }
+  // i consigli di immagini arrivano gratis con la stessa chiamata
+  const immagini = await aggiungiConsigli(editor, doc, richiesteImmagini).catch(() => 0)
+
+  return { proposte: fatte, scartate: proposte.length - fatte, immagini, costo: dati.usage?.cost ?? null }
 }
 
 esponi({ merge: { integraLezione, allinea } })

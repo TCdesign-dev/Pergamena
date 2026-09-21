@@ -326,6 +326,21 @@ allineamenti (piena larghezza, a sinistra o a destra col testo che
 scorre accanto). Si inseriscono anche incollandole e trascinandole dal
 Finder.
 
+**Due schede.** *Cercate* sono le ricerche tue — a mano o con
+`!parola!` — dodici risultati da cui scegli, e l'immagine va dove la
+trascini. *Consigliate* sono i concetti che secondo l'AI meritano
+un'immagine: ogni consiglio è agganciato al passo degli appunti che lo
+nomina (la citazione ci riporta lì), quindi sa già dove andare —
+*Metti sotto il paragrafo*, anche se stai scrivendo altrove. Una foto
+in evidenza e tre alternative invece di una griglia: la scelta l'AI
+l'ha già fatta. Un consiglio aperto alla volta, gli altri su una riga.
+
+I consigli arrivano **mai mentre scrivi**: con il merge, nella stessa
+chiamata, oppure dal pulsante *Suggerisci immagini*. Dopo un merge con
+consigli nuovi il pannello si apre da solo sulle Consigliate. *Non
+serve* se lo ricorda la pagina (i consigli vivono nel suo documento
+Yjs): un concetto scartato non torna, nemmeno chiedendone altri.
+
 Tre decisioni dietro a questa fase:
 
 **I byte si copiano, non si collegano.** Un link a Commons prima o poi
@@ -391,6 +406,24 @@ riconoscibile, sottolineato a puntini.
 **Lezioni** nella barra: trascrizioni, merge, riascolto dal minuto
 cliccato (se l'audio è salvato), eliminazione. L'audio è spento di
 partenza — circa 17 MB l'ora in AAC 32 kbps, e il disco è al 97%.
+
+**Il microfono.** Il programma ascolta il microfono di sistema, ma dice
+da quale — e se per 6 secondi non sente niente lo scrive nella
+striscia. Sul Mac di sviluppo il microfono «di sistema» era BlackHole,
+un ingresso virtuale: timer che correva, silenzio registrato. Dal
+pannello Lezioni si sceglie il microfono; i virtuali stanno in fondo.
+La prima volta macOS chiede il permesso a nome di **pergamena-ascolto**:
+il programma si rilancia rinunciando alla responsabilità ereditata,
+altrimenti — lanciato da un server avviato con responsabilità già
+rinunciata, come fa l'app Claude — macOS negava in silenzio.
+
+**Le chiamate al modello** hanno un tempo massimo (90 s il merge) e un
+secondo tentativo, e OpenRouter preferisce i fornitori veloci: lo
+stesso modello gira su decine di fornitori, e uno ha tenuto un merge
+aperto per più di due minuti e mezzo.
+
+**La revisione vale finché la selezione è sulla proposta.** Se clicchi
+altrove nel testo stai scrivendo, e Invio torna ad andare a capo.
 
 Collaudato su una lezione sintetizzata con la voce Alice:
 

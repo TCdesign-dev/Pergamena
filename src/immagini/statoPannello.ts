@@ -14,9 +14,10 @@ export type Ricerca = {
   errore?: string
 }
 
-type Stato = { aperto: boolean; ricerche: Ricerca[] }
+export type Scheda = 'consigliate' | 'cercate'
+type Stato = { aperto: boolean; scheda: Scheda; ricerche: Ricerca[] }
 
-let stato: Stato = { aperto: false, ricerche: [] }
+let stato: Stato = { aperto: false, scheda: 'cercate', ricerche: [] }
 const ascoltatori = new Set<() => void>()
 
 export const leggiPannello = () => stato
@@ -31,8 +32,14 @@ function pubblica(nuovo: Stato) {
   ascoltatori.forEach((f) => f())
 }
 
-export function apriPannello(aperto = true) {
-  if (stato.aperto !== aperto) pubblica({ ...stato, aperto })
+export function apriPannello(aperto = true, scheda?: Scheda) {
+  if (stato.aperto !== aperto || (scheda && scheda !== stato.scheda)) {
+    pubblica({ ...stato, aperto, scheda: scheda ?? stato.scheda })
+  }
+}
+
+export function scegliScheda(scheda: Scheda) {
+  if (stato.scheda !== scheda) pubblica({ ...stato, scheda })
 }
 
 export function scartaRicerca(id: string) {
@@ -48,7 +55,8 @@ export async function avviaRicerca(query: string, origine: Ricerca['origine'] = 
 
   // una ricerca uguale già in cima non si duplica
   const senzaDoppioni = stato.ricerche.filter((r) => r.query.toLowerCase() !== q.toLowerCase())
-  pubblica({ aperto: true, ricerche: [nuova, ...senzaDoppioni].slice(0, 8) })
+  // una ricerca porta sempre sulla scheda delle ricerche
+  pubblica({ aperto: true, scheda: 'cercate', ricerche: [nuova, ...senzaDoppioni].slice(0, 8) })
 
   const aggiorna = (patch: Partial<Ricerca>) =>
     pubblica({

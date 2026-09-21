@@ -1,4 +1,5 @@
 import type { Tratto } from './allinea'
+import { DOMANDA_IMMAGINI } from '../immagini/consigliate'
 
 export type BloccoAppunti = { id: string; tipo: string; testo: string }
 
@@ -35,9 +36,12 @@ Regole:
 - "dopo" è l'id del blocco dopo cui va inserita la proposta.
 - "importanza" va da 1 (curiosità) a 5 (indispensabile per l'esame).
 
+Poi, a parte: ${DOMANDA_IMMAGINI}
+
 Rispondi SOLO con un oggetto JSON:
-{"proposte":[{"dopo":"<id>","tipo":"integra"|"correggi","testo":"...","perche":"...","importanza":1-5}]}
-Se non manca niente di utile: {"proposte":[]}`
+{"proposte":[{"dopo":"<id>","tipo":"integra"|"correggi","testo":"...","perche":"...","importanza":1-5}],
+ "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
+Se non manca niente di utile: {"proposte":[], "immagini":[...]}`
 
 export function costruisciPrompt(materia: string, blocchi: BloccoAppunti[], tratti: Tratto[]) {
   const appunti = blocchi

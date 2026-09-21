@@ -83,6 +83,17 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
   const tasto = useCallback((e: KeyboardEvent) => {
     const editor = rifEditore.current
     if (!editor || !corrente) return
+
+    /*  Si rivede solo finché la selezione è sulla proposta. Se hai
+     *  cliccato altrove nel testo stai scrivendo: la revisione si
+     *  chiude e il tasto è tuo. Senza questa regola un Invio battuto
+     *  per andare a capo diventava un «accetta». */
+    const { from, to } = editor.state.selection
+    if (from < corrente.da || to > corrente.a) {
+      chiudiRevisione()
+      return
+    }
+
     const k = e.key.toLowerCase()
     const prendi = () => { e.preventDefault(); e.stopPropagation() }
 

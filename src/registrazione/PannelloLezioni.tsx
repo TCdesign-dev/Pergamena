@@ -6,6 +6,7 @@ import { useRegistrazioni } from './useRegistrazioni'
 import { eliminaRegistrazione } from './registrazione'
 import { integraLezione } from '../merge/merge'
 import { avviaRevisione } from '../merge/statoRevisione'
+import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
 import s from './PannelloLezioni.module.css'
 
@@ -56,6 +57,10 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
           ? `${esito.proposte} ${esito.proposte === 1 ? 'proposta' : 'proposte'} negli appunti`
           : 'Non manca niente di importante.',
       })
+      /*  Dopo un merge si è già in modalità «sistemo gli appunti»:
+       *  il pannello si apre da solo sulle immagini consigliate.
+       *  Mentre scrivi, invece, non si apre mai da solo. */
+      if (esito.immagini) apriPannello(true, 'consigliate')
       if (esito.proposte) { onChiudi(); avviaRevisione() }
     } catch (e) {
       setLavoro({ id: r.id, messaggio: e instanceof Error ? e.message : 'merge fallito' })

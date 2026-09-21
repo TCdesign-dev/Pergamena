@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { useIndice } from './documento/useIndice'
-import { eliminaDocumento, eliminaQuaderno } from './documento/archivio'
+import { apriDocumento, eliminaDocumento, eliminaQuaderno } from './documento/archivio'
 import type { Quaderno, Documento } from './documento/tipi'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
@@ -106,12 +106,15 @@ export function App() {
   const aperto = documenti.find((d) => d.id === apertoId) ?? null
   const materiaAperta = aperto ? quaderni.find((q) => q.id === aperto.quadernoId) ?? null : null
   const mostraHome = inHome || !aperto
+  const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
 
   return (
     <>
       <Guscio
         latoAperto={latoAperto}
-        destra={!mostraHome && pannello.aperto ? <PannelloImmagini rifEditore={rifEditore} /> : undefined}
+        destra={!mostraHome && pannello.aperto && docAperto
+          ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
+          : undefined}
         lato={
           <BarraLaterale
             quaderni={quaderni}
