@@ -24,6 +24,9 @@ Regole:
 - Non riassumere la lezione. Colma soltanto i buchi.
 - Non proporre ciò che negli appunti c'è già, anche se detto con altre parole.
 - Ignora saluti, battute, ripetizioni, istruzioni organizzative.
+- Il professore ripete spesso la stessa cosa («dicevo…», «riassumendo…»):
+  ogni dato va proposto UNA volta sola. Se più dati riguardano la stessa
+  cosa, mettili nella stessa proposta invece di spezzarli in due.
 - Scrivi ESATTAMENTE come sono scritti gli appunti: stessa lunghezza delle
   frasi, stesso registro, stesse abbreviazioni, stessi simboli (per esempio →).
   Se lo studente scrive per frammenti, scrivi per frammenti.
@@ -33,7 +36,9 @@ Regole:
   La trascrizione automatica sbaglia nomi propri e numeri: correggi solo
   se sei sicuro che l'errore sia negli appunti e non nella trascrizione.
 - Al massimo 8 proposte. Meglio 3 utili che 8 mediocri.
-- "dopo" è l'id del blocco dopo cui va inserita la proposta.
+- "dopo" è l'id del blocco dopo cui va inserita la proposta: uno degli id
+  fra parentesi quadre negli APPUNTI. Le proposte per lo stesso blocco
+  scrivile nell'ordine in cui vanno lette.
 - "importanza" va da 1 (curiosità) a 5 (indispensabile per l'esame).
 
 Poi, a parte: ${DOMANDA_IMMAGINI}

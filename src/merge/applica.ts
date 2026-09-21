@@ -25,39 +25,76 @@ function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null
  *  paragrafo in mezzo a un elenco puntato sarebbe il segno più
  *  evidente che l'ha scritto qualcun altro.
  *
- *  Le posizioni si ricalcolano per ogni proposta, cercando l'id:
- *  ogni inserimento sposta tutto quello che viene dopo. */
+ *  Le proposte per lo stesso blocco entrano insieme, nell'ordine in
+ *  cui le ha scritte il modello. Una alla volta, ognuna finiva subito
+ *  sotto al blocco, cioè SOPRA la precedente: uscivano al contrario,
+ *  «Seconda parte» prima di «Prima parte».
+ *
+ *  Le posizioni si ricalcolano per ogni blocco, cercando l'id: ogni
+ *  inserimento sposta tutto quello che viene dopo. */
 export function applica(editor: Editor, proposte: Proposta[]) {
+  const perBlocco = new Map<string, Proposta[]>()
+  for (const p of proposte) perBlocco.set(p.dopo, [...(perBlocco.get(p.dopo) ?? []), p])
+
   let fatte = 0
-
-  for (const p of proposte) {
-    const bersaglio = trova(editor, p.dopo)
+  for (const [dopo, gruppo] of perBlocco) {
+    const bersaglio = trova(editor, dopo)
     if (!bersaglio) continue
-
-    const testo = (p.tipo === 'correggi' ? '⚠︎ ' : '') + p.testo.trim()
-    const segnato = [{
-      type: 'text',
-      text: testo,
-      marks: [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }],
-    }]
 
     const { pos, nodo } = bersaglio
     const elenco = nodo.type.name === 'bulletList' || nodo.type.name === 'orderedList'
 
-    const ok = elenco
-      // in fondo all'elenco: dentro, prima della sua chiusura
-      ? editor.chain().insertContentAt(pos + nodo.nodeSize - 1, {
-          type: 'listItem',
-          content: [{ type: 'paragraph', content: segnato }],
-        }).run()
-      : editor.chain().insertContentAt(pos + nodo.nodeSize, {
-          type: 'paragraph',
-          content: segnato,
-        }).run()
+    const blocchi = gruppo.map((p) => {
+      let testo = p.testo.trim()
+      // in un elenco il trattino lo mette già l'elenco
+      if (elenco) testo = testo.replace(/^[-–•*]\s+/, '')
+      const segnato = [{
+        type: 'text',
+        text: (p.tipo === 'correggi' ? '⚠︎ ' : '') + testo,
+        marks: [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }],
+      }]
+      return elenco
+        ? { type: 'listItem', content: [{ type: 'paragraph', content: segnato }] }
+        : { type: 'paragraph', content: segnato }
+    })
 
-    if (ok) fatte++
+    // in fondo all'elenco (dentro, prima della chiusura) o dopo il blocco
+    const dove = elenco ? pos + nodo.nodeSize - 1 : pos + nodo.nodeSize
+    if (editor.chain().insertContentAt(dove, blocchi).run()) fatte += gruppo.length
   }
   return fatte
+}
+
+/** Il testo di ogni riga della pagina — paragrafi, titoli, singole
+ *  voci d'elenco — per capire se una proposta dice cose già scritte. */
+export function righeDi(editor: Editor): string[] {
+  const righe: string[] = []
+  editor.state.doc.descendants((n) => {
+    if (n.isTextblock) {
+      if (n.textContent.trim()) righe.push(n.textContent)
+      return false
+    }
+    return true
+  })
+  return righe
+}
+
+/*  Le àncore puntano al blocco dove stava il cursore. Spesso è una
+ *  riga VUOTA — quella su cui stavi per scrivere — che il prompt non
+ *  elenca, perché non contiene niente: il modello vedeva un id che non
+ *  esiste negli appunti, lo usava come «dopo», e la proposta veniva
+ *  scartata. Le righe vuote si leggono come la riga piena di sopra;
+ *  i blocchi cancellati dopo la lezione non si sa dove fossero. */
+export function rimappaBlocchi(editor: Editor): (id: string) => string | null {
+  const verso = new Map<string, string | null>()
+  let ultimoPieno: string | null = null
+  editor.state.doc.forEach((n) => {
+    const id = n.attrs.idBlocco as string | undefined
+    const pieno = n.type.name === 'immagine' || n.textContent.trim() !== ''
+    if (pieno && id) ultimoPieno = id
+    if (id) verso.set(id, pieno ? id : ultimoPieno)
+  })
+  return (id) => verso.get(id) ?? null
 }
 
 /** Blocchi di primo livello, come li vede il prompt. */

@@ -5,6 +5,7 @@ import { cercaSuCommons, type Trovata } from './commons'
 import { blocchiDi } from '../merge/applica'
 import { normalizza } from '../lib/testo'
 import { esponi } from '../lib/dev'
+import { chiediJson } from '../lib/modello'
 
 /*  Le immagini consigliate dall'AI.
  *
@@ -113,26 +114,12 @@ export async function suggerisci(editor: Editor, doc: Y.Doc, materia: string) {
   if (!blocchi.length) return 0
 
   const appunti = blocchi.map((b) => `[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`).join('\n')
-  const r = await fetch('/api/llm/veloce', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      messages: [
-        { role: 'system', content: `Sei l'assistente di uno studente. ${DOMANDA_IMMAGINI}\nRispondi SOLO con un oggetto JSON: {"immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}` },
-        { role: 'user', content: `MATERIA: ${materia || 'non indicata'}\n\nAPPUNTI:\n${appunti}` },
-      ],
-      response_format: { type: 'json_object' },
-      reasoning: { effort: 'low' },
-      max_tokens: 1500,
-      temperature: 0.2,
-    }),
-  })
-  const dati = await r.json()
-  if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? 'suggerimento fallito')
+  const { json } = await chiediJson('veloce', [
+    { role: 'system', content: `Sei l'assistente di uno studente. ${DOMANDA_IMMAGINI}\nRispondi SOLO con un oggetto JSON: {"immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}` },
+    { role: 'user', content: `MATERIA: ${materia || 'non indicata'}\n\nAPPUNTI:\n${appunti}` },
+  ], { maxToken: 1500 })
 
-  const grezzo = String(dati.choices?.[0]?.message?.content ?? '')
-  const j = JSON.parse(grezzo.slice(grezzo.indexOf('{'), grezzo.lastIndexOf('}') + 1))
-  return aggiungiConsigli(editor, doc, Array.isArray(j.immagini) ? j.immagini : [])
+  return aggiungiConsigli(editor, doc, Array.isArray(json.immagini) ? json.immagini as Richiesta[] : [])
 }
 
 esponi({ consigliate: { suggerisci, aggiungiConsigli, leggiConsigli, cambiaStato } })
