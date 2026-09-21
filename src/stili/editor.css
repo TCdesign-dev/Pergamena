@@ -27,14 +27,6 @@
 .ProseMirror h3 { font-size: 1.1em;  margin-top: calc(var(--u) * 3); }
 .ProseMirror > :is(h1, h2, h3):first-child { margin-top: 0; }
 
-/* Un H1 apre un argomento: la riga lo rende leggibile senza decorare */
-.ProseMirror h1::after {
-  content: "";
-  display: block;
-  height: 1px;
-  margin-top: calc(var(--u) * 1.25);
-  background: var(--linea-forte);
-}
 
 /* ── Marks ──────────────────────────────────────────────────── */
 .ProseMirror strong { font-weight: 640; }
