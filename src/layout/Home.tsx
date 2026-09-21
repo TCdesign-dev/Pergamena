@@ -11,12 +11,13 @@ import s from './Home.module.css'
  *  guardare — è uno scaffale. */
 
 export function Home({
-  quaderni, documenti, onApri, onScheda, onCopertina, onElimina,
+  quaderni, documenti, onApri, onScheda, onRipasso, onCopertina, onElimina,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (idDocumento: string) => void
   onScheda: (quadernoId: string) => void
+  onRipasso: (quadernoId: string) => void
   onCopertina: (quaderno: Quaderno) => void
   onElimina: (quaderno: Quaderno) => void
 }) {
@@ -42,6 +43,7 @@ export function Home({
             pagine={pagineTutte.filter((d) => d.quadernoId === q.id)}
             inRinomina={inRinomina === q.id}
             onScheda={() => onScheda(q.id)}
+            onRipasso={() => onRipasso(q.id)}
             onRinomina={() => setInRinomina(q.id)}
             onFineRinomina={() => setInRinomina(null)}
             onApri={onApri}
@@ -67,12 +69,13 @@ export function Home({
 }
 
 function Scheda({
-  quaderno, pagine, inRinomina, onScheda, onRinomina, onFineRinomina, onApri, onCopertina, onElimina,
+  quaderno, pagine, inRinomina, onScheda, onRipasso, onRinomina, onFineRinomina, onApri, onCopertina, onElimina,
 }: {
   quaderno: Quaderno
   pagine: Documento[]
   inRinomina: boolean
   onScheda: () => void
+  onRipasso: () => void
   onRinomina: () => void
   onFineRinomina: () => void
   onApri: (id: string) => void
@@ -103,6 +106,7 @@ function Scheda({
 
       <div className={s.comandi}>
         <button title="Scheda della materia" onClick={onScheda}>ⓘ</button>
+        <button title="Ripasso e quiz" onClick={onRipasso}>↺</button>
         <button title="Cambia copertina" onClick={onCopertina}>◫</button>
         <button title="Elimina la materia" onClick={onElimina}>⌫</button>
       </div>

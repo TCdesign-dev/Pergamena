@@ -1,0 +1,100 @@
+.vista { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+
+.percorso {
+  display: flex; align-items: center; gap: 5px;
+  flex: none; height: 38px; padding: 0 calc(var(--u) * 2);
+  font-size: 12px;
+}
+.passo { padding: 3px 5px; border-radius: 4px; color: var(--tenue); }
+button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
+.sbarra { color: var(--linea-forte); }
+.qui { padding: 3px 5px; color: var(--inchiostro-tenue); }
+
+.scorre { flex: 1; min-height: 0; overflow-y: auto; }
+.colonna {
+  max-width: var(--colonna);
+  margin: 0 auto;
+  padding: calc(var(--u) * 5) calc(var(--u) * 4) calc(var(--u) * 8);
+  animation: var(--entra-velo);
+}
+
+.testa { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--u); margin-bottom: calc(var(--u) * 4); }
+.titolo { margin: 0; font-family: var(--font-testo); font-size: 2.1em; font-weight: 600; letter-spacing: -0.02em; }
+.sotto { margin: 4px 0 0; color: var(--tenue); font-size: 12.5px; }
+
+.principale, .secondario {
+  flex: none;
+  padding: 7px 14px;
+  border-radius: var(--raggio);
+  font-size: 13px;
+  font-weight: 550;
+}
+.principale { background: var(--accento); color: #fff; }
+.principale:hover { filter: brightness(1.07); }
+.principale:disabled { opacity: 0.5; filter: none; cursor: default; }
+.secondario { background: var(--sfiorata); color: var(--inchiostro); }
+.secondario:hover { background: var(--premuta); }
+
+.sezione { margin-bottom: calc(var(--u) * 4); }
+.intestazione { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.intestazione h2 {
+  margin: 0;
+  color: var(--tenue);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.azione { color: var(--accento); font-size: 12px; }
+.azione:hover { text-decoration: underline; }
+
+.attesa { display: flex; flex-direction: column; gap: 8px; padding: 6px 0 10px; color: var(--inchiostro-tenue); font-size: 12.5px; }
+.attesa span { display: inline-flex; align-items: center; gap: 6px; }
+.nota { margin: 0; color: var(--inchiostro-tenue); font-size: 13px; line-height: 1.6; }
+.vuoto { display: flex; align-items: center; gap: var(--u); color: var(--inchiostro-tenue); font-size: 13px; }
+.vuoto p { flex: 1; margin: 0; }
+
+.lezione { margin-bottom: 14px; padding: 12px 14px; border-radius: var(--raggio-g); background: var(--carta-alt); animation: var(--entra); }
+.lezione h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+.lezione h3::first-letter { text-transform: uppercase; }
+.pagine { margin-left: 8px; color: var(--tenue); font-weight: 400; font-size: 12px; }
+.lezione ul { margin: 0; padding-left: 18px; font-family: var(--font-testo); font-size: 14.5px; line-height: 1.6; }
+.lezione li + li { margin-top: 3px; }
+
+.argomenti { margin: 0; padding: 0; list-style: none; }
+.argomento {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 6px;
+  border-radius: var(--raggio);
+  animation: var(--entra);
+}
+.argomento:hover { background: var(--sfiorata); }
+.pallino { width: 7px; height: 7px; border-radius: 50%; background: var(--c-verde); opacity: 0.7; }
+.daRipassare { background: var(--c-arancio); opacity: 1; }
+.nomeArgomento {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+  font-family: var(--font-testo);
+  font-size: 14.5px;
+  font-weight: 550;
+}
+.nomeArgomento:hover { color: var(--accento); }
+.dove { max-width: 160px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--tenue); font-size: 12px; }
+.esito { color: var(--inchiostro-tenue); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.maluccio { color: var(--c-arancio); }
+.quiz {
+  padding: 3px 10px;
+  border-radius: var(--raggio);
+  background: var(--sfiorata);
+  color: var(--inchiostro);
+  font-size: 12px;
+}
+.quiz:hover { background: var(--accento); color: #fff; }
+
+.righeAttesa { display: flex; flex-direction: column; gap: 8px; }
+.rigaAttesa { height: 22px; }

@@ -10,7 +10,7 @@ import { StatoSincronia } from './StatoSincronia'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
-  quaderni, documenti, apertoId, inHome, schedaAperta, onApri, onScheda, onHome, onAccedi, onEliminaPagina, onEliminaMateria,
+  quaderni, documenti, apertoId, inHome, schedaAperta, onApri, onScheda, onRipasso, onHome, onAccedi, onEliminaPagina, onEliminaMateria,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
@@ -19,6 +19,7 @@ export function BarraLaterale({
   schedaAperta: string | null
   onApri: (id: string, fuoco?: Fuoco) => void
   onScheda: (quadernoId: string) => void
+  onRipasso: (quadernoId: string) => void
   onHome: () => void
   onAccedi: () => void
   onEliminaPagina: (d: Documento) => void
@@ -88,6 +89,7 @@ export function BarraLaterale({
                 )}
                 <div className={s.azioni}>
                   <button title="Scheda della materia: esami, docente, programma" onClick={() => onScheda(q.id)}>ⓘ</button>
+                  <button title="Ripasso: dove eravamo rimasti, argomenti, quiz" onClick={() => onRipasso(q.id)}>↺</button>
                   <button title="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}>+</button>
                   <button title="Elimina la materia" onClick={() => onEliminaMateria(q)}>⌫</button>
                 </div>

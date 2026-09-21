@@ -17,11 +17,12 @@ type Riga =
   | { tipo: 'azione'; chiave: string; titolo: string; esegui: () => void }
 
 export function Comandi({
-  quaderni, documenti, onApri, onChiudi,
+  quaderni, documenti, onApri, onRipasso, onChiudi,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (id: string, fuoco?: Fuoco) => void
+  onRipasso: (quadernoId: string) => void
   onChiudi: () => void
 }) {
   const [query, setQuery] = useState('')
@@ -58,6 +59,12 @@ export function Comandi({
     const azioni = [
       ...quaderni.map((k) => ({
         tipo: 'azione' as const,
+        chiave: `r-${k.id}`,
+        titolo: `Ripasso di ${k.nome || 'Senza nome'}: dove eravamo rimasti, quiz`,
+        esegui: () => onRipasso(k.id),
+      })),
+      ...quaderni.map((k) => ({
+        tipo: 'azione' as const,
         chiave: `n-${k.id}`,
         titolo: `Nuovo documento in ${k.nome || 'Senza nome'}`,
         esegui: () => onApri(creaDocumento(k.id).id, 'titolo'),
@@ -71,7 +78,7 @@ export function Comandi({
     ].filter((r) => !q || normalizza(r.titolo).includes(q))
 
     return [...perTitolo, ...perContenuto, ...azioni]
-  }, [quaderni, documenti, query, nelContenuto, onApri])
+  }, [quaderni, documenti, query, nelContenuto, onApri, onRipasso])
 
   useEffect(() => setIndice(0), [query])
   useEffect(() => {

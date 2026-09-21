@@ -1,0 +1,190 @@
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 11vh;
+  background: rgb(0 0 0 / 0.3);
+  animation: var(--entra-velo);
+}
+
+.finestra {
+  width: min(560px, calc(100vw - var(--u) * 4));
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: calc(var(--raggio) * 2.5);
+  box-shadow: var(--ombra);
+  animation: var(--entra-finestra);
+}
+
+.testa {
+  display: flex;
+  align-items: baseline;
+  gap: var(--u);
+  padding: 12px 14px 10px 18px;
+  border-bottom: 1px solid var(--linea);
+}
+.etichetta {
+  color: var(--accento);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.titolo {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 600;
+}
+.chiudi { width: 24px; height: 24px; border-radius: var(--raggio); color: var(--tenue); font-size: 16px; }
+.chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+.attesa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 18px 24px;
+  color: var(--inchiostro-tenue);
+  font-size: 13px;
+}
+.attesa p { margin: 0; }
+.secondi { color: var(--tenue); font-variant-numeric: tabular-nums; }
+.errore { color: var(--c-rosso); line-height: 1.5; }
+
+.corpo { overflow-y: auto; padding: 14px 18px 16px; animation: var(--entra); }
+
+/* un puntino per domanda: com'è andata finora */
+.puntini { display: flex; gap: 5px; margin: 0 0 12px; padding: 0; list-style: none; }
+.puntini li { width: 8px; height: 8px; border-radius: 50%; background: var(--linea-forte); }
+.puntini li.qui { background: var(--inchiostro); }
+.puntini li.bene { background: var(--c-verde); }
+.puntini li.male { background: var(--c-rosso); }
+
+.domanda {
+  margin: 0 0 14px;
+  font-family: var(--font-testo);
+  font-size: 16.5px;
+  font-weight: 550;
+  line-height: 1.45;
+}
+
+.opzioni { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.opzione {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--linea);
+  border-radius: var(--raggio);
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.opzione:hover:not(:disabled) { background: var(--sfiorata); border-color: var(--linea-forte); }
+.opzione:disabled { cursor: default; }
+.lettera {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--sfiorata);
+  color: var(--inchiostro-tenue);
+  font-size: 11px;
+  font-weight: 650;
+}
+.giusta { border-color: var(--c-verde); background: color-mix(in srgb, var(--c-verde) 12%, var(--carta)); animation: var(--entra-conferma); }
+.giusta .lettera { background: var(--c-verde); color: #fff; }
+.sbagliata { border-color: var(--c-rosso); background: color-mix(in srgb, var(--c-rosso) 10%, var(--carta)); }
+.sbagliata .lettera { background: var(--c-rosso); color: #fff; }
+.spenta { opacity: 0.5; }
+
+.spiegazione {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro-tenue);
+  font-size: 13px;
+  line-height: 1.55;
+  animation: var(--entra);
+}
+.spiegazione strong { color: var(--inchiostro); }
+
+.svela {
+  width: 100%;
+  padding: 16px;
+  border: 1px dashed var(--linea-forte);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: 13px;
+}
+.svela:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.risposta {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--accento);
+  background: var(--carta-alt);
+  font-family: var(--font-testo);
+  font-size: 14.5px;
+  line-height: 1.55;
+  animation: var(--entra);
+}
+.valuta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.piede { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
+.aiuto { flex: 1; color: var(--tenue); font-size: 11.5px; }
+.principale, .secondario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--raggio);
+  font-size: 13px;
+  font-weight: 550;
+}
+.principale { background: var(--accento); color: #fff; }
+.principale:hover { filter: brightness(1.07); }
+.secondario { color: var(--inchiostro-tenue); }
+.secondario:hover { background: var(--sfiorata); color: var(--inchiostro); }
+/* dentro al quiz: non tocca i tasti disegnati altrove (la revisione) */
+.finestra kbd {
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.2);
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+}
+.finestra .svela kbd { background: var(--sfiorata); }
+
+.punteggio { margin: 4px 0 2px; font-size: 15px; color: var(--inchiostro-tenue); animation: var(--entra-conferma); }
+.punteggio strong { color: var(--inchiostro); font-size: 32px; font-weight: 650; margin-right: 4px; }
+.commento { margin: 0 0 14px; color: var(--inchiostro-tenue); font-size: 13px; }
+
+.riepilogo { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.riepilogo li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--linea);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.segno { flex: none; width: 14px; font-weight: 700; }
+.riepilogo li.bene .segno { color: var(--c-verde); }
+.riepilogo li.male .segno { color: var(--c-rosso); }
+.testoRiepilogo { flex: 1; }
+.rileggi { flex: none; color: var(--accento); font-size: 12px; }
+.rileggi:hover { text-decoration: underline; }

@@ -8,6 +8,7 @@ import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
 import { EditorFormula } from './formula/EditorFormula'
+import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
 import s from './Editor.module.css'
 
@@ -92,6 +93,17 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
     if (editor) esponi({ editor, doc, documento })
   }, [editor, doc, documento])
 
+  // «rileggi qui» dal quiz o dal ripasso: si va al blocco e lo si fa vedere
+  useEffect(() => {
+    if (!editor) return
+    const mostra = () => {
+      const id = prendiMeta(documento.id)
+      if (id) window.setTimeout(() => mostraBlocco(editor, id), 80)
+    }
+    mostra()
+    return iscrivitiNavigazione(mostra)
+  }, [editor, documento.id])
+
   return (
     <div className={s.tela}>
       <div className={s.colonna}>
@@ -108,7 +120,7 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
             }
           }}
         />}
-        {editor && <MenuSelezione editor={editor} />}
+        {editor && <MenuSelezione editor={editor} documentoId={documento.id} />}
         {editor && <Maniglia editor={editor} />}
         {editor && <EditorFormula editor={editor} />}
         <EditorContent editor={editor} />
@@ -142,4 +154,24 @@ function Maniglia({ editor }: { editor: EditoreTipTap }) {
       </button>
     </DragHandle>
   )
+}
+
+/** Porta il blocco al centro dello schermo, ci mette il cursore e lo
+ *  illumina per un attimo: è lì che bisogna guardare. */
+function mostraBlocco(editor: EditoreTipTap, idBlocco: string) {
+  let pos = -1
+  editor.state.doc.descendants((n, p) => {
+    if (pos < 0 && n.attrs?.idBlocco === idBlocco) pos = p
+    return pos < 0
+  })
+  if (pos < 0) return
+  const dom = editor.view.nodeDOM(pos)
+  if (dom instanceof HTMLElement) {
+    dom.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    dom.animate(
+      [{ backgroundColor: 'var(--selezione)' }, { backgroundColor: 'transparent' }],
+      { duration: 1800, easing: 'ease-out' },
+    )
+  }
+  editor.chain().focus().setTextSelection(pos + 1).run()
 }

@@ -21,6 +21,9 @@ import { Striscia } from './registrazione/PulsanteRegistra'
 import { chiudiOrfane, recuperaInterrotte, riprendiSeInCorso } from './registrazione/registrazione'
 import { Revisione } from './merge/Revisione'
 import { SchedaMateria } from './materia/SchedaMateria'
+import { RipassoMateria } from './ripasso/RipassoMateria'
+import { FinestraQuiz } from './ripasso/FinestraQuiz'
+import { registraApertura } from './layout/navigazione'
 import s from './App.module.css'
 
 const ULTIMO = 'pergamena:ultimo-documento'
@@ -36,6 +39,7 @@ export function App() {
   const [fuoco, setFuoco] = useState<Fuoco>('corpo')
   const [inHome, setInHome] = useState(false)
   const [schedaAperta, setSchedaAperta] = useState<string | null>(null)   // id della materia
+  const [ripassoAperto, setRipassoAperto] = useState<string | null>(null) // id della materia
   const [latoAperto, setLatoAperto] = useState(true)
   const [comandiAperti, setComandiAperti] = useState(false)
   const [mostraAccesso, setMostraAccesso] = useState(false)
@@ -74,19 +78,30 @@ export function App() {
     setFuoco(dove)
     setInHome(false)
     setSchedaAperta(null)
+    setRipassoAperto(null)
   }, [])
 
   const apriScheda = useCallback((quadernoId: string) => {
     setSchedaAperta(quadernoId)
+    setRipassoAperto(null)
+    setInHome(false)
+  }, [])
+
+  const apriRipasso = useCallback((quadernoId: string) => {
+    setRipassoAperto(quadernoId)
+    setSchedaAperta(null)
     setInHome(false)
   }, [])
 
   const vaiHome = useCallback(() => {
     setInHome(true)
     setSchedaAperta(null)
+    setRipassoAperto(null)
   }, [])
 
   useEffect(() => esponi({ apri }), [apri])
+  // il quiz e il ripasso portano a un punto degli appunti
+  useEffect(() => registraApertura((id) => apri(id)), [apri])
 
   /*  Una registrazione rimasta a metà. Se la pagina è stata ricaricata
    *  mentre registravi, il microfono è ancora acceso: ci si ricollega.
@@ -134,7 +149,8 @@ export function App() {
   const aperto = documenti.find((d) => d.id === apertoId && !d.scheda) ?? null
   const materiaAperta = aperto ? quaderni.find((q) => q.id === aperto.quadernoId) ?? null : null
   const materiaScheda = schedaAperta ? quaderni.find((q) => q.id === schedaAperta) ?? null : null
-  const mostraHome = !materiaScheda && (inHome || !aperto)
+  const materiaRipasso = ripassoAperto ? quaderni.find((q) => q.id === ripassoAperto) ?? null : null
+  const mostraHome = !materiaScheda && !materiaRipasso && (inHome || !aperto)
   const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
 
   useEffect(() => {
@@ -147,7 +163,7 @@ export function App() {
     <>
       <Guscio
         latoAperto={latoAperto}
-        destra={!mostraHome && !materiaScheda && pannello.aperto && docAperto
+        destra={!mostraHome && !materiaScheda && !materiaRipasso && pannello.aperto && docAperto
           ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
         lato={
@@ -159,6 +175,7 @@ export function App() {
             schedaAperta={materiaScheda?.id ?? null}
             onApri={apri}
             onScheda={apriScheda}
+            onRipasso={apriRipasso}
             onHome={vaiHome}
             onAccedi={() => setMostraAccesso(true)}
             onEliminaPagina={(d) => setDaEliminare({ tipo: 'pagina', documento: d })}
@@ -166,7 +183,9 @@ export function App() {
           />
         }
         centro={
-          materiaScheda ? (
+          materiaRipasso ? (
+            <RipassoMateria key={materiaRipasso.id} quaderno={materiaRipasso} onHome={vaiHome} />
+          ) : materiaScheda ? (
             <SchedaMateria
               key={materiaScheda.id}
               quaderno={materiaScheda}
@@ -180,6 +199,7 @@ export function App() {
               documenti={documenti}
               onApri={apri}
               onScheda={apriScheda}
+              onRipasso={apriRipasso}
               onCopertina={setCopertinaDi}
               onElimina={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}
             />
@@ -205,6 +225,8 @@ export function App() {
 
       {mostraAccesso && <FinestraAccesso onChiudi={() => setMostraAccesso(false)} />}
 
+      <FinestraQuiz />
+
       {copertinaDi && (
         <SceltaCopertina quaderno={copertinaDi} onChiudi={() => setCopertinaDi(null)} />
       )}
@@ -229,7 +251,7 @@ export function App() {
       )}
 
       {comandiAperti && (
-        <Comandi quaderni={quaderni} documenti={documenti} onApri={apri} onChiudi={chiudiComandi} />
+        <Comandi quaderni={quaderni} documenti={documenti} onApri={apri} onRipasso={apriRipasso} onChiudi={chiudiComandi} />
       )}
     </>
   )

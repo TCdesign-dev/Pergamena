@@ -4,6 +4,9 @@ import type { Editor } from '@tiptap/react'
 import { NodeSelection, TextSelection } from '@tiptap/pm/state'
 import { COLORI, ETICHETTE, type Colore } from '../../stili/colori'
 import { ultimoColore } from '../estensioni/coloreTesto'
+import { mappaDocumenti, mappaQuaderni } from '../../documento/archivio'
+import { apriQuiz } from '../../ripasso/statoQuiz'
+import type { BloccoTesto } from '../../ripasso/argomenti'
 import s from './MenuSelezione.module.css'
 
 /*  Compare solo quando selezioni del testo.
@@ -61,7 +64,31 @@ const VOCI: Voce[] = [
     azione: (e) => e.chain().focus().toggleOrderedList().run() },
 ]
 
-export function MenuSelezione({ editor }: { editor: Editor }) {
+/*  «Quiz» sul passaggio selezionato: le domande nascono solo da lì. Ogni
+ *  riga porta l'id del suo blocco, così «rileggi» sa dove tornare. */
+function quizSullaSelezione(editor: Editor, documentoId: string) {
+  const { from, to } = editor.state.selection
+  const blocchi: BloccoTesto[] = []
+  editor.state.doc.nodesBetween(from, to, (n, pos) => {
+    if (!n.isTextblock) return true
+    const testo = editor.state.doc.textBetween(Math.max(from, pos + 1), Math.min(to, pos + n.nodeSize - 1), ' ', ' ').trim()
+    const $p = editor.state.doc.resolve(pos + 1)
+    const id = (($p.depth >= 1 ? $p.node(1) : n).attrs.idBlocco as string | undefined) ?? null
+    if (testo) blocchi.push({ id, tipo: 'paragrafo', testo })
+    return false
+  })
+  if (!blocchi.length) return
+  const quadernoId = mappaDocumenti.get(documentoId)?.quadernoId
+  apriQuiz({
+    tipo: 'selezione',
+    titolo: 'Il passaggio selezionato',
+    materia: (quadernoId && mappaQuaderni.get(quadernoId)?.nome) || '',
+    documentoId,
+    blocchi,
+  })
+}
+
+export function MenuSelezione({ editor, documentoId }: { editor: Editor; documentoId: string }) {
   const [pannello, setPannello] = useState<'principale' | 'colori'>('principale')
 
   // cambiando selezione si torna sempre al pannello principale
@@ -124,6 +151,14 @@ export function MenuSelezione({ editor }: { editor: Editor }) {
               A
             </span>
             <span className={s.freccetta}>▾</span>
+          </button>
+          <span className={s.separatore} />
+          <button
+            title="Un quiz su questo passaggio"
+            className={`${s.bottone} ${s.quiz}`}
+            onClick={() => quizSullaSelezione(editor, documentoId)}
+          >
+            Quiz
           </button>
         </>
       ) : (

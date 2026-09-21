@@ -63,3 +63,5 @@
 .campione[data-colore="verde"]   { background: var(--c-verde); }
 .campione[data-colore="blu"]     { background: var(--c-blu); }
 .campione[data-colore="viola"]   { background: var(--c-viola); }
+
+.quiz { padding: 0 8px; font-size: 11.5px; font-weight: 600; }
