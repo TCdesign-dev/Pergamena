@@ -1,7 +1,9 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { RifEditore } from '../editor/Editor'
 import { iscrivitiRegistrazione, leggiRegistrazione, azzera } from './statoRegistrazione'
-import { avviaRegistrazione, collegaEditore, fermaRegistrazione } from './registrazione'
+import {
+  avviaRegistrazione, collegaEditore, fermaRegistrazione, pausaRegistrazione, prendiQui, riprendiRegistrazione,
+} from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
 import { Rotella } from '../layout/Attesa'
 import s from './Registrazione.module.css'
@@ -26,14 +28,27 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
   useEffect(() => collegaEditore(documentoId, () => rifEditore.current), [documentoId, rifEditore])
 
   useEffect(() => {
-    if (r.avvio !== 'ascolto') return
+    if (r.avvio !== 'ascolto' || r.pausa) return
     const t = setInterval(() => setOra(Date.now()), 500)
     return () => clearInterval(t)
-  }, [r.avvio])
+  }, [r.avvio, r.pausa])
 
   // si registra in un'altra pagina: qui lo si dice, senza pulsante
   if (r.attiva && r.documentoId !== documentoId) {
     return <span className={s.altrove} title="La registrazione è in un'altra pagina">● registrazione in corso altrove</span>
+  }
+
+  // il microfono è acceso ma scrive un'altra finestra
+  if (!r.attiva && r.altrove) {
+    return (
+      <button
+        className={`${s.registra} ${s.inCorso}`}
+        title="Una registrazione è in corso in un'altra finestra: continuala qui"
+        onClick={() => void prendiQui()}
+      >
+        <span className={`${s.pallino} ${s.acceso}`} /> in corso altrove · <u>continua qui</u>
+      </button>
+    )
   }
 
   if (!r.attiva) {
@@ -55,23 +70,44 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
 
   // il livello diventa tre tacche: -60 dB silenzio, -20 dB voce piena
   const forza = Math.min(1, Math.max(0, (r.livello + 60) / 40))
+  // il cronometro conta la lezione registrata, non le pause
+  const adesso = r.pausa && r.pausaDa ? r.pausaDa : ora
+  const trascorso = adesso - (r.inizio ?? adesso) - r.pausaTotale
 
   return (
-    <button className={`${s.registra} ${s.inCorso}`} title="Ferma la registrazione" onClick={() => void fermaRegistrazione()}>
-      <span className={`${s.pallino} ${s.acceso}`} />
-      {r.avvio === 'parto' && <span className={s.preparo}><Rotella /> mi preparo…</span>}
-      {r.avvio === 'chiudo' && <span className={s.preparo}><Rotella /> chiudo…</span>}
+    <span className={s.gruppo}>
+      <button
+        className={`${s.registra} ${r.pausa ? s.inPausa : s.inCorso}`}
+        title="Ferma la registrazione"
+        onClick={() => void fermaRegistrazione()}
+      >
+        <span className={`${s.pallino} ${r.pausa ? '' : s.acceso}`} />
+        {r.avvio === 'parto' && <span className={s.preparo}><Rotella /> mi preparo…</span>}
+        {r.avvio === 'chiudo' && <span className={s.preparo}><Rotella /> chiudo…</span>}
+        {r.avvio === 'ascolto' && (
+          <>
+            <span className={s.tempo}>{durata(trascorso)}</span>
+            {r.pausa ? <span>in pausa</span> : (
+              <span className={`${s.tacche} ${r.silenzio ? s.muto : ''}`} aria-hidden title={r.silenzio ? 'nessun suono' : undefined}>
+                {[0.15, 0.45, 0.75].map((soglia) => (
+                  <i key={soglia} className={forza > soglia ? s.tacca : undefined} />
+                ))}
+              </span>
+            )}
+          </>
+        )}
+      </button>
       {r.avvio === 'ascolto' && (
-        <>
-          <span className={s.tempo}>{durata(ora - (r.inizio ?? ora))}</span>
-          <span className={`${s.tacche} ${r.silenzio ? s.muto : ''}`} aria-hidden title={r.silenzio ? 'nessun suono' : undefined}>
-            {[0.15, 0.45, 0.75].map((soglia) => (
-              <i key={soglia} className={forza > soglia ? s.tacca : undefined} />
-            ))}
-          </span>
-        </>
+        <button
+          className={s.pausa}
+          title={r.pausa ? 'Riprendi a registrare' : 'Metti in pausa: il microfono non registra finché non riprendi'}
+          aria-label={r.pausa ? 'Riprendi' : 'Pausa'}
+          onClick={() => void (r.pausa ? riprendiRegistrazione() : pausaRegistrazione())}
+        >
+          <span className={r.pausa ? s.iconaRiprendi : s.iconaPausa} />
+        </button>
       )}
-    </button>
+    </span>
   )
 }
 
@@ -89,7 +125,25 @@ export function Striscia({ documentoId }: { documentoId: string }) {
     )
   }
 
+  // questa lezione la sta scrivendo un'altra finestra
+  if (!r.attiva && r.altrove?.documentoId === documentoId) {
+    return (
+      <div className={`${s.striscia} ${s.riga}`} aria-live="polite">
+        <span>Questa lezione si sta registrando in un’altra finestra.</span>
+        <button className={s.azioneStriscia} onClick={() => void prendiQui()}>Continua qui</button>
+      </div>
+    )
+  }
+
   if (!r.attiva || r.documentoId !== documentoId) return null
+  if (r.pausa) {
+    return (
+      <div className={`${s.striscia} ${s.riga}`} aria-live="polite">
+        <span>In pausa: il microfono non registra.</span>
+        <button className={s.azioneStriscia} onClick={() => void riprendiRegistrazione()}>Riprendi</button>
+      </div>
+    )
+  }
   if (r.scollegato) {
     return (
       <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">

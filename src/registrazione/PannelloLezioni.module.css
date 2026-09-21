@@ -120,3 +120,12 @@
   animation: var(--pulsa);
 }
 .interrotta { color: var(--c-arancio); cursor: help; }
+
+.pausaTrascritta {
+  margin: 8px 0 !important;
+  color: var(--tenue);
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.pausaTrascritta::before, .pausaTrascritta::after { content: ' — '; }

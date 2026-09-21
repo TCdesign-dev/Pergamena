@@ -7,6 +7,7 @@
  *        inizio, fine, audio
  *        avviato  : quando il microfono è partito davvero (ms)
  *        interrotta: true se si è fermata da sola (server riavviato)
+ *        pause    : Y.Array<Pausa>     i tratti in pausa
  *        segmenti : Y.Array<Segmento>   ciò che ha detto il professore
  *        ancore   : Y.Array<Ancora>     dove eri negli appunti, e quando
  *        integrata: numero di proposte fatte dal merge, se fatto
@@ -29,6 +30,10 @@ export type Segmento = {
  *  quale pezzo di appunti, invece di doverlo indovinare. */
 export type Ancora = { t: number; blocco: string }
 
+/** Un tratto in pausa, in secondi da quando il microfono è partito.
+ *  `a` è null finché la pausa non finisce. */
+export type Pausa = { da: number; a: number | null }
+
 export type Registrazione = {
   id: string
   inizio: number
@@ -38,4 +43,5 @@ export type Registrazione = {
   ancore: Ancora[]
   integrata: number | null
   interrotta: boolean
+  pause: Pausa[]
 }

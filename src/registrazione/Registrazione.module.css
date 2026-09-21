@@ -74,3 +74,54 @@
 .chiudiAvviso:hover { opacity: 1; }
 
 .preparo { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ── pausa ──────────────────────────────────────────────────── */
+.gruppo { display: inline-flex; align-items: center; gap: 1px; }
+.inPausa { color: var(--inchiostro-tenue); }
+.inPausa:hover { color: var(--inchiostro); }
+
+.pausa {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+}
+.pausa:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+/* disegnate, non caratteri: ⏸ e ▶ su macOS diventano emoji */
+.iconaPausa {
+  width: 8px;
+  height: 10px;
+  border-left: 2.5px solid currentColor;
+  border-right: 2.5px solid currentColor;
+}
+.iconaRiprendi {
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid currentColor;
+}
+
+/* una striscia con un'azione: pausa, o registrazione in un'altra finestra */
+.riga {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  direction: ltr;
+  white-space: normal;
+  color: var(--inchiostro-tenue);
+}
+.riga span { flex: 1; }
+.azioneStriscia {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: var(--raggio);
+  background: var(--sfiorata);
+  color: var(--inchiostro);
+  font-size: 12px;
+}
+.azioneStriscia:hover { background: var(--premuta); }

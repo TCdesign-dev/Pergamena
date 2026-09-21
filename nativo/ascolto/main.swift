@@ -14,6 +14,10 @@
 //  Si ferma con SIGINT/SIGTERM, oppure quando stdin si chiude: se il
 //  processo che l'ha lanciato muore, non deve restare un microfono
 //  acceso in giro per il sistema.
+//
+//  Su stdin accetta due comandi, una riga ciascuno: «pausa» e
+//  «riprendi». In pausa il microfono resta aperto ma al riconoscitore
+//  e al file arriva silenzio (vedi `Pausa`).
 // ─────────────────────────────────────────────────────────────────────
 
 import AVFoundation
@@ -222,6 +226,38 @@ final class UltimoFinale: @unchecked Sendable {
     var valore: Double { blocco.lock(); defer { blocco.unlock() }; return fine }
 }
 
+/*  La pausa.
+ *
+ *  Si potrebbe smettere di dare audio al riconoscitore, ma allora il
+ *  suo orologio si fermerebbe: dopo una pausa di dieci minuti ogni
+ *  frase uscirebbe con dieci minuti in meno, e non combacerebbe più con
+ *  le àncore degli appunti (che contano il tempo vero) né col minuto
+ *  da riascoltare nel file audio. Allora in pausa si manda SILENZIO:
+ *  il tempo scorre, non si trascrive niente, e nel file restano dieci
+ *  minuti muti invece della chiacchiera dell'intervallo. */
+final class Pausa: @unchecked Sendable {
+    private let blocco = NSLock()
+    private var attiva = false
+    /// true se lo stato è cambiato davvero
+    func imposta(_ v: Bool) -> Bool {
+        blocco.lock(); defer { blocco.unlock() }
+        let cambia = attiva != v
+        attiva = v
+        return cambia
+    }
+    var valore: Bool { blocco.lock(); defer { blocco.unlock() }; return attiva }
+}
+
+/// Un buffer uguale a quello dato, ma muto.
+func silenzio(come b: AVAudioPCMBuffer) -> AVAudioPCMBuffer {
+    guard let muto = AVAudioPCMBuffer(pcmFormat: b.format, frameCapacity: b.frameLength) else { return b }
+    muto.frameLength = b.frameLength
+    for canale in UnsafeMutableAudioBufferListPointer(muto.mutableAudioBufferList) {
+        if let dati = canale.mData { memset(dati, 0, Int(canale.mDataByteSize)) }
+    }
+    return muto
+}
+
 /// Scrive l'audio in AAC 32 kbps mono. Usato dal microfono e — per
 /// poterlo collaudare senza un microfono — anche dalla sorgente file.
 final class Registratore: @unchecked Sendable {
@@ -398,6 +434,8 @@ struct Ascolto {
             }
         }
 
+        let pausa = Pausa()
+
         signal(SIGINT, SIG_IGN)
         signal(SIGTERM, SIG_IGN)
         segnaliVivi = [SIGINT, SIGTERM].map { s -> DispatchSourceSignal in
@@ -407,9 +445,16 @@ struct Ascolto {
             return sorgente
         }
 
-        // se chi ci ha lanciati muore, stdin si chiude: ci si ferma
+        // i comandi arrivano su stdin; se chi ci ha lanciati muore,
+        // stdin si chiude: ci si ferma
         Thread.detachNewThread {
-            while readLine() != nil {}
+            while let riga = readLine() {
+                switch riga.trimmingCharacters(in: .whitespaces) {
+                case "pausa": if pausa.imposta(true) { emetti(["evento": "pausa"]) }
+                case "riprendi": if pausa.imposta(false) { emetti(["evento": "ripresa"]) }
+                default: break
+                }
+            }
             DispatchQueue.main.async { ferma() }
         }
 
@@ -431,9 +476,10 @@ struct Ascolto {
                         guard let b = AVAudioPCMBuffer(pcmFormat: audio.processingFormat, frameCapacity: passo) else { break }
                         do { try audio.read(into: b, frameCount: passo) } catch { break }
                         if b.frameLength == 0 { break }
-                        if let db = livello(b) { emetti(["evento": "livello", "db": (db * 10).rounded() / 10]) }
-                        if let c = converti(b, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
-                        registratore?.scrivi(b)
+                        let dato = pausa.valore ? silenzio(come: b) : b
+                        if !pausa.valore, let db = livello(b) { emetti(["evento": "livello", "db": (db * 10).rounded() / 10]) }
+                        if let c = converti(dato, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
+                        registratore?.scrivi(dato)
                         try? await Task.sleep(nanoseconds: UInt64(Double(b.frameLength) / audio.processingFormat.sampleRate * 1_000_000_000))
                     }
                     DispatchQueue.main.async { ferma() }
@@ -489,6 +535,15 @@ struct Ascolto {
             let nomeIngresso = scelto?.nome ?? "microfono"
 
             ingresso.installTap(onBus: 0, bufferSize: 4096, format: naturale) { buffer, _ in
+                // in pausa passa silenzio, e il silenzio non va segnalato
+                if pausa.valore {
+                    let muto = silenzio(come: buffer)
+                    if let c = converti(muto, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
+                    registratore?.scrivi(muto)
+                    ultimoSuono = Date()
+                    if avvisato { avvisato = false; emetti(["evento": "suono"]) }
+                    return
+                }
                 if let c = converti(buffer, con: conv) { rubinetto.yield(AnalyzerInput(buffer: c)) }
                 registratore?.scrivi(buffer)
                 guard Date().timeIntervalSince(ultimoLivello) > 0.2, let db = livello(buffer) else { return }

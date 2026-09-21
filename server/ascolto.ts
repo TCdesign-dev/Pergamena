@@ -1,5 +1,5 @@
 import { execFile, spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
-import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
+import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -19,7 +19,23 @@ const CARTELLA_SOSPESE = join(homedir(), 'Library/Application Support/Pergamena/
 let processo: ChildProcessWithoutNullStreams | null = null
 let idCorrente: string | null = null
 let documentoCorrente: string | null = null
-const ascoltatori = new Set<ServerResponse>()
+let inPausa = false
+
+/*  UNA pagina sola scrive la lezione.
+ *
+ *  Due pagine che ascoltano la stessa registrazione la scrivono due
+ *  volte: è successo davvero, con una copia della pagina rimasta viva in
+ *  background dopo un ricaricamento — quattro frasi doppie. Allora il
+ *  server tiene uno «scrivente» solo, riconosciuto da un gettone che la
+ *  pagina mette nell'indirizzo (e che l'EventSource si porta dietro a
+ *  ogni ricollegamento):
+ *   · chi riprende da sola (modo=riprendi, all'avvio della pagina) entra
+ *     solo se il posto è libero, altrimenti riceve «occupato»;
+ *   · chi lo chiede esplicitamente (modo=prendi, il pulsante) prende il
+ *     posto, e il vecchio scrivente riceve «sostituito» e si ferma.
+ *  Chi è stato sostituito non può rientrare di soppiatto ricollegandosi. */
+let scrivente: { chi: string; res: ServerResponse } | null = null
+let sostituiti = new Set<string>()
 
 /*  Chi si ricollega non deve perdere frasi.
  *
@@ -38,7 +54,7 @@ let storico: { n: number; riga: string }[] = []
 function daConservare(riga: string) {
   try {
     const e = JSON.parse(riga)
-    return e.evento === 'pronto' || e.evento === 'errore' || e.evento === 'uscito' || (e.evento === 'testo' && e.finale)
+    return ['pronto', 'errore', 'uscito', 'pausa', 'ripresa'].includes(e.evento) || (e.evento === 'testo' && e.finale)
   } catch {
     return false
   }
@@ -65,7 +81,21 @@ function salvaSospesa(chiusa: boolean) {
 function diffondi(riga: string) {
   const n = ++numero
   if (daConservare(riga)) storico.push({ n, riga })
-  for (const r of ascoltatori) r.write(`id: ${ISTANZA}-${n}\ndata: ${riga}\n\n`)
+  scrivente?.res.write(`id: ${ISTANZA}-${n}\ndata: ${riga}\n\n`)
+}
+
+/** Pausa e ripresa escono con l'ora: servono a togliere le pause dal
+ *  cronometro, anche a chi le riceve rimandate dopo un ricaricamento. */
+function timbra(riga: string) {
+  if (!riga.includes('"pausa"') && !riga.includes('"ripresa"')) return riga
+  try {
+    const e = JSON.parse(riga)
+    if (e.evento !== 'pausa' && e.evento !== 'ripresa') return riga
+    inPausa = e.evento === 'pausa'
+    return JSON.stringify({ ...e, quando: Date.now() })
+  } catch {
+    return riga
+  }
 }
 
 function leggiCorpo(req: IncomingMessage): Promise<Record<string, unknown>> {
@@ -111,12 +141,14 @@ function avvia(corpo: Record<string, unknown>) {
   idCorrente = corpo.id
   documentoCorrente = typeof corpo.documentoId === 'string' ? corpo.documentoId : null
   storico = []
+  inPausa = false
+  sostituiti = new Set()
 
   let avanzo = ''
   processo.stdout.on('data', (pezzo: Buffer) => {
     const righe = (avanzo + pezzo.toString()).split('\n')
     avanzo = righe.pop() ?? ''
-    for (const r of righe) if (r.trim()) diffondi(r)
+    for (const r of righe) if (r.trim()) diffondi(timbra(r))
   })
   processo.stderr.on('data', (pezzo: Buffer) => {
     const testo = pezzo.toString().trim()
@@ -129,13 +161,25 @@ function avvia(corpo: Record<string, unknown>) {
     processo = null
     idCorrente = null
     documentoCorrente = null
+    inPausa = false
   })
 
   return { ok: true }
 }
 
 function stato() {
-  return { attivo: !!processo, id: idCorrente, documentoId: documentoCorrente, ascoltatori: ascoltatori.size, istanza: ISTANZA }
+  return {
+    attivo: !!processo, id: idCorrente, documentoId: documentoCorrente,
+    ascoltatori: scrivente ? 1 : 0, pausa: inPausa, istanza: ISTANZA,
+  }
+}
+
+/** Pausa e ripresa: una riga sullo stdin del programma di ascolto. */
+function comanda(corpo: Record<string, unknown>, comando: 'pausa' | 'riprendi') {
+  if (!processo) return { ok: false, errore: 'non sto ascoltando' }
+  if (typeof corpo.id === 'string' && corpo.id !== idCorrente) return { ok: false, errore: 'sto ascoltando un\'altra registrazione' }
+  processo.stdin.write(`${comando}\n`)
+  return { ok: true }
 }
 
 function ferma(corpo: Record<string, unknown>) {
@@ -159,19 +203,35 @@ export function ascolto(): Plugin {
             'Cache-Control': 'no-cache',
             Connection: 'keep-alive',
           })
-          res.write(`data: ${JSON.stringify({ evento: 'collegato', ...stato() })}\n\n`)
+          const parametri = new URLSearchParams(url.split('?')[1] ?? '')
+          const chi = parametri.get('chi') || `anonimo-${Math.random().toString(36).slice(2)}`
+          const evento = (e: object) => `data: ${JSON.stringify(e)}\n\n`
+
+          if (sostituiti.has(chi)) return void res.end(evento({ evento: 'sostituito' }))
+          if (scrivente && scrivente.chi !== chi) {
+            if (parametri.get('modo') === 'riprendi') return void res.end(evento({ evento: 'occupato', ...stato() }))
+            scrivente.res.end(evento({ evento: 'sostituito' }))
+            sostituiti.add(scrivente.chi)
+          } else if (scrivente) {
+            scrivente.res.end()   // lo stesso scrivente che si ricollega: via la connessione vecchia
+          }
+          scrivente = { chi, res }
+
+          res.write(evento({ evento: 'collegato', ...stato() }))
 
           // ciò che si è perso mentre era scollegato — o tutto, per chi
           // riprende una registrazione dopo aver ricaricato la pagina
           const ultimo = String(req.headers['last-event-id'] ?? '')
           const [istanza, n] = ultimo.split('-')
-          const da = url.includes('tutto=1') ? 0 : istanza === ISTANZA ? Number(n) || 0 : Infinity
+          const da = parametri.get('tutto') === '1' ? 0 : istanza === ISTANZA ? Number(n) || 0 : Infinity
           for (const e of storico) {
             if (e.n > da) res.write(`id: ${ISTANZA}-${e.n}\ndata: ${e.riga}\n\n`)
           }
-          ascoltatori.add(res)
           const battito = setInterval(() => res.write(': ping\n\n'), 15_000)
-          req.on('close', () => { clearInterval(battito); ascoltatori.delete(res) })
+          req.on('close', () => {
+            clearInterval(battito)
+            if (scrivente?.res === res) scrivente = null
+          })
           return
         }
 
@@ -186,6 +246,8 @@ export function ascolto(): Plugin {
         }
         if (req.method === 'POST' && url.startsWith('/avvia')) return rispondi(res, 200, avvia(await leggiCorpo(req)))
         if (req.method === 'POST' && url.startsWith('/ferma')) return rispondi(res, 200, ferma(await leggiCorpo(req)))
+        if (req.method === 'POST' && url.startsWith('/pausa')) return rispondi(res, 200, comanda(await leggiCorpo(req), 'pausa'))
+        if (req.method === 'POST' && url.startsWith('/riprendi')) return rispondi(res, 200, comanda(await leggiCorpo(req), 'riprendi'))
         if (req.method === 'GET' && url.startsWith('/stato')) return rispondi(res, 200, stato())
 
         // le frasi rimaste senza pagina quando il server si è fermato
@@ -200,15 +262,26 @@ export function ascolto(): Plugin {
               : []
             return rispondi(res, 200, elenco)
           }
-          if (!idValido(id)) return rispondi(res, 400, { errore: 'id non valido' })
-          const file = join(CARTELLA_SOSPESE, `${id}.json`)
+          const [idFile, azione] = id.split('/')
+          if (!idValido(idFile)) return rispondi(res, 400, { errore: 'id non valido' })
+          const file = join(CARTELLA_SOSPESE, `${idFile}.json`)
+          const preso = join(CARTELLA_SOSPESE, `${idFile}.presa`)
           if (req.method === 'DELETE') {
-            if (existsSync(file)) unlinkSync(file)
+            for (const f of [file, preso]) if (existsSync(f)) unlinkSync(f)
             return rispondi(res, 200, { ok: true })
           }
           if (!existsSync(file)) return rispondi(res, 404, { errore: 'niente di sospeso' })
+          const contenuto = readFileSync(file, 'utf8')
+          /*  Le frasi si PRENDONO una volta sola: due pagine che le
+           *  recuperassero insieme le scriverebbero due volte. Il rename
+           *  è atomico: la seconda trova il file già sparito. */
+          if (req.method === 'POST' && azione === 'prendi') {
+            const forza = url.includes('forza=1')
+            if (!forza && !JSON.parse(contenuto).chiusa) return rispondi(res, 409, { errore: 'non ancora chiusa' })
+            try { renameSync(file, preso) } catch { return rispondi(res, 404, { errore: 'già presa' }) }
+          }
           res.setHeader('Content-Type', 'application/json')
-          return res.end(readFileSync(file, 'utf8'))
+          return res.end(contenuto)
         }
 
         rispondi(res, 404, { errore: 'non trovato' })
@@ -248,6 +321,7 @@ export function ascolto(): Plugin {
       // se il server si ferma, il microfono si spegne con lui — ma le
       // frasi già dette si mettono al sicuro prima
       server.httpServer?.on('close', () => {
+        scrivente = null
         if (!processo) return
         chiudendo = true
         salvaSospesa(false)

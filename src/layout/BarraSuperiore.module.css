@@ -14,20 +14,27 @@
   gap: 5px;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   font-size: 12px;
 }
 
 .passo {
   display: inline-flex; align-items: center; gap: 5px;
+  min-width: 0;
   padding: 3px 5px;
   border-radius: 4px;
   color: var(--tenue);
   font-size: 12px;
   white-space: nowrap;
 }
+/*  Nella barra stretta (il pannello dell'app Claude è largo 716px) i
+ *  nomi lunghi si accorciano coi puntini invece di finire sotto al
+ *  pulsante della registrazione. «Materie» resta sempre intero. */
+.passo:first-child, .sbarra { flex: none; }
+.nome { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
 
-.pallino { width: 6px; height: 6px; border-radius: 50%; }
+.pallino { width: 6px; height: 6px; border-radius: 50%; flex: none; }
 .pallino[data-colore="rosso"]   { background: var(--c-rosso); }
 .pallino[data-colore="arancio"] { background: var(--c-arancio); }
 .pallino[data-colore="verde"]   { background: var(--c-verde); }
@@ -37,6 +44,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
 .sbarra { color: var(--linea-forte); }
 
 .corrente {
+  min-width: 0;
   padding: 3px 5px;
   color: var(--inchiostro-tenue);
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis;

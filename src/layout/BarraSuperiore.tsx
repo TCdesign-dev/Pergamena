@@ -36,7 +36,7 @@ export function BarraSuperiore({
             <span className={s.sbarra}>/</span>
             <button className={s.passo} title="Scheda della materia" onClick={() => onScheda(quaderno.id)}>
               <span className={s.pallino} data-colore={quaderno.colore} />
-              {quaderno.nome || 'Senza nome'}
+              <span className={s.nome}>{quaderno.nome || 'Senza nome'}</span>
             </button>
           </>
         )}

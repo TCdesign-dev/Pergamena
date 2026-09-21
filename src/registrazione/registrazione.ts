@@ -2,9 +2,16 @@ import * as Y from 'yjs'
 import type { Editor } from '@tiptap/core'
 import { apriDocumento, mappaDocumenti } from '../documento/archivio'
 import { aggiorna, azzera, leggiRegistrazione } from './statoRegistrazione'
-import type { Segmento, Ancora, Registrazione } from './tipi'
+import type { Segmento, Ancora } from './tipi'
+import {
+  avviatoDi, chiave, chiudiPausa, chiudiVoce, contaPause, mappaRegistrazioni, segnaPausa,
+} from './voci'
+import { recuperaSospese } from './recupero'
 import { esponi } from '../lib/dev'
 import { leggiImpostazioni } from '../impostazioni'
+
+export { mappaRegistrazioni, leggiRegistrazioni } from './voci'
+export { chiudiOrfane, recuperaInterrotte } from './recupero'
 
 /*  Avvia e ferma l'ascolto, e scrive nel documento ciò che arriva.
  *
@@ -12,52 +19,37 @@ import { leggiImpostazioni } from '../impostazioni'
  *  chiude, non tutti alla fine: se il Mac si spegne a metà lezione,
  *  quello che è stato detto fino a lì è già salvo e sincronizzato.
  *
- *  Il collegamento col server può cadere, e allora conta capire PERCHÉ:
- *   · un intoppo (il Mac che dorme, la rete locale): il browser si
- *     ricollega da solo e il server gli rimanda le frasi perse;
- *   · il server ripartito: il programma di ascolto è morto con lui.
- *     La registrazione si chiude con quello che contiene e lo si dice,
- *     invece di far correre un cronometro che non registra niente;
- *   · la pagina ricaricata: il programma è ancora acceso ma nessuno lo
- *     ascolta. Ci si ricollega e il server rimanda tutto. */
+ *  UNA pagina sola scrive (il server tiene lo «scrivente»). Le altre
+ *  sanno che si sta registrando e possono prendere il posto con
+ *  «continua qui». Quando il collegamento cade conta capire perché:
+ *   · un intoppo (il Mac che dorme): il browser si ricollega da solo e
+ *     il server gli rimanda le frasi perse;
+ *   · il server ripartito: il programma di ascolto è morto con lui. La
+ *     registrazione si chiude con quello che contiene e lo si dice;
+ *   · la pagina ricaricata: il programma è ancora acceso. La pagina
+ *     nuova si ricollega e il server le rimanda tutto. */
 
 const OGNI = 5_000            // ms fra un controllo e l'altro della posizione del cursore
 const PAZIENZA = 15_000       // ms senza collegamento prima di dare la registrazione per persa
 const ATTESA_USCITA = 10_000  // ms dopo «ferma» o dopo un'uscita annunciata
+const RIPROVE = 3             // «occupato» appena ricaricato: la connessione vecchia sta ancora chiudendo
+const SORVEGLIANZA = 10_000   // ms fra un'occhiata e l'altra a una registrazione scritta altrove
 
 type Opzioni = { documentoId: string; editor: () => Editor | null }
+type Modo = 'nuova' | 'riprendi' | 'prendi'
 
 let sorgente: EventSource | null = null
 let voceCorrente: Y.Map<unknown> | null = null
+let modoCorrente: Modo = 'nuova'
+let idAtteso: string | null = null
+let istanzaServer: string | null = null
+let giaScritti = new Set<string>()
+let riprove = 0
 let timerAncore: number | undefined
 let timerCollegamento: number | undefined
 let timerUscita: number | undefined
-let collegamenti = 0
-let istanzaServer: string | null = null
-let giaScritti = new Set<string>()
-
-/** La mappa delle registrazioni di un documento. */
-export function mappaRegistrazioni(doc: Y.Doc) {
-  return doc.getMap<Y.Map<unknown>>('registrazioni')
-}
-
-/** Lettura comoda di tutte le registrazioni di un documento. */
-export function leggiRegistrazioni(doc: Y.Doc): Registrazione[] {
-  const elenco: Registrazione[] = []
-  mappaRegistrazioni(doc).forEach((m, id) => {
-    elenco.push({
-      id,
-      inizio: m.get('inizio') as number,
-      fine: (m.get('fine') as number | null) ?? null,
-      audio: Boolean(m.get('audio')),
-      segmenti: ((m.get('segmenti') as Y.Array<Segmento>)?.toArray() ?? []),
-      ancore: ((m.get('ancore') as Y.Array<Ancora>)?.toArray() ?? []),
-      integrata: (m.get('integrata') as number | null) ?? null,
-      interrotta: Boolean(m.get('interrotta')),
-    })
-  })
-  return elenco.sort((a, b) => a.inizio - b.inizio)
-}
+let timerRiprova: number | undefined
+let timerAltrove: number | undefined
 
 /*  Ogni pagina aperta dice come raggiungere il suo editor. Serve a chi
  *  riprende una registrazione dopo un ricaricamento: le àncore vanno
@@ -67,6 +59,14 @@ export function collegaEditore(documentoId: string, editor: () => Editor | null)
   editori.set(documentoId, editor)
   return () => { if (editori.get(documentoId) === editor) editori.delete(documentoId) }
 }
+
+const chiediStato = () => fetch('/api/ascolto/stato').then((r) => r.json()).catch(() => null)
+const gettone = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+const posta = (dove: string, corpo: object) => fetch(`/api/ascolto/${dove}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(corpo),
+}).then((x) => x.json()).catch(() => ({ ok: false, errore: 'server non raggiungibile' }))
 
 /** Il blocco di primo livello in cui si trova il cursore. */
 function bloccoSottoAlCursore(editor: Editor): string | null {
@@ -88,20 +88,7 @@ function vocabolario(editor: Editor, materia: string): string[] {
   return [materia, ...nomi].filter(Boolean)
 }
 
-const chiave = (s: { inizio: number; testo: string }) => `${s.inizio.toFixed(2)}|${s.testo}`
-
-/** Quando è finita davvero: all'ultima frase, non quando ce ne si accorge. */
-function fineDa(voce: Y.Map<unknown>) {
-  const segmenti = voce.get('segmenti') as Y.Array<Segmento>
-  const partenza = (voce.get('avviato') as number | undefined) ?? (voce.get('inizio') as number)
-  return segmenti.length ? partenza + Math.round(segmenti.get(segmenti.length - 1).fine * 1000) : Date.now()
-}
-
-function togli(voce: Y.Map<unknown>) {
-  const doc = voce.doc
-  if (!doc) return
-  mappaRegistrazioni(doc).forEach((v, k) => { if (v === voce) mappaRegistrazioni(doc).delete(k) })
-}
+// ── avviare, riprendere, prendere il posto ──────────────────────────
 
 export async function avviaRegistrazione(opzioni: {
   documentoId: string
@@ -111,6 +98,11 @@ export async function avviaRegistrazione(opzioni: {
   file?: string   // solo per i collaudi: una lezione registrata al posto del microfono
 }) {
   if (leggiRegistrazione().attiva) return
+  // il microfono è già acceso (un'altra finestra, o questa prima di
+  // ricaricarla): si continua quella registrazione, non se ne apre un'altra
+  const s = await chiediStato()
+  if (s?.attivo) return prendiQui()
+
   const id = `reg-${Date.now().toString(36)}`
   const { doc } = apriDocumento(opzioni.documentoId)
 
@@ -126,23 +118,19 @@ export async function avviaRegistrazione(opzioni: {
     mappaRegistrazioni(doc).set(id, voce)
   })
 
-  aggiorna({ attiva: true, avvio: 'parto', id, documentoId: opzioni.documentoId, errore: null, provvisorio: '' })
+  aggiorna({ attiva: true, avvio: 'parto', id, documentoId: opzioni.documentoId, errore: null, provvisorio: '', altrove: null })
 
   const ed = opzioni.editor()
-  ascolta('/api/ascolto/eventi', voce, opzioni)
+  ascolta(voce, opzioni, 'nuova')
 
-  const r = await fetch('/api/ascolto/avvia', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id,
-      documentoId: opzioni.documentoId,
-      salvaAudio: opzioni.salvaAudio,
-      contesto: ed ? vocabolario(ed, opzioni.materia) : [opzioni.materia],
-      dispositivo: leggiImpostazioni().microfono,
-      file: opzioni.file,
-    }),
-  }).then((x) => x.json()).catch(() => ({ ok: false, errore: 'server non raggiungibile' }))
+  const r = await posta('avvia', {
+    id,
+    documentoId: opzioni.documentoId,
+    salvaAudio: opzioni.salvaAudio,
+    contesto: ed ? vocabolario(ed, opzioni.materia) : [opzioni.materia],
+    dispositivo: leggiImpostazioni().microfono,
+    file: opzioni.file,
+  })
 
   if (!r.ok) {
     chiudi()
@@ -151,105 +139,64 @@ export async function avviaRegistrazione(opzioni: {
   }
 }
 
-/** Dopo un ricaricamento della pagina il programma di ascolto è ancora
- *  acceso — il server non si è fermato — ma nessuno lo ascolta più, e
- *  le frasi andrebbero perse. Ci si ricollega, e il server rimanda
- *  tutto quello che ha sentito; i doppioni si saltano. */
-export async function riprendiSeInCorso() {
-  if (leggiRegistrazione().attiva) return
-  const s = await fetch('/api/ascolto/stato').then((r) => r.json()).catch(() => null)
-  // qualcuno lo sta già ascoltando: un'altra finestra, lasciamola fare
-  if (!s?.attivo || !s.id || !s.documentoId || s.ascoltatori > 0) return
+/** All'avvio della pagina: se il microfono è acceso e nessuno lo sta
+ *  ascoltando (la pagina è stata ricaricata), ci si ricollega. Se lo
+ *  ascolta un'altra finestra, lo si dice senza portarglielo via. */
+export const riprendiSeInCorso = () => aggancia('riprendi')
 
-  const { doc, pronto } = apriDocumento(s.documentoId)
-  await pronto
-  const voce = mappaRegistrazioni(doc).get(s.id)
-  if (!voce || voce.get('fine') !== null || leggiRegistrazione().attiva) return
+/** «Continua qui»: questa pagina prende il posto di quella che scriveva. */
+export const prendiQui = () => aggancia('prendi')
+
+async function aggancia(modo: 'riprendi' | 'prendi') {
+  window.clearTimeout(timerRiprova)
+  if (leggiRegistrazione().attiva || sorgente) return
+  const s = await chiediStato()
+  if (!s?.attivo || !s.id) return lasciaAltrove()
+
+  // partita da una versione vecchia dell'app, o pagina che non c'è più
+  if (!s.documentoId || !mappaDocumenti.has(s.documentoId)) return segnaAltrove(s.id, s.documentoId ?? null)
 
   const documentoId = s.documentoId as string
-  aggiorna({
-    attiva: true, avvio: 'ascolto', id: s.id, documentoId, errore: null, provvisorio: '',
-    inizio: (voce.get('avviato') as number | undefined) ?? (voce.get('inizio') as number),
-  })
-  ascolta('/api/ascolto/eventi?tutto=1', voce, { documentoId, editor: () => editori.get(documentoId)?.() ?? null })
+  const { doc, pronto } = apriDocumento(documentoId)
+  await pronto
+  const voce = mappaRegistrazioni(doc).get(s.id)
+  if (!voce || voce.get('fine') !== null) return segnaAltrove(s.id, documentoId)
+  if (leggiRegistrazione().attiva || sorgente) return
+
+  idAtteso = s.id
+  ascolta(voce, { documentoId, editor: () => editori.get(documentoId)?.() ?? null }, modo)
 }
 
-/** Registrazioni rimaste «in corso» per sempre: il server si è fermato
- *  mentre registravi e la pagina non c'era a vederlo. Si chiudono con
- *  quello che contengono — a meno che non stiano registrando davvero,
- *  magari in un'altra finestra: lo sa solo il server. */
-export async function chiudiOrfane(doc: Y.Doc) {
-  const aperte = [...mappaRegistrazioni(doc).entries()].filter(([, v]) => v.get('fine') === null)
-  if (!aperte.length) return
-  const s = await fetch('/api/ascolto/stato').then((r) => r.json()).catch(() => null)
-  if (!s) return   // server irraggiungibile: meglio non decidere niente
-  for (const [id, voce] of aperte) {
-    const qui = leggiRegistrazione()
-    if ((s.attivo && s.id === id) || (qui.attiva && qui.id === id)) continue
-    // la pagina aperta e il giro all'avvio possono arrivare insieme
-    if (inChiusura.has(id)) continue
-    inChiusura.add(id)
-    try {
-      await recuperaSospese(voce, id)
-      if (voce.get('fine') === null) chiudiVoce(voce, true)
-    } finally {
-      inChiusura.delete(id)
-    }
-  }
+/** La registrazione la scrive un'altra finestra: lo si mostra, e ogni
+ *  tanto si guarda se è finita — o se è rimasta senza nessuno che la
+ *  scriva, e allora la si prende. */
+function segnaAltrove(id: string, documentoId: string | null) {
+  aggiorna({ altrove: { id, documentoId } })
+  window.clearInterval(timerAltrove)
+  timerAltrove = window.setInterval(async () => {
+    const s = await chiediStato()
+    if (!s?.attivo || s.id !== id) return lasciaAltrove()
+    if (s.ascoltatori === 0) void riprendiSeInCorso()
+  }, SORVEGLIANZA)
 }
 
-const inChiusura = new Set<string>()
-
-const pausa = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-/** Le ultime frasi, dette mentre il server si fermava: il server le ha
- *  messe da parte in un file. Si aggiungono quelle che mancano. Se il
- *  programma di ascolto sta ancora finendo di scriverle, si aspetta. */
-async function recuperaSospese(voce: Y.Map<unknown>, id: string) {
-  for (let giro = 0; giro < 12; giro++) {
-    const r = await fetch(`/api/ascolto/sospese/${encodeURIComponent(id)}`).catch(() => null)
-    if (!r || !r.ok) return
-    const j = await r.json().catch(() => null)
-    if (!j) return
-    if (!j.chiusa && giro < 11) { await pausa(1000); continue }
-
-    const segmenti = voce.get('segmenti') as Y.Array<Segmento>
-    const presenti = new Set(segmenti.toArray().map(chiave))
-    const nuovi: Segmento[] = (Array.isArray(j.eventi) ? j.eventi : [])
-      .map((e: Record<string, unknown>) => ({
-        inizio: Number(e.inizio), fine: Number(e.fine), testo: String(e.testo),
-        parole: (e.parole as Segmento['parole']) ?? [],
-      }))
-      .filter((x: Segmento) => !presenti.has(chiave(x)))
-    if (nuovi.length) segmenti.push(nuovi)
-    await fetch(`/api/ascolto/sospese/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
-    return
-  }
+function lasciaAltrove() {
+  window.clearInterval(timerAltrove)
+  timerAltrove = undefined
+  if (leggiRegistrazione().altrove) aggiorna({ altrove: null })
 }
 
-/** All'avvio: le registrazioni che il server ha messo da parte, anche
- *  in pagine che non sono aperte. */
-export async function recuperaInterrotte() {
-  const elenco = await fetch('/api/ascolto/sospese').then((r) => r.json()).catch(() => [])
-  for (const { id, documentoId } of Array.isArray(elenco) ? elenco : []) {
-    // la pagina non c'è più: le frasi non hanno dove andare
-    if (!documentoId || !mappaDocumenti.has(documentoId)) {
-      await fetch(`/api/ascolto/sospese/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
-      continue
-    }
-    const { doc, pronto } = apriDocumento(documentoId)
-    await pronto
-    await chiudiOrfane(doc)
-  }
-}
+// ── il collegamento col server ──────────────────────────────────────
 
-function ascolta(url: string, voce: Y.Map<unknown>, opzioni: Opzioni) {
+function ascolta(voce: Y.Map<unknown>, opzioni: Opzioni, modo: Modo) {
   voceCorrente = voce
-  collegamenti = 0
+  modoCorrente = modo
   istanzaServer = null
   giaScritti = new Set((voce.get('segmenti') as Y.Array<Segmento>).toArray().map(chiave))
 
-  sorgente = new EventSource(url)
+  const parametri = new URLSearchParams({ chi: gettone(), modo: modo === 'nuova' ? 'prendi' : modo })
+  if (modo !== 'nuova') parametri.set('tutto', '1')   // chi si aggancia si fa rimandare tutto
+  sorgente = new EventSource(`/api/ascolto/eventi?${parametri}`)
   sorgente.onmessage = (e) => ricevi(JSON.parse(e.data), voce, opzioni)
   sorgente.onerror = () => {
     // l'EventSource riprova da solo; se entro PAZIENZA non torna, è finita
@@ -265,7 +212,6 @@ function ascolta(url: string, voce: Y.Map<unknown>, opzioni: Opzioni) {
 function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: Opzioni) {
   switch (evento.evento) {
     case 'collegato': {
-      collegamenti++
       const primo = istanzaServer === null
       const stessoServer = primo || evento.istanza === istanzaServer
       istanzaServer = String(evento.istanza ?? '')
@@ -273,6 +219,17 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
       timerCollegamento = undefined
       aggiorna({ scollegato: false })
 
+      if (primo && modoCorrente !== 'nuova') {
+        // aggancio a una registrazione già in corso: da qui la scrive questa pagina
+        if (!evento.attivo || evento.id !== idAtteso) { chiudi(); break }
+        riprove = 0
+        lasciaAltrove()
+        aggiorna({
+          attiva: true, avvio: 'ascolto', id: idAtteso, documentoId: opzioni.documentoId,
+          errore: null, provvisorio: '', inizio: avviatoDi(voce), pausa: evento.pausa === true, ...contaPause(voce),
+        })
+        break
+      }
       // il primo arriva prima ancora che il programma parta: non dice niente
       if (primo && leggiRegistrazione().avvio === 'parto') break
       if (evento.attivo && evento.id === leggiRegistrazione().id) break
@@ -287,13 +244,32 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
       concludi(voce, 'il server si è riavviato', true)
       break
     }
+    case 'occupato': {
+      // un'altra pagina scrive. Appena ricaricato può essere la connessione
+      // vecchia di questa stessa pagina che sta ancora chiudendo: si riprova
+      chiudi()
+      if (++riprove <= RIPROVE) {
+        timerRiprova = window.setTimeout(() => void riprendiSeInCorso(), 1500)
+        break
+      }
+      riprove = 0
+      segnaAltrove(String(evento.id), (evento.documentoId as string | null) ?? null)
+      break
+    }
+    case 'sostituito': {
+      // un'altra finestra ha detto «continua qui»
+      const { id, documentoId } = leggiRegistrazione()
+      chiudi()
+      azzera()
+      if (id) segnaAltrove(id, documentoId)
+      break
+    }
     case 'pronto': {
       // ripresa dopo un ricaricamento: il tempo zero resta quello vero
-      const avviato = (voce.get('avviato') as number | undefined) ?? Date.now()
-      if (!voce.get('avviato')) voce.set('avviato', avviato)
+      if (!voce.get('avviato')) voce.set('avviato', Date.now())
       aggiorna({
         avvio: 'ascolto',
-        inizio: avviato,
+        inizio: avviatoDi(voce),
         dispositivo: typeof evento.dispositivo === 'string' ? evento.dispositivo : null,
         virtuale: evento.virtuale === true,
       })
@@ -303,6 +279,14 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
       annotaAncora(voce, opzioni)
       break
     }
+    case 'pausa':
+      segnaPausa(voce, Number(evento.quando) || Date.now())
+      aggiorna({ pausa: true, provvisorio: '', ...contaPause(voce) })
+      break
+    case 'ripresa':
+      chiudiPausa(voce, Number(evento.quando) || Date.now())
+      aggiorna({ pausa: false, ...contaPause(voce) })
+      break
     case 'livello':
       aggiorna({ livello: Number(evento.db) })
       break
@@ -314,17 +298,12 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
       break
     case 'testo':
       if (evento.finale) {
-        const segmento: Segmento = {
+        scriviSegmento(voce, {
           inizio: Number(evento.inizio),
           fine: Number(evento.fine),
           testo: String(evento.testo),
           parole: (evento.parole as Segmento['parole']) ?? [],
-        }
-        // rimandato dal server dopo una ripresa, ma già scritto: si salta
-        if (!giaScritti.has(chiave(segmento))) {
-          giaScritti.add(chiave(segmento))
-          ;(voce.get('segmenti') as Y.Array<Segmento>).push([segmento])
-        }
+        })
         aggiorna({ provvisorio: '' })
       } else {
         aggiorna({ provvisorio: String(evento.testo) })
@@ -335,11 +314,21 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
       break
     case 'uscito': {
       if (evento.id && evento.id !== leggiRegistrazione().id) break
-      const errore = leggiRegistrazione().errore
-      concludi(voce, errore, false, Date.now())
+      concludi(voce, leggiRegistrazione().errore, false, Date.now())
       break
     }
   }
+}
+
+/** Una frase nuova nel documento — se non c'è già: rimandata dal server
+ *  dopo una ripresa, o arrivata da un'altra pagina che scriveva prima. */
+function scriviSegmento(voce: Y.Map<unknown>, segmento: Segmento) {
+  const k = chiave(segmento)
+  if (giaScritti.has(k)) return
+  giaScritti.add(k)
+  const segmenti = voce.get('segmenti') as Y.Array<Segmento>
+  if (segmenti.toArray().slice(-10).some((s) => chiave(s) === k)) return
+  segmenti.push([segmento])
 }
 
 /** La fine di una registrazione, comunque sia andata. Se si è
@@ -357,21 +346,11 @@ function concludi(voce: Y.Map<unknown>, errore: string | null, interrotta: boole
   azzera(errore)
 }
 
-/** Una registrazione senza nemmeno una frase non resta: sarebbe una
- *  lezione vuota. Le altre si chiudono all'ultima frase. */
-function chiudiVoce(voce: Y.Map<unknown>, interrotta: boolean, errore: string | null = null, quando?: number) {
-  if (!(voce.get('segmenti') as Y.Array<Segmento>).length && (errore || interrotta)) return togli(voce)
-  voce.doc?.transact(() => {
-    voce.set('fine', quando ?? fineDa(voce))
-    if (interrotta) voce.set('interrotta', true)
-  })
-}
-
 function annotaAncora(voce: Y.Map<unknown>, opzioni: Opzioni) {
-  const { inizio, documentoId } = leggiRegistrazione()
+  const { inizio, documentoId, pausa } = leggiRegistrazione()
   const editor = opzioni.editor()
-  // le àncore hanno senso solo nella pagina che si sta registrando
-  if (!inizio || !editor || documentoId !== opzioni.documentoId) return
+  // le àncore hanno senso solo nella pagina che si sta registrando, e non in pausa
+  if (!inizio || !editor || pausa || documentoId !== opzioni.documentoId) return
 
   const blocco = bloccoSottoAlCursore(editor)
   if (!blocco) return
@@ -390,6 +369,7 @@ function chiudi() {
   sorgente?.close()
   sorgente = null
   voceCorrente = null
+  idAtteso = null
   window.clearInterval(timerAncore)
   window.clearTimeout(timerCollegamento)
   window.clearTimeout(timerUscita)
@@ -397,16 +377,14 @@ function chiudi() {
   timerUscita = undefined
 }
 
+// ── i comandi ───────────────────────────────────────────────────────
+
 export async function fermaRegistrazione() {
   const { attiva, id } = leggiRegistrazione()
   const voce = voceCorrente
   if (!attiva || !voce) return
   aggiorna({ avvio: 'chiudo' })
-  const r = await fetch('/api/ascolto/ferma', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id }),
-  }).then((x) => x.json()).catch(() => ({ ok: false }))
+  const r = await posta('ferma', { id })
 
   // il programma non c'era più (server ripartito): si chiude da qui
   if (!r.ok) return concludi(voce, null, false)
@@ -416,6 +394,18 @@ export async function fermaRegistrazione() {
   timerUscita = window.setTimeout(() => concludi(voce, null, false), ATTESA_USCITA)
 }
 
+/*  Pausa e ripresa si CHIEDONO al programma di ascolto: lo stato cambia
+ *  quando lui risponde, così l'interfaccia dice sempre la verità. */
+export async function pausaRegistrazione() {
+  const { attiva, id, pausa, avvio } = leggiRegistrazione()
+  if (attiva && avvio === 'ascolto' && !pausa) await posta('pausa', { id })
+}
+
+export async function riprendiRegistrazione() {
+  const { attiva, id, pausa } = leggiRegistrazione()
+  if (attiva && pausa) await posta('riprendi', { id })
+}
+
 /** Toglie una registrazione dal documento, e il suo audio dal disco. */
 export async function eliminaRegistrazione(doc: Y.Doc, id: string) {
   const audio = mappaRegistrazioni(doc).get(id)?.get('audio')
@@ -423,4 +413,9 @@ export async function eliminaRegistrazione(doc: Y.Doc, id: string) {
   if (audio) await fetch(`/api/audio/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
 }
 
-esponi({ registrazione: { avviaRegistrazione, fermaRegistrazione, leggiRegistrazioni, eliminaRegistrazione, riprendiSeInCorso, chiudiOrfane, recuperaInterrotte, leggiRegistrazione } })
+esponi({
+  registrazione: {
+    avviaRegistrazione, fermaRegistrazione, pausaRegistrazione, riprendiRegistrazione,
+    riprendiSeInCorso, prendiQui, eliminaRegistrazione, leggiRegistrazione,
+  },
+})

@@ -527,6 +527,34 @@ Collaudato con una lezione sintetizzata da 49 s: riavvio del server a
 metà → 3 frasi su 3 salve (1 già scritta + 2 recuperate dal file);
 pagina ricaricata a metà → 5 frasi su 5, zero doppioni, àncore riprese.
 
+**Una pagina sola scrive.** Una copia della pagina rimasta viva in
+background dopo un ricaricamento ha scritto la stessa lezione insieme
+alla pagina nuova: quattro frasi doppie, e la pagina nuova mostrava
+«Registra» e rispondeva «sto già ascoltando». Ora il server tiene uno
+*scrivente* solo, riconosciuto da un gettone nell'indirizzo:
+
+- la pagina che si apre durante una registrazione si ricollega da sola
+  se nessuno la sta scrivendo (riprova per qualche secondo: la
+  connessione della pagina vecchia può essere ancora aperta);
+- se la scrive un'altra finestra, in alto compare **in corso altrove ·
+  continua qui**, e «continua qui» (o «Registra») sposta la scrittura in
+  questa pagina: l'altra riceve *sostituito* e si ferma;
+- le frasi doppie comunque non si leggono mai (merge, trascrizione,
+  conti), e alla chiusura si tolgono dal documento.
+
+**Pausa.** ❚❚ accanto a Registra. In pausa il microfono resta aperto ma
+al riconoscitore e al file arriva **silenzio**: così il tempo continua a
+scorrere e le frasi, le àncore e il minuto da riascoltare restano
+allineati. Il cronometro non conta le pause; la trascrizione le segna
+(«— pausa di 12 min —»). Il comando arriva al programma di ascolto su
+stdin, e l'interfaccia cambia solo quando lui risponde.
+
+**Il programma di ascolto si ricompila senza fermare nessuno**:
+`compila.sh` scrive un file nuovo e poi lo scambia. Sovrascrivere sul
+posto un binario firmato mentre registra fa uccidere il processo da
+macOS. Dopo una ricompilazione macOS chiede di nuovo il permesso del
+microfono: per lui è un programma nuovo.
+
 **Elenchi.** Tab su un elenco numerato che sta sotto un puntato lo
 sposta dentro come sottoelenco (anche più voci selezionate insieme);
 «1. » in una voce puntata la fa diventare numerata, «- » il contrario.

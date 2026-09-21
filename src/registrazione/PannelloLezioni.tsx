@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type * as Y from 'yjs'
 import type { RifEditore } from '../editor/Editor'
 import type { Registrazione } from './tipi'
@@ -56,9 +56,21 @@ function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
   )
 }
 
+/** La durata della lezione registrata: senza le pause. */
 function minuti(r: Registrazione) {
   const fine = r.segmenti.length ? r.segmenti[r.segmenti.length - 1].fine : 0
-  return Math.max(1, Math.round(fine / 60))
+  const inPausa = r.pause.reduce((t, p) => t + (p.a === null ? 0 : p.a - p.da), 0)
+  return Math.max(1, Math.round((fine - inPausa) / 60))
+}
+
+const quanto = (secondi: number) => secondi < 60 ? `${Math.round(secondi)} s` : `${Math.round(secondi / 60)} min`
+
+/** Le pause che cadono fra una frase e la successiva, per segnarle
+ *  nella trascrizione: «— pausa di 12 min —». */
+function pausePrima(r: Registrazione, i: number) {
+  const da = i > 0 ? r.segmenti[i - 1].fine - 1 : -Infinity
+  const a = r.segmenti[i].inizio
+  return r.pause.filter((p) => p.a !== null && p.da >= da && p.da < a)
 }
 
 export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
@@ -134,7 +146,9 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
               <span className={s.data}>{quando(r.inizio)}</span>
               <span className={s.misure}>
                 {r.fine === null
-                  ? <><span className={s.dalVivo} /> in corso</>
+                  ? r.pause.some((p) => p.a === null)
+                    ? 'in pausa'
+                    : <><span className={s.dalVivo} /> in corso</>
                   : `${minuti(r)} min · ${r.segmenti.length} ${r.segmenti.length === 1 ? 'frase' : 'frasi'}`}
                 {r.audio && ' · audio'}
                 {r.interrotta && (
@@ -167,17 +181,24 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
             {aperta === r.id && (
               <div className={s.trascrizione}>
                 {r.segmenti.map((seg, i) => (
-                  <p key={i}>
-                    <button
-                      className={s.minuto}
-                      disabled={!r.audio}
-                      title={r.audio ? 'Riascolta da qui' : 'Audio non salvato'}
-                      onClick={() => riascolta(r, seg.inizio)}
-                    >
-                      {Math.floor(seg.inizio / 60)}:{String(Math.floor(seg.inizio % 60)).padStart(2, '0')}
-                    </button>
-                    {seg.testo}
-                  </p>
+                  <Fragment key={i}>
+                    {pausePrima(r, i).map((p) => (
+                      <p key={`p${p.da}`} className={s.pausaTrascritta}>
+                        pausa di {quanto((p.a ?? p.da) - p.da)}
+                      </p>
+                    ))}
+                    <p>
+                      <button
+                        className={s.minuto}
+                        disabled={!r.audio}
+                        title={r.audio ? 'Riascolta da qui' : 'Audio non salvato'}
+                        onClick={() => riascolta(r, seg.inizio)}
+                      >
+                        {Math.floor(seg.inizio / 60)}:{String(Math.floor(seg.inizio % 60)).padStart(2, '0')}
+                      </button>
+                      {seg.testo}
+                    </p>
+                  </Fragment>
                 ))}
               </div>
             )}
