@@ -3,6 +3,10 @@ import { DOMANDA_IMMAGINI } from '../immagini/consigliate'
 
 export type BloccoAppunti = { id: string; tipo: string; testo: string }
 
+/** Un tratto di trascrizione, e — se le lezioni sono più d'una — da
+ *  quale lezione arriva. */
+export type TrattoDiLezione = Tratto & { lezione?: string }
+
 /*  Il prompt chiede OPERAZIONI, non un riassunto.
  *
  *  Il modello non riscrive mai gli appunti: propone aggiunte, ognuna
@@ -17,7 +21,7 @@ export type BloccoAppunti = { id: string; tipo: string; testo: string }
  *  che i modelli interpretano come vogliono: ci sono gli appunti
  *  stessi, e l'istruzione di imitarli. */
 
-const SISTEMA = `Sei l'assistente di uno studente che prende appunti a lezione.
+const sistema = (massimo: number) => `Sei l'assistente di uno studente che prende appunti a lezione.
 Ricevi i suoi appunti (blocchi con un id) e la trascrizione della lezione,
 già divisa secondo il blocco che stava scrivendo mentre il professore parlava.
 
@@ -68,7 +72,7 @@ Regole:
   (una data, un numero, un nome), proponi una correzione con tipo "correggi".
   La trascrizione automatica sbaglia nomi propri e numeri: correggi solo
   se sei sicuro che l'errore sia negli appunti e non nella trascrizione.
-- Al massimo 8 proposte. Meglio 3 utili che 8 mediocri.
+- Al massimo ${massimo} proposte. Meglio 3 utili che ${massimo} mediocri.
 - "dopo" è uno degli id fra parentesi quadre negli APPUNTI: il blocco
   dopo cui va inserita la proposta, o quello da completare. Le proposte
   per lo stesso blocco scrivile nell'ordine in cui vanno lette.
@@ -88,22 +92,47 @@ Rispondi SOLO con un oggetto JSON:
  "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
 Se non manca niente di utile: {"proposte":[], "titoli":[], "immagini":[...]}`
 
-export function costruisciPrompt(materia: string, blocchi: BloccoAppunti[], tratti: Tratto[], stile = '') {
+/*  Quando le lezioni sono più d'una, il vantaggio è vederle insieme:
+ *  va detto, altrimenti il modello le tratta come un discorso solo e
+ *  ripropone tre volte la cosa ripetuta a tre lezioni di distanza. */
+const PIU_LEZIONI = (quante: number) => `QUESTA PAGINA HA ${quante} LEZIONI.
+La trascrizione le contiene tutte, in ordine di data, ognuna col suo titolo.
+Usa il fatto di vederle insieme:
+- un dato ripetuto in due lezioni diventa UNA proposta sola, messa dove sta meglio;
+- se in una lezione dopo il professore ha corretto o precisato qualcosa,
+  vale l'ultima versione, non la prima;
+- puoi proporre il collegamento fra due lezioni quando è lui a farlo
+  («come dicevamo la volta scorsa…»), mai per tua iniziativa.`
+
+export function costruisciPrompt(
+  materia: string,
+  blocchi: BloccoAppunti[],
+  tratti: TrattoDiLezione[],
+  stile = '',
+  { lezioni = 1, massimo = 8 }: { lezioni?: number; massimo?: number } = {},
+) {
   const appunti = blocchi
     .map((b) => `[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`)
     .join('\n')
 
+  // il titolo della lezione si scrive solo quando cambia
+  let ultima: string | undefined
   const lezione = tratti
-    .map((t) => `— mentre scriveva ${t.blocco ? `[${t.blocco}]` : '(nessun blocco)'}: «${t.testo.trim()}»`)
+    .map((t) => {
+      const capo = t.lezione && t.lezione !== ultima ? `\n── ${t.lezione} ──\n` : ''
+      ultima = t.lezione
+      return `${capo}— mentre scriveva ${t.blocco ? `[${t.blocco}]` : '(nessun blocco)'}: «${t.testo.trim()}»`
+    })
     .join('\n')
 
   return [
-    { role: 'system' as const, content: SISTEMA },
+    { role: 'system' as const, content: sistema(massimo) },
     {
       role: 'user' as const,
       content: `MATERIA: ${materia || 'non indicata'}\n\n` +
+        (lezioni > 1 ? `${PIU_LEZIONI(lezioni)}\n\n` : '') +
         (stile ? `COME SCRIVE LO STUDENTE IN QUESTA PAGINA:\n${stile}\n\n` : '') +
-        `APPUNTI:\n${appunti || '(vuoti)'}\n\nLEZIONE:\n${lezione}`,
+        `APPUNTI:\n${appunti || '(vuoti)'}\n\n${lezioni > 1 ? 'LEZIONI' : 'LEZIONE'}:\n${lezione}`,
     },
   ]
 }

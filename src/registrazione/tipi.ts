@@ -11,6 +11,7 @@
  *        segmenti : Y.Array<Segmento>   ciò che ha detto il professore
  *        ancore   : Y.Array<Ancora>     dove eri negli appunti, e quando
  *        integrata: numero di proposte fatte dal merge, se fatto
+ *        insieme  : quando è stata integrata con tutte le altre
  *      }
  */
 
@@ -42,6 +43,8 @@ export type Registrazione = {
   segmenti: Segmento[]
   ancore: Ancora[]
   integrata: number | null
+  /** quando è stata integrata insieme alle altre lezioni della pagina */
+  insieme: number | null
   interrotta: boolean
   pause: Pausa[]
 }

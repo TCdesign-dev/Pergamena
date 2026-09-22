@@ -32,6 +32,7 @@ export function leggiRegistrazioni(doc: Y.Doc): Registrazione[] {
       segmenti: senzaDoppioni((m.get('segmenti') as Y.Array<Segmento>)?.toArray() ?? []),
       ancore: ((m.get('ancore') as Y.Array<Ancora>)?.toArray() ?? []),
       integrata: (m.get('integrata') as number | null) ?? null,
+      insieme: (m.get('insieme') as number | null) ?? null,
       interrotta: Boolean(m.get('interrotta')),
       pause: ((m.get('pause') as Y.Array<Pausa>)?.toArray() ?? []),
     })

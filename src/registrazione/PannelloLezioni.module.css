@@ -77,6 +77,25 @@
   animation: var(--pulsa);
 }
 
+/* ── tutte le lezioni insieme ───────────────────────────────── */
+/*  In fondo all'elenco, perché è la cosa che si fa a fine corso: una
+ *  lezione alla volta è il gesto di tutti i giorni, questa no. */
+.insieme {
+  margin: calc(var(--u) * 1.5) calc(var(--u) * 2) 0;
+  padding: calc(var(--u) * 1.5);
+  border: calc(var(--u) / 8) solid var(--linea);
+  border-radius: var(--raggio-g);
+  animation: var(--entra);
+}
+[data-modo="lato"] .insieme { margin: calc(var(--u) * 1.5) var(--u) 0; }
+.insiemeTitolo { display: block; font-size: var(--t-ui); font-weight: 600; }
+.insiemeTesto {
+  margin: calc(var(--u) / 2) 0 calc(var(--u) * 1.25);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  line-height: 1.5;
+}
+
 /* ── le azioni, sopra la trascrizione ───────────────────────── */
 .azioni { display: flex; align-items: center; gap: calc(var(--u) * 0.75); margin-top: calc(var(--u) * 1.25); }
 .spazio { flex: 1; }

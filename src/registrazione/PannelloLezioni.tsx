@@ -1,10 +1,11 @@
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type * as Y from 'yjs'
+import type { Editor } from '@tiptap/core'
 import type { RifEditore } from '../editor/Editor'
 import type { Registrazione } from './tipi'
 import { useRegistrazioni } from './useRegistrazioni'
 import { eliminaRegistrazione } from './registrazione'
-import { integraLezione, type FaseMerge } from '../merge/merge'
+import { integraLezione, integraTutto, type EsitoMerge, type FaseMerge } from '../merge/merge'
 import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni } from '../impostazioni'
@@ -38,6 +39,9 @@ function quando(t: number) {
  *  quanto si aspetta. Una frase ferma per mezzo minuto sembra un
  *  programma bloccato; una fase che cambia e i secondi che passano no. */
 type Lavoro = { id: string; fase: FaseMerge | 'fatto' | 'errore'; messaggio?: string; inizio: number }
+
+/** Il lavoro che non è di UNA lezione, ma di tutte insieme. */
+const TUTTE = 'tutte-le-lezioni'
 
 const FASI: Record<FaseMerge, string> = {
   preparo: 'Preparo la lezione…',
@@ -127,15 +131,17 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
     return () => window.removeEventListener('keydown', giu)
   }, [onChiudi, daEliminare])
 
-  async function integra(r: Registrazione) {
+  /** Il merge di una lezione sola, o di tutte insieme: cambia solo
+   *  chi lo fa; l'attesa, l'esito e la revisione sono gli stessi. */
+  async function integra(id: string, fai: (editor: Editor, avanza: (f: FaseMerge) => void) => Promise<EsitoMerge>) {
     const editor = rifEditore.current
     if (!editor) return
     const inizio = Date.now()
-    setLavoro({ id: r.id, fase: 'preparo', inizio })
+    setLavoro({ id, fase: 'preparo', inizio })
     try {
-      const esito = await integraLezione(editor, doc, r.id, materia, (fase) => setLavoro({ id: r.id, fase, inizio }))
+      const esito = await fai(editor, (fase) => setLavoro({ id, fase, inizio }))
       setLavoro({
-        id: r.id,
+        id,
         fase: 'fatto',
         inizio,
         messaggio: esito.proposte
@@ -148,9 +154,14 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
       if (esito.immagini) apriPannello(true, 'consigliate')
       if (esito.proposte) { onChiudi(); avviaRevisione() }
     } catch (e) {
-      setLavoro({ id: r.id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : 'merge fallito' })
+      setLavoro({ id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : 'merge fallito' })
     }
   }
+
+  const integraUna = (r: Registrazione) =>
+    integra(r.id, (editor, avanza) => integraLezione(editor, doc, r.id, materia, avanza))
+  const integraTutte = () =>
+    integra(TUTTE, (editor, avanza) => integraTutto(editor, doc, materia, avanza))
 
   function riascolta(r: Registrazione, secondo: number) {
     const a = lettore.current
@@ -174,6 +185,11 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   const statoCorrezioni = !impostazioni.correzioniInDiretta ? 'correzioni in diretta spente'
     : correzioni.fermo === 'credito' ? 'correzioni in diretta ferme'
     : 'correzioni in diretta attive'
+
+  // le lezioni finite che hanno del parlato: quelle che si possono rileggere insieme
+  const insieme = lezioni.filter((r) => r.fine !== null && r.segmenti.length > 0)
+  const inCorso = !!lavoro && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'
+  const tutteInCorso = inCorso && lavoro?.id === TUTTE
 
   return (
     <div className={s.pannello} data-modo={modo}>
@@ -214,8 +230,13 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                   </span>
                   <span className={s.stato}>
                     {!finita ? <><span className={s.dalVivo} />in corso</>
-                      : r.integrata !== null ? (
-                        <span className={s.integrata} title={`${r.integrata} ${r.integrata === 1 ? 'proposta' : 'proposte'}`}>
+                      : r.integrata !== null || r.insieme !== null ? (
+                        <span
+                          className={s.integrata}
+                          title={r.integrata !== null
+                            ? `${r.integrata} ${r.integrata === 1 ? 'proposta' : 'proposte'}`
+                            : 'Integrata insieme alle altre lezioni della pagina'}
+                        >
                           <Icona nome="accetta" dimensione={12} />Integrata
                         </span>
                       )
@@ -229,12 +250,12 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                 <div className={s.azioni}>
                   {finita && r.segmenti.length > 0 && (
                     <button
-                      className={r.integrata === null ? s.principale : s.secondario}
-                      onClick={() => void integra(r)}
+                      className={r.integrata === null && r.insieme === null ? s.principale : s.secondario}
+                      onClick={() => void integraUna(r)}
                       disabled={occupata}
                     >
                       {occupata ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
-                      {occupata ? 'Integro…' : r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
+                      {occupata ? 'Integro…' : r.integrata === null && r.insieme === null ? 'Integra negli appunti' : 'Integra di nuovo'}
                     </button>
                   )}
                   <button
@@ -284,6 +305,21 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
             )
           })}
         </ul>
+
+        {insieme.length > 1 && (
+          <div className={s.insieme}>
+            <b className={s.insiemeTitolo}>Integrazione completa</b>
+            <p className={s.insiemeTesto}>
+              Rilegge le {insieme.length} lezioni insieme, invece di una alla volta: ciò che il
+              professore ha ripreso da una lezione all’altra diventa una proposta sola.
+            </p>
+            {lavoro?.id === TUTTE && <Avanzamento lavoro={lavoro} />}
+            <button className={s.secondario} onClick={() => void integraTutte()} disabled={inCorso}>
+              {tutteInCorso ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
+              {tutteInCorso ? 'Integro…' : 'Integra tutte le lezioni'}
+            </button>
+          </div>
+        )}
 
         <ContiCorrezioni lezioni={lezioni} />
         <audio ref={lettore} className={s.lettore} controls preload="none" />
