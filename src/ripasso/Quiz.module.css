@@ -45,7 +45,7 @@
   font-size: 13px;
   font-weight: 600;
 }
-.chiudi { width: 24px; height: 24px; border-radius: var(--raggio); color: var(--tenue); font-size: 16px; }
+.chiudi { width: 24px; height: 24px; border-radius: var(--raggio); color: var(--tenue); display: inline-grid; place-items: center; }
 .chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
 
 .attesa {
@@ -182,9 +182,9 @@
   font-size: 13px;
   line-height: 1.45;
 }
-.segno { flex: none; width: 14px; font-weight: 700; }
+.segno { flex: none; width: 14px; display: grid; align-self: center; }
 .riepilogo li.bene .segno { color: var(--c-verde); }
 .riepilogo li.male .segno { color: var(--c-rosso); }
 .testoRiepilogo { flex: 1; }
-.rileggi { flex: none; color: var(--accento); font-size: 12px; }
+.rileggi { flex: none; color: var(--accento); font-size: 12px; display: inline-flex; align-items: center; gap: calc(var(--u) * 0.25); }
 .rileggi:hover { text-decoration: underline; }

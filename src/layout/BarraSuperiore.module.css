@@ -59,7 +59,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   border-radius: var(--raggio);
   color: var(--tenue); font-size: 12px; line-height: 1;
 }
-.icona { width: 26px; }
+.icona { width: 26px; display: inline-grid; place-items: center; }
 .icona:hover, .testo:hover { background: var(--sfiorata); color: var(--inchiostro); }
 .attivo { background: var(--premuta); color: var(--inchiostro) !important; }
 

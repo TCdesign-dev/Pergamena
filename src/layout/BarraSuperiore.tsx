@@ -5,6 +5,7 @@ import { apriDocumento } from '../documento/archivio'
 import { PulsanteRegistra } from '../registrazione/PulsanteRegistra'
 import { PannelloLezioni } from '../registrazione/PannelloLezioni'
 import { useRegistrazioni } from '../registrazione/useRegistrazioni'
+import { Icona } from '../lib/Icona'
 import s from './BarraSuperiore.module.css'
 
 /*  Una riga sottile che dice dove sei e poco altro. Serve a non
@@ -56,11 +57,14 @@ export function BarraSuperiore({
         <button
           className={`${s.icona} ${pannelloAperto ? s.attivo : ''}`}
           title="Pannello delle immagini  ⌘/"
+          aria-label="Pannello delle immagini"
           onClick={onPannello}
         >
-          ◫
+          <Icona nome="immagini" />
         </button>
-        <button className={s.icona} title="Elimina questa pagina" onClick={onElimina}>⌫</button>
+        <button className={s.icona} title="Elimina questa pagina" aria-label="Elimina questa pagina" onClick={onElimina}>
+          <Icona nome="elimina" />
+        </button>
       </div>
 
       {lezioniAperte && (

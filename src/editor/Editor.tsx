@@ -11,6 +11,7 @@ import { EditorFormula } from './formula/EditorFormula'
 import { SchedaCorrezione } from '../correzioni/SchedaCorrezione'
 import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
+import { Icona } from '../lib/Icona'
 import s from './Editor.module.css'
 
 /** Dove deve andare il cursore quando si apre un documento.
@@ -137,7 +138,7 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   )
 }
 
-/*  La maniglia ⋮⋮ a sinistra della riga sotto il mouse: si trascina per
+/*  La maniglia (icona «sposta») a sinistra della riga sotto il mouse: si trascina per
  *  spostare il blocco (o la voce d'elenco); un clic seleziona il blocco
  *  intero, e da lì ⌘⇧↑/↓ lo sposta o Canc lo toglie. Se c'è già un
  *  gruppo selezionato, trascinandola si sposta tutto il gruppo. */
@@ -157,7 +158,7 @@ function Maniglia({ editor }: { editor: EditoreTipTap }) {
           if (sotto.current !== null && sotto.current >= 0) editor.chain().focus().setNodeSelection(sotto.current).run()
         }}
       >
-        <span aria-hidden>⋮⋮</span>
+        <Icona nome="sposta" />
       </button>
     </DragHandle>
   )

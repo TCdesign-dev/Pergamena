@@ -44,6 +44,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   font-size: 12px;
   opacity: 0;
   transition: opacity 120ms ease;
+  display: inline-flex; align-items: center; gap: calc(var(--u) * 0.75);
 }
 .testata:hover .aggiungiCopertina, .aggiungiCopertina:focus-visible { opacity: 1; }
 .aggiungiCopertina:hover { color: var(--inchiostro-tenue); }
@@ -96,8 +97,8 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   padding: 3px 7px;
   border-radius: var(--raggio);
   color: var(--accento);
-  font-size: 12px;
   text-decoration: none;
+  display: inline-grid; place-items: center;
 }
 .apri:hover { background: var(--sfiorata); }
 
@@ -124,9 +125,9 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   width: 22px; height: 22px;
   border-radius: var(--raggio);
   color: var(--tenue);
-  font-size: 13px;
   opacity: 0;
   transition: opacity 110ms ease;
+  display: inline-grid; place-items: center;
 }
 .esame:hover .togli, .collegamento:hover .togli, .togli:focus-visible { opacity: 1; }
 .togli:hover { background: var(--premuta); color: var(--c-rosso); }
@@ -137,6 +138,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   border-radius: var(--raggio);
   color: var(--tenue);
   font-size: 12.5px;
+  display: inline-flex; align-items: center; gap: calc(var(--u) * 0.75);
 }
 .aggiungi:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
 

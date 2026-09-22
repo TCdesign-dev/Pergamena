@@ -43,7 +43,7 @@
 .apriColori { padding-right: 3px; }
 .lettera { font-weight: 600; font-size: 12.5px; opacity: 0.45; }
 .lettera[data-applicato] { opacity: 1; }   /* pieno = la selezione ha già quel colore */
-.freccetta { font-size: 7px; opacity: 0.65; }
+.freccetta { opacity: 0.65; }
 
 .lettera[data-colore="rosso"]   { color: var(--c-rosso); }
 .lettera[data-colore="arancio"] { color: var(--c-arancio); }

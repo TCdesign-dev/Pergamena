@@ -42,8 +42,8 @@
 }
 .intestazione:hover { background: var(--sfiorata); }
 
-.piega { width: 15px; height: 20px; color: var(--tenue); }
-.freccia { display: inline-block; font-size: 9px; transition: transform 120ms ease; }
+.piega { width: 15px; height: 20px; color: var(--tenue); display: inline-grid; place-items: center; }
+.freccia { display: grid; transition: transform var(--veloce) ease; }
 .chiusa { transform: rotate(-90deg); }
 
 .pallino { width: 6px; height: 6px; border-radius: 50%; flex: none; margin-right: 3px; }
@@ -78,7 +78,8 @@
 .intestazione:hover .azioni { opacity: 1; }
 .azioni button {
   width: 19px; height: 19px; border-radius: 3px;
-  color: var(--tenue); font-size: 12px; line-height: 1;
+  color: var(--tenue);
+  display: inline-grid; place-items: center;
 }
 .azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
 
@@ -104,7 +105,8 @@
 
 .cestino {
   flex: none; width: 20px; height: 20px; margin-right: 3px;
-  border-radius: 3px; color: var(--tenue); font-size: 11px; line-height: 1;
+  border-radius: 3px; color: var(--tenue);
+  display: inline-grid; place-items: center;
   opacity: 0; transition: opacity 110ms ease;
 }
 .riga:hover .cestino { opacity: 1; }
@@ -112,7 +114,7 @@
 
 /* ── nuova materia ──────────────────────────────────────────── */
 .nuovaMateria {
-  display: block; width: 100%;
+  display: flex; align-items: center; gap: calc(var(--u) * 0.75); width: 100%;
   padding: 6px 7px; margin-top: var(--u);
   border-radius: var(--raggio);
   color: var(--tenue); font-size: 12px; text-align: left;

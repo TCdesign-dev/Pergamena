@@ -7,6 +7,7 @@ import { ultimoColore } from '../estensioni/coloreTesto'
 import { mappaDocumenti, mappaQuaderni } from '../../documento/archivio'
 import { apriQuiz } from '../../ripasso/statoQuiz'
 import type { BloccoTesto } from '../../ripasso/argomenti'
+import { Icona } from '../../lib/Icona'
 import s from './MenuSelezione.module.css'
 
 /*  Compare solo quando selezioni del testo.
@@ -140,6 +141,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           <span className={s.separatore} />
           <button
             title={`Colore del testo — ⌘⇧C applica ${ETICHETTE[coloreMostrato]}`}
+            aria-label="Colore del testo"
             className={`${s.bottone} ${s.apriColori} ${coloreAttivo ? s.attivo : ''}`}
             onClick={() => setPannello('colori')}
           >
@@ -150,7 +152,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
             >
               A
             </span>
-            <span className={s.freccetta}>▾</span>
+            <Icona nome="giu" dimensione={12} className={s.freccetta} />
           </button>
           <span className={s.separatore} />
           <button
@@ -165,10 +167,11 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
         <>
           <button
             title="Indietro"
+            aria-label="Indietro"
             className={s.bottone}
             onClick={() => setPannello('principale')}
           >
-            ‹
+            <Icona nome="sinistra" />
           </button>
           <span className={s.separatore} />
           {COLORI.map((c, i) => (
@@ -187,13 +190,14 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           <span className={s.separatore} />
           <button
             title="Togli il colore  ⌘⇧0"
+            aria-label="Togli il colore"
             className={s.bottone}
             onClick={() => {
               editor.chain().focus().scoloraTesto().run()
               setPannello('principale')
             }}
           >
-            ⨯
+            <Icona nome="chiudi" />
           </button>
         </>
       )}

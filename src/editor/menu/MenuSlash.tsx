@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { iscrivitiSlash, leggiSlash, scegliSlash } from './statoSlash'
+import { Icona } from '../../lib/Icona'
 import s from './MenuSlash.module.css'
 
 const LARGHEZZA = 244
@@ -46,7 +47,7 @@ export function MenuSlash() {
           data-scelta={i === indice ? '' : undefined}
           onClick={() => scegliSlash(i)}
         >
-          <span className={s.icona}>{v.icona}</span>
+          <span className={s.icona}>{typeof v.icona === 'string' ? v.icona : <Icona nome={v.icona.svg} dimensione={14} />}</span>
           <span className={s.nome}>{v.nome}</span>
           {v.suggerimento && <span className={s.suggerimento}>{v.suggerimento}</span>}
         </button>

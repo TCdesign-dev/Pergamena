@@ -7,6 +7,7 @@ import {
   ORDINI, ETICHETTE_ORDINE, leggiOrdine, salvaOrdine, ordina, type Ordine,
 } from '../documento/ordinamento'
 import { StatoSincronia } from './StatoSincronia'
+import { Icona } from '../lib/Icona'
 import s from './BarraLaterale.module.css'
 
 export function BarraLaterale({
@@ -74,8 +75,8 @@ export function BarraLaterale({
           return (
             <section key={q.id} className={s.materia}>
               <div className={s.intestazione}>
-                <button className={s.piega} onClick={() => piega(q.id)} title={chiuso ? 'Apri' : 'Chiudi'}>
-                  <span className={`${s.freccia} ${chiuso ? s.chiusa : ''}`}>▾</span>
+                <button className={s.piega} onClick={() => piega(q.id)} title={chiuso ? 'Apri' : 'Chiudi'} aria-label={chiuso ? `Apri ${q.nome || 'la materia'}` : `Chiudi ${q.nome || 'la materia'}`} aria-expanded={!chiuso}>
+                  <span className={`${s.freccia} ${chiuso ? s.chiusa : ''}`}><Icona nome="giu" dimensione={12} /></span>
                 </button>
                 <span className={s.pallino} data-colore={q.colore} />
                 <button className={`${s.nome} ${schedaAperta === q.id ? s.nomeScheda : ''}`} onClick={() => piega(q.id)}>
@@ -88,10 +89,10 @@ export function BarraLaterale({
                   </span>
                 )}
                 <div className={s.azioni}>
-                  <button title="Scheda della materia: esami, docente, programma" onClick={() => onScheda(q.id)}>ⓘ</button>
-                  <button title="Ripasso: dove eravamo rimasti, argomenti, quiz" onClick={() => onRipasso(q.id)}>↺</button>
-                  <button title="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}>+</button>
-                  <button title="Elimina la materia" onClick={() => onEliminaMateria(q)}>⌫</button>
+                  <button title="Scheda della materia: esami, docente, programma" aria-label="Scheda della materia" onClick={() => onScheda(q.id)}><Icona nome="materia" dimensione={14} /></button>
+                  <button title="Ripasso: dove eravamo rimasti, argomenti, quiz" aria-label="Ripasso" onClick={() => onRipasso(q.id)}><Icona nome="ripasso" dimensione={14} /></button>
+                  <button title="Nuova pagina" aria-label="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}><Icona nome="nuovo" dimensione={14} /></button>
+                  <button title="Elimina la materia" aria-label="Elimina la materia" onClick={() => onEliminaMateria(q)}><Icona nome="elimina" dimensione={14} /></button>
                 </div>
               </div>
 
@@ -111,7 +112,7 @@ export function BarraLaterale({
                           </span>
                         )}
                       </button>
-                      <button className={s.cestino} title="Elimina la pagina" onClick={() => onEliminaPagina(d)}>⌫</button>
+                      <button className={s.cestino} title="Elimina la pagina" aria-label="Elimina la pagina" onClick={() => onEliminaPagina(d)}><Icona nome="elimina" dimensione={14} /></button>
                     </li>
                   ))}
                 </ul>
@@ -124,7 +125,7 @@ export function BarraLaterale({
           className={s.nuovaMateria}
           onClick={() => { const q = creaQuaderno(''); onApri(creaDocumento(q.id).id, 'titolo') }}
         >
-          + Nuova materia
+          <Icona nome="nuovo" dimensione={14} /> Nuova materia
         </button>
       </div>
 

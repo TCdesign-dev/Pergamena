@@ -47,7 +47,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue)
   text-align: left;
 }
 .rigaMateria:hover { background: var(--sfiorata); }
-.freccia { width: 12px; color: var(--tenue); font-size: 10px; }
+.freccia { width: 12px; color: var(--tenue); display: grid; place-items: center; }
 .pallino { width: 7px; height: 7px; border-radius: 50%; background: var(--tenue); }
 .pallino[data-colore="rosso"]   { background: var(--c-rosso); }
 .pallino[data-colore="arancio"] { background: var(--c-arancio); }

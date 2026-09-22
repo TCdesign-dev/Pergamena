@@ -5,7 +5,7 @@ import type { ResolvedPos } from '@tiptap/pm/model'
 
 /*  Spostare i blocchi, come su Notion.
  *
- *  Col mouse c'è la maniglia ⋮⋮ a sinistra di ogni riga (Editor.tsx);
+ *  Col mouse c'è la maniglia (icona «sposta») a sinistra di ogni riga (Editor.tsx);
  *  da tastiera ⌘⇧↑ e ⌘⇧↓ spostano di un posto il blocco dove sta il
  *  cursore — o tutti quelli toccati dalla selezione, o il gruppo scelto
  *  tenendo premuto ⌘ mentre si seleziona col mouse. Dentro un elenco si

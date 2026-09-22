@@ -46,7 +46,7 @@
   text-decoration: line-through;
   text-decoration-color: var(--avviso);
 }
-.freccia { color: var(--tenue); font-size: 13px; }
+.freccia { color: var(--tenue); align-self: center; }
 .nuovo { color: var(--inchiostro); font-weight: 600; }
 
 .azioni { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }

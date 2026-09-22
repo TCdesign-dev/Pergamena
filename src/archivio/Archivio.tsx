@@ -5,6 +5,7 @@ import { Conferma } from '../layout/Conferma'
 import { Tessere } from '../layout/Attesa'
 import { mappaDocumenti } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
+import { Icona } from '../lib/Icona'
 import s from './Archivio.module.css'
 
 /*  Il gestore dell'archivio: quanto occupa ogni materia, ogni pagina,
@@ -81,7 +82,7 @@ export function Archivio({ onHome, onApri, onEliminaPagina }: {
                   return (
                     <li key={m.id} className={s.materia}>
                       <button className={s.rigaMateria} onClick={() => apriChiudi(m.id)} aria-expanded={aperta}>
-                        <span className={s.freccia}>{aperta ? '▾' : '▸'}</span>
+                        <span className={s.freccia}><Icona nome={aperta ? 'giu' : 'destra'} dimensione={12} /></span>
                         <span className={s.pallino} data-colore={m.colore} />
                         <span className={s.nome}>{m.nome}</span>
                         <span className={s.dettagli}>

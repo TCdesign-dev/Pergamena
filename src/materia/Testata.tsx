@@ -5,6 +5,7 @@ import { useImmagine } from '../immagini/useImmagine'
 import { Esami } from './Esami'
 import { Collegamenti } from './Collegamenti'
 import { Miniatura } from '../layout/Miniatura'
+import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
 
 /*  Copertina, nome e i pochi campi strutturati, in cima alla scheda,
@@ -24,7 +25,7 @@ export function Testata({ quaderno, onCopertina }: { quaderno: Quaderno; onCoper
           <button className={s.cambiaCopertina} onClick={onCopertina}>Cambia copertina</button>
         </div>
       ) : (
-        <button className={s.aggiungiCopertina} onClick={onCopertina}>+ Aggiungi una copertina</button>
+        <button className={s.aggiungiCopertina} onClick={onCopertina}><Icona nome="nuovo" dimensione={14} /> Aggiungi una copertina</button>
       )}
 
       <input
@@ -58,7 +59,7 @@ export function Testata({ quaderno, onCopertina }: { quaderno: Quaderno; onCoper
             onChange={(e) => aggiornaQuaderno(quaderno.id, { email: e.target.value })}
           />
           {emailValida && (
-            <a className={s.apri} href={`mailto:${quaderno.email}`} title="Scrivi">↗</a>
+            <a className={s.apri} href={`mailto:${quaderno.email}`} title="Scrivi una email" aria-label="Scrivi una email"><Icona nome="apri-fuori" dimensione={14} /></a>
           )}
         </dd>
 

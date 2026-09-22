@@ -4,6 +4,7 @@ import { preparaQuiz, type Ambito, type Domanda } from './quiz'
 import { segnaEsito } from './risultati'
 import { vaiA } from '../layout/navigazione'
 import { Barra } from '../layout/Attesa'
+import { Icona } from '../lib/Icona'
 import s from './Quiz.module.css'
 
 /*  Il quiz: una domanda alla volta, e subito la risposta giusta col suo
@@ -128,7 +129,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
         <header className={s.testa}>
           <span className={s.etichetta}>Quiz</span>
           <span className={s.titolo}>{ambito.titolo}</span>
-          <button className={s.chiudi} onClick={chiudi} aria-label="Chiudi">×</button>
+          <button className={s.chiudi} onClick={chiudi} title="Chiudi  esc" aria-label="Chiudi"><Icona nome="chiudi" /></button>
         </header>
 
         {fase === 'preparo' && (
@@ -222,10 +223,10 @@ function Quiz({ ambito }: { ambito: Ambito }) {
             <ol className={s.riepilogo}>
               {domande.map((q, k) => (
                 <li key={k} className={eGiusta(k) ? s.bene : s.male}>
-                  <span className={s.segno}>{eGiusta(k) ? '✓' : '✗'}</span>
+                  <span className={s.segno}><Icona nome={eGiusta(k) ? 'accetta' : 'chiudi'} dimensione={14} /></span>
                   <span className={s.testoRiepilogo}>{q.testo}</span>
                   {!eGiusta(k) && q.fonte && (
-                    <button className={s.rileggi} onClick={() => rileggi(q)}>rileggi ↗</button>
+                    <button className={s.rileggi} onClick={() => rileggi(q)}>rileggi <Icona nome="destra" dimensione={12} /></button>
                   )}
                 </li>
               ))}

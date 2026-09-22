@@ -8,6 +8,7 @@ import { trovaCorrezione } from './posto'
 import { nucleo, pezzi } from './confronto'
 import { accettaCorrezione, lasciaCorrezione } from './applica'
 import type { Correzione } from './tipi'
+import { Icona } from '../lib/Icona'
 import s from './SchedaCorrezione.module.css'
 
 /*  La scheda che si apre dal pallino a margine: cosa ha detto il
@@ -50,7 +51,7 @@ function Cambio({ c }: { c: Correzione }) {
   return (
     <div className={s.cambio}>
       <span className={s.vecchio}>{vecchio}</span>
-      <span className={s.freccia} aria-hidden>→</span>
+      <Icona nome="destra" dimensione={14} className={s.freccia} />
       <span className={s.nuovo}>{nuovo}</span>
     </div>
   )

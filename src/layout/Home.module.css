@@ -83,8 +83,7 @@
   width: 22px; height: 21px;
   border-radius: 3px;
   color: #ffffffb8;
-  font-size: 11px;
-  line-height: 1;
+  display: inline-grid; place-items: center;
 }
 .comandi button:hover { background: #ffffff29; color: #fff; }
 
@@ -139,7 +138,5 @@
   font-size: 12.5px;
 }
 .nuova:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); border-color: var(--tenue); }
-.piu { font-size: 22px; font-weight: 200; line-height: 1; }
-
 .archivio { color: var(--tenue); text-decoration: underline; text-underline-offset: 2px; }
 .archivio:hover { color: var(--inchiostro-tenue); }

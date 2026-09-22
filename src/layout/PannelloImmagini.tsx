@@ -12,6 +12,7 @@ import { leggiImpostazioni, iscrivitiImpostazioni, imposta } from '../impostazio
 import { NOMI_FONTI } from '../immagini/web'
 import { Miniatura } from './Miniatura'
 import { Rotella, Tessere } from './Attesa'
+import { Icona } from '../lib/Icona'
 import s from './PannelloImmagini.module.css'
 
 /*  Due schede, perché sono due cose diverse.
@@ -38,7 +39,7 @@ export function PannelloImmagini({ rifEditore, doc, materia }: {
     <div className={s.pannello}>
       <header className={s.testa}>
         <span className={s.titolo}>Immagini</span>
-        <button className={s.chiudi} title="Chiudi  ⌘/" onClick={() => apriPannello(false)}>×</button>
+        <button className={s.chiudi} title="Chiudi  ⌘/" aria-label="Chiudi il pannello" onClick={() => apriPannello(false)}><Icona nome="chiudi" /></button>
       </header>
 
       <div className={s.schede} role="tablist">
@@ -236,7 +237,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
               <span className={s.query}>{r.query}</span>
               {r.origine === 'sintassi' && <span className={s.marchio}>dagli appunti</span>}
               {r.fonte && <span className={s.marchio}>{NOMI_FONTI[r.fonte] ?? r.fonte}</span>}
-              <button className={s.scarta} title="Togli" onClick={() => scartaRicerca(r.id)}>×</button>
+              <button className={s.scarta} title="Togli" aria-label="Togli questa ricerca" onClick={() => scartaRicerca(r.id)}><Icona nome="chiudi" dimensione={12} /></button>
             </div>
 
             {r.stato === 'in-corso' && <div className={s.griglia}><Tessere quante={6} classe={s.tesseraAttesa} /></div>}

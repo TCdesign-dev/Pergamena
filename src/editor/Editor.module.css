@@ -56,9 +56,6 @@
   margin-right: 4px;
   border-radius: 4px;
   color: var(--tenue);
-  font-size: 11px;
-  letter-spacing: -2px;
-  line-height: 1;
   cursor: grab;
 }
 .maniglia:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); opacity: 1; }

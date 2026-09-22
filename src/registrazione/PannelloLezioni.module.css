@@ -17,7 +17,7 @@
 
 .testa { display: flex; align-items: center; margin-bottom: var(--u); }
 .titolo { flex: 1; font-size: 12.5px; font-weight: 600; }
-.chiudi { width: 22px; height: 22px; border-radius: var(--raggio); color: var(--tenue); font-size: 15px; }
+.chiudi { width: 22px; height: 22px; border-radius: var(--raggio); color: var(--tenue); display: inline-grid; place-items: center; }
 .chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
 
 .vuoto { margin: var(--u) 0; color: var(--tenue); font-size: 12px; line-height: 1.6; }
@@ -107,7 +107,7 @@
 .fase { margin: 0; animation: var(--entra); }
 .secondi { margin-left: 6px; color: var(--tenue); font-variant-numeric: tabular-nums; }
 .fatto { display: flex; align-items: center; gap: 6px; color: var(--c-verde); animation: var(--entra-conferma); }
-.spunta { font-weight: 700; }
+.spunta { flex: none; }
 .guasto { color: var(--c-rosso); line-height: 1.5; animation: var(--entra); }
 
 .dalVivo {

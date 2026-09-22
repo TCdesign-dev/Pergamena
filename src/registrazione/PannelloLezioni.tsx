@@ -10,6 +10,7 @@ import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
 import { Barra, Rotella } from '../layout/Attesa'
 import { RiepilogoCorrezioni } from '../correzioni/RiepilogoCorrezioni'
+import { Icona } from '../lib/Icona'
 import s from './PannelloLezioni.module.css'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
@@ -42,7 +43,7 @@ function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
     return () => clearInterval(t)
   }, [inCorso])
 
-  if (lavoro.fase === 'fatto') return <p className={`${s.stato} ${s.fatto}`}><span className={s.spunta}>✓</span>{lavoro.messaggio}</p>
+  if (lavoro.fase === 'fatto') return <p className={`${s.stato} ${s.fatto}`}><Icona nome="accetta" dimensione={14} className={s.spunta} />{lavoro.messaggio}</p>
   if (lavoro.fase === 'errore') return <p className={`${s.stato} ${s.guasto}`}>{lavoro.messaggio}</p>
 
   const secondi = Math.max(0, Math.floor((ora - lavoro.inizio) / 1000))
@@ -133,7 +134,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
     <div className={s.pannello} onMouseDown={(e) => e.stopPropagation()}>
       <header className={s.testa}>
         <span className={s.titolo}>Lezioni di questa pagina</span>
-        <button className={s.chiudi} onClick={onChiudi}>×</button>
+        <button className={s.chiudi} title="Chiudi" aria-label="Chiudi" onClick={onChiudi}><Icona nome="chiudi" /></button>
       </header>
 
       {lezioni.length === 0 && (

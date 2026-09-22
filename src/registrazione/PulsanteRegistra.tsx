@@ -6,6 +6,7 @@ import {
 } from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
 import { Rotella } from '../layout/Attesa'
+import { Icona } from '../lib/Icona'
 import s from './Registrazione.module.css'
 
 function durata(ms: number) {
@@ -35,7 +36,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
 
   // si registra in un'altra pagina: qui lo si dice, senza pulsante
   if (r.attiva && r.documentoId !== documentoId) {
-    return <span className={s.altrove} title="La registrazione è in un'altra pagina">● registrazione in corso altrove</span>
+    return <span className={s.altrove} title="La registrazione è in un'altra pagina"><span className={`${s.pallino} ${s.acceso}`} /> registrazione in corso altrove</span>
   }
 
   // il microfono è acceso ma scrive un'altra finestra
@@ -120,7 +121,7 @@ export function Striscia({ documentoId }: { documentoId: string }) {
     return (
       <div className={`${s.striscia} ${s.avviso} ${s.guasto}`} role="alert">
         <span>La registrazione si è fermata: {r.errore}</span>
-        <button className={s.chiudiAvviso} onClick={() => azzera()} aria-label="Chiudi">×</button>
+        <button className={s.chiudiAvviso} onClick={() => azzera()} title="Chiudi" aria-label="Chiudi"><Icona nome="chiudi" dimensione={14} /></button>
       </div>
     )
   }

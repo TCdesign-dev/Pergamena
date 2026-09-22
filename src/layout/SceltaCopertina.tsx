@@ -4,6 +4,7 @@ import { impostaCopertina, togliCopertina } from '../documento/archivio'
 import type { Quaderno } from '../documento/tipi'
 import { Miniatura } from './Miniatura'
 import { Rotella, Tessere } from './Attesa'
+import { Icona } from '../lib/Icona'
 import s from './SceltaCopertina.module.css'
 
 export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; onChiudi: () => void }) {
@@ -44,7 +45,7 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
       <div className={s.pannello} onMouseDown={(e) => e.stopPropagation()}>
         <header className={s.testa}>
           <h2 className={s.titolo}>Copertina di {quaderno.nome || 'questa materia'}</h2>
-          <button className={s.chiudi} onClick={onChiudi}>×</button>
+          <button className={s.chiudi} title="Chiudi" aria-label="Chiudi" onClick={onChiudi}><Icona nome="chiudi" /></button>
         </header>
 
         <form className={s.cerca} onSubmit={(e) => { e.preventDefault(); void cerca(query) }}>

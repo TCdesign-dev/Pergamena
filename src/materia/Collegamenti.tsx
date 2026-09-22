@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid'
 import type { Collegamento, Quaderno } from '../documento/tipi'
 import { aggiornaQuaderno } from '../documento/archivio'
+import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
 
 /** «moodle.unito.it» diventa un indirizzo che si apre davvero. */
@@ -38,9 +39,9 @@ export function Collegamenti({ quaderno, nuovo, onNuovo }: {
             onChange={(e) => cambia(c.id, { url: e.target.value })}
           />
           {c.url.trim() && (
-            <a className={s.apri} href={indirizzo(c.url)} target="_blank" rel="noreferrer" title="Apri">↗</a>
+            <a className={s.apri} href={indirizzo(c.url)} target="_blank" rel="noreferrer" title="Apri il link" aria-label="Apri il link"><Icona nome="apri-fuori" dimensione={14} /></a>
           )}
-          <button className={s.togli} title="Togli questo link" onClick={() => salva(elenco.filter((x) => x.id !== c.id))}>×</button>
+          <button className={s.togli} title="Togli questo link" aria-label="Togli questo link" onClick={() => salva(elenco.filter((x) => x.id !== c.id))}><Icona nome="chiudi" dimensione={14} /></button>
         </div>
       ))}
       <button
@@ -51,7 +52,7 @@ export function Collegamenti({ quaderno, nuovo, onNuovo }: {
           onNuovo(id)
         }}
       >
-        + Aggiungi un link
+        <Icona nome="nuovo" dimensione={14} /> Aggiungi un link
       </button>
     </div>
   )

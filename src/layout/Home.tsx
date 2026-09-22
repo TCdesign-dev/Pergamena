@@ -4,6 +4,7 @@ import { prossimoEsame, comeDetto, mancano } from '../lib/esami'
 import type { Quaderno, Documento } from '../documento/tipi'
 import { useImmagine } from '../immagini/useImmagine'
 import { Miniatura } from './Miniatura'
+import { Icona } from '../lib/Icona'
 import s from './Home.module.css'
 
 /*  La prima cosa che vedi quando non stai scrivendo: le materie, con
@@ -62,7 +63,7 @@ export function Home({
             creaDocumento(q.id)
           }}
         >
-          <span className={s.piu}>+</span>
+          <Icona nome="nuovo" dimensione={24} />
           <span>Nuova materia</span>
         </button>
       </div>
@@ -107,10 +108,10 @@ function Scheda({
       </button>
 
       <div className={s.comandi}>
-        <button title="Scheda della materia" onClick={onScheda}>ⓘ</button>
-        <button title="Ripasso e quiz" onClick={onRipasso}>↺</button>
-        <button title="Cambia copertina" onClick={onCopertina}>◫</button>
-        <button title="Elimina la materia" onClick={onElimina}>⌫</button>
+        <button title="Scheda della materia" aria-label="Scheda della materia" onClick={onScheda}><Icona nome="materia" dimensione={14} /></button>
+        <button title="Ripasso e quiz" aria-label="Ripasso e quiz" onClick={onRipasso}><Icona nome="ripasso" dimensione={14} /></button>
+        <button title="Cambia copertina" aria-label="Cambia copertina" onClick={onCopertina}><Icona nome="immagini" dimensione={14} /></button>
+        <button title="Elimina la materia" aria-label="Elimina la materia" onClick={onElimina}><Icona nome="elimina" dimensione={14} /></button>
       </div>
 
       <div className={s.didascalia}>

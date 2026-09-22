@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid'
 import type { Esame, Quaderno } from '../documento/tipi'
 import { aggiornaQuaderno } from '../documento/archivio'
 import { comeDetto, inOrdine, mancano } from '../lib/esami'
+import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
 
 /*  Le prove d'esame: parziale, scritto, orale. Si scrivono al loro
@@ -49,7 +50,7 @@ export function Esami({ quaderno, nuovo, onNuovo }: {
               placeholder="nota"
               onChange={(ev) => cambia(e.id, { nota: ev.target.value })}
             />
-            <button className={s.togli} title="Togli questa prova" onClick={() => salva(esami.filter((x) => x.id !== e.id))}>×</button>
+            <button className={s.togli} title="Togli questa prova" aria-label="Togli questa prova" onClick={() => salva(esami.filter((x) => x.id !== e.id))}><Icona nome="chiudi" dimensione={14} /></button>
           </div>
         )
       })}
@@ -61,7 +62,7 @@ export function Esami({ quaderno, nuovo, onNuovo }: {
           onNuovo(id)
         }}
       >
-        + Aggiungi una prova
+        <Icona nome="nuovo" dimensione={14} /> Aggiungi una prova
       </button>
     </div>
   )
