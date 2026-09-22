@@ -1,0 +1,181 @@
+/*  La finestra delle Impostazioni: la superficie fluttuante, su --velo.
+ *  Stretta (sotto i 900 px): una colonna di 588 px. Larga: 760×620,
+ *  le sezioni a sinistra su --carta-alt e il contenuto a destra. */
+
+.velo {
+  composes: velo from './Superficie.module.css';
+  position: fixed;
+  inset: 0;
+  z-index: 105;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: min(10vh, calc(var(--u) * 10));
+  animation: var(--entra-velo);
+}
+
+.finestra {
+  composes: superficie from './Superficie.module.css';
+  overflow: hidden;
+  outline: none;
+  animation: var(--entra-finestra);
+}
+.stretta {
+  display: flex;
+  flex-direction: column;
+  width: min(calc(var(--u) * 73.5), calc(100vw - var(--u) * 4));
+  max-height: calc(100vh - var(--u) * 10);
+}
+.larga {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 25) minmax(0, 1fr);
+  width: min(calc(var(--u) * 95), calc(100vw - var(--u) * 6));
+  height: min(calc(var(--u) * 77.5), calc(100vh - var(--u) * 15));
+}
+
+.nome { font-size: calc(var(--t-ui) * 15 / 13); font-weight: 650; }
+.tasto { composes: tasto from './Superficie.module.css'; }
+.chiudi { composes: icona from './Superficie.module.css'; }
+
+/* ── stretta: una colonna ───────────────────────────────────── */
+.testa {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 6);
+  padding: 0 calc(var(--u) * 1.25) 0 calc(var(--u) * 2.5);
+  border-bottom: calc(var(--u) / 8) solid var(--linea);
+}
+.testa .nome { flex: 1; }
+.colonna { overflow-y: auto; padding: calc(var(--u) * 0.75) calc(var(--u) * 2.5) calc(var(--u) * 2.25); }
+.etichetta {
+  composes: etichetta from './Superficie.module.css';
+  margin: 0;
+  padding: calc(var(--u) * 2.75) 0 calc(var(--u) * 0.75);
+}
+section:first-child > .etichetta { padding-top: calc(var(--u) * 2); }
+
+/* ── larga: le sezioni a sinistra ───────────────────────────── */
+.sezioni {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) / 4);
+  padding: calc(var(--u) * 2) calc(var(--u) * 1.25);
+  background: var(--carta-alt);
+}
+.sezioni .nome { padding: 0 calc(var(--u) * 1.25) calc(var(--u) * 1.5); }
+.voce {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.25);
+  width: 100%;
+  height: calc(var(--u) * 4);
+  padding: 0 calc(var(--u) * 1.25);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: calc(var(--t-ui) * 1.04);
+  text-align: left;
+}
+.voce:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.scelta, .scelta:hover { background: var(--carta-alt-2); color: var(--inchiostro); font-weight: 500; }
+
+.contenuto { overflow-y: auto; padding: calc(var(--u) * 2.5) calc(var(--u) * 3); }
+.testaSezione { display: flex; align-items: center; gap: calc(var(--u) * 0.75); margin-bottom: calc(var(--u) * 2); }
+.titoloSezione { flex: 1; margin: 0; font-size: calc(var(--t-ui) * 20 / 13); font-weight: 650; }
+
+/* ── le righe: titolo e spiegazione a sinistra, il controllo a destra ── */
+.riga {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--u) * 2);
+  padding: calc(var(--u) * 1.5) 0;
+  border-top: calc(var(--u) / 8) solid var(--linea);
+}
+.larga .riga { gap: calc(var(--u) * 3); padding: calc(var(--u) * 1.75) 0; }
+.testo { flex: 1; min-width: 0; }
+.titoloRiga { font-size: calc(var(--t-ui) * 14 / 13); font-weight: 500; }
+.spiega { margin-top: calc(var(--u) * 0.375); color: var(--inchiostro-tenue); font-size: var(--t-piccolo); line-height: 1.45; }
+.spiega code { font-family: var(--font-mono); font-size: var(--t-etichetta); }
+.controllo { flex: none; padding-top: calc(var(--u) / 8); }
+
+.secondario { composes: secondario from './Superficie.module.css'; }
+.tastoGrande { composes: tasto from './Superficie.module.css'; }
+.controllo .tastoGrande { padding: calc(var(--u) * 0.625) var(--u); font-size: var(--t-piccolo); }
+
+/* l'interruttore: 32×20, acceso in --accento */
+.interruttore {
+  position: relative;
+  display: block;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 2.5);
+  border-radius: calc(var(--u) * 1.25);
+  background: var(--linea-forte);
+  transition: background-color var(--veloce) ease;
+}
+.interruttore::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--u) / 4);
+  left: calc(var(--u) / 4);
+  width: calc(var(--u) * 2);
+  height: calc(var(--u) * 2);
+  border-radius: 50%;
+  background: var(--carta);
+  box-shadow: var(--ombra-bassa);
+  transition: left var(--veloce) ease;
+}
+.interruttore[aria-checked="true"] { background: var(--accento); }
+.interruttore[aria-checked="true"]::after { left: calc(var(--u) * 1.75); }
+
+/* il controllo segmentato: Sistema, Chiaro, Scuro */
+.segmenti {
+  display: inline-flex;
+  gap: calc(var(--u) / 4);
+  padding: calc(var(--u) / 4);
+  border-radius: var(--u);
+  background: var(--carta-alt-2);
+}
+.segmenti button {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 3.25);
+  padding: 0 calc(var(--u) * 1.5);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-ui);
+  font-weight: 500;
+}
+.segmenti button:hover { color: var(--inchiostro); }
+.segmenti .acceso { background: var(--superficie); color: var(--inchiostro); box-shadow: var(--ombra-bassa); }
+
+/* il microfono: una tendina nativa vestita da pulsante secondario */
+.tendina { position: relative; display: inline-flex; align-items: center; }
+.tendina select {
+  appearance: none;
+  max-width: calc(var(--u) * 32);
+  height: var(--controllo);
+  padding: 0 calc(var(--u) * 3.5) 0 calc(var(--u) * 1.25);
+  border: none;
+  border-radius: var(--raggio);
+  background: var(--carta-alt-2);
+  color: var(--inchiostro);
+  font: inherit;
+  font-size: var(--t-ui);
+  text-overflow: ellipsis;
+}
+.freccia { position: absolute; right: var(--u); pointer-events: none; color: var(--inchiostro-tenue); }
+
+/* le scorciatoie */
+.scorciatoie { margin: 0; }
+.scorciatoia {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 2);
+  padding: var(--u) 0;
+  border-top: calc(var(--u) / 8) solid var(--linea);
+  font-size: var(--t-ui);
+}
+.scorciatoia dt { flex: 1; color: var(--inchiostro); }
+.scorciatoia dd { display: flex; gap: calc(var(--u) / 2); margin: 0; }

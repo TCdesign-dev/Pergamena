@@ -13,11 +13,11 @@ import s from './BarraLaterale.module.css'
 /*  La barra laterale aperta: 248 px da 900 px in su, e sopra il foglio
  *  quando la apri con ⌘\ da una finestra stretta. In alto il nome e il
  *  pulsante per chiuderla, la ricerca, «Le tue materie»; poi l'albero
- *  delle materie e delle pagine; in fondo l'archivio. */
+ *  delle materie e delle pagine; in fondo l'archivio e le impostazioni. */
 
 export function BarraLaterale({
   quaderni, documenti, paginaInVista, inHome, schedaAperta, archivioAperto,
-  onApri, onScheda, onRipasso, onHome, onArchivio, onCerca, onChiudi, onAccedi, onEliminaPagina, onEliminaMateria,
+  onApri, onScheda, onRipasso, onHome, onArchivio, onImpostazioni, onCerca, onChiudi, onAccedi, onEliminaPagina, onEliminaMateria,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
@@ -31,6 +31,7 @@ export function BarraLaterale({
   onRipasso: (quadernoId: string) => void
   onHome: () => void
   onArchivio: () => void
+  onImpostazioni: () => void
   onCerca: () => void
   onChiudi: () => void
   onAccedi: () => void
@@ -162,6 +163,11 @@ export function BarraLaterale({
         <button className={`${s.voce} ${archivioAperto ? s.corrente : ''}`} onClick={onArchivio}>
           <Icona nome="archivio" dimensione={14} />
           Archivio
+        </button>
+        <button className={s.voce} onClick={onImpostazioni}>
+          <Icona nome="impostazioni" dimensione={14} />
+          Impostazioni
+          <kbd className={`${s.tasto} ${s.inFondo}`}>⌘,</kbd>
         </button>
       </div>
 

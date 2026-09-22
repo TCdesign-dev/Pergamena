@@ -1,27 +1,26 @@
-.riepilogo {
-  margin-top: 4px;
-  padding-left: 22px;
-  color: var(--inchiostro-tenue);
-  font-size: 11.5px;
+/* la riga arancio in cima al pannello Lezioni */
+.attesa {
+  margin: 0 calc(var(--u) * 1.5);
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  padding: var(--u) calc(var(--u) * 1.25);
+  border-radius: var(--u);
+  background: var(--avviso-fondo);
+  font-size: var(--t-ui);
+}
+.pallino { flex: none; width: var(--u); height: var(--u); border-radius: 50%; background: var(--avviso); }
+.testo { flex: 1; min-width: 0; color: var(--inchiostro); }
+.vedi { composes: trasparente from '../layout/Superficie.module.css'; }
+.attesa .vedi { height: calc(var(--u) * 3); color: var(--inchiostro); }
+.tasto { composes: tasto from '../layout/Superficie.module.css'; }
+
+/* in fondo, piccolo */
+.conti {
+  margin: var(--u) calc(var(--u) * 2) 0;
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
   line-height: 1.5;
 }
-.riepilogo p { margin: 2px 0 0; }
-
-.sospese { display: flex; align-items: center; gap: 6px; color: var(--inchiostro); }
-.pallino {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--avviso);
-}
-.vedi {
-  margin-left: auto;
-  padding: 1px 8px;
-  border-radius: var(--raggio);
-  color: var(--accento);
-  font-size: 11.5px;
-}
-.vedi:hover { background: var(--sfiorata); }
-
-.conti { color: var(--tenue); }
-.fermo, .intoppo { color: var(--avviso); }
+.conti p { margin: calc(var(--u) / 4) 0 0; }
+.fermo { color: var(--avviso); }

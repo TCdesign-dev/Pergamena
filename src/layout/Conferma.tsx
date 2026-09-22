@@ -18,12 +18,13 @@ export function Conferma({
 
   useEffect(() => {
     rif.current?.focus()
+    // in cattura: la conferma sta sopra a tutto, e Esc e Invio sono suoi
     const giu = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onAnnulla()
-      if (e.key === 'Enter') onConferma()
+      if (e.key === 'Escape') { e.preventDefault(); onAnnulla() }
+      if (e.key === 'Enter') { e.preventDefault(); onConferma() }
     }
-    window.addEventListener('keydown', giu)
-    return () => window.removeEventListener('keydown', giu)
+    window.addEventListener('keydown', giu, true)
+    return () => window.removeEventListener('keydown', giu, true)
   }, [onAnnulla, onConferma])
 
   return (

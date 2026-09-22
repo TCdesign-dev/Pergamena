@@ -5,10 +5,11 @@
   transition: grid-template-columns var(--medio) var(--curva);
 }
 .conRotaia { grid-template-columns: var(--rotaia) minmax(0, 1fr); }
-/*  Il pannello delle immagini è ancora largo 280: diventerà
- *  --pannello-destro, e un popover da stretti, col suo ridisegno. */
-.conDestra { grid-template-columns: var(--lato) minmax(0, 1fr) 280px; }
-.conRotaia.conDestra { grid-template-columns: var(--rotaia) minmax(0, 1fr) 280px; }
+/*  Da 1200 px la colonna di destra (Lezioni o Immagini) è larga
+ *  --pannello-destro, e la colonna di scrittura si ricentra nello
+ *  spazio che resta. Sotto i 1200 sono tendine della barra in alto. */
+.conDestra { grid-template-columns: var(--lato) minmax(0, 1fr) var(--pannello-destro); }
+.conRotaia.conDestra { grid-template-columns: var(--rotaia) minmax(0, 1fr) var(--pannello-destro); }
 
 .lato {
   min-width: 0;
@@ -18,10 +19,10 @@
 
 .centro { overflow: hidden; min-width: 0; }
 
+/* separata dal fondo, non da un bordo */
 .destra {
   overflow: hidden auto;
   background: var(--carta-alt);
-  border-left: 1px solid var(--linea);
 }
 
 /* ── la barra intera sopra il foglio, da stretti ────────────── */

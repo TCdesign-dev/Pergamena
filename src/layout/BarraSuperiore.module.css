@@ -80,3 +80,22 @@
 .icona { width: var(--controllo); display: inline-grid; place-items: center; }
 .lezioni:hover, .icona:hover { background: var(--sfiorata); color: var(--inchiostro); }
 .attivo, .attivo:hover { background: var(--carta-alt-2); color: var(--inchiostro); }
+
+/* ── le tendine di Lezioni e Immagini, sotto i 1200 px ──────── */
+/*  La superficie fluttuante agganciata sotto la barra, a destra, larga
+ *  fino a 440 px. Il contenuto scorre dentro, la tendina no. */
+.tendina {
+  composes: superficie from './Superficie.module.css';
+  position: absolute;
+  top: var(--barra);
+  right: var(--u);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: min(calc(var(--u) * 55), calc(100% - var(--u) * 2));
+  max-height: calc(100vh - var(--barra) - var(--u) * 2);
+  overflow: hidden;
+  transform-origin: top right;
+  animation: var(--entra-tendina);
+}
+.alta { height: min(calc(var(--u) * 80), calc(100vh - var(--barra) - var(--u) * 2)); }

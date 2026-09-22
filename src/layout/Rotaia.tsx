@@ -10,10 +10,10 @@ import s from './Rotaia.module.css'
  *
  *  Dall'alto: la barra intera, la ricerca, le materie; un pallino per
  *  materia, che apre l'ultima pagina toccata come la copertina nella
- *  home; una materia nuova. In fondo l'archivio. */
+ *  home; una materia nuova. In fondo l'archivio e le impostazioni. */
 
 export function Rotaia({
-  quaderni, documenti, materiaInVista, inHome, archivioAperto, onBarra, onCerca, onHome, onApri, onArchivio,
+  quaderni, documenti, materiaInVista, inHome, archivioAperto, onBarra, onCerca, onHome, onApri, onArchivio, onImpostazioni,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
@@ -26,6 +26,7 @@ export function Rotaia({
   onHome: () => void
   onApri: (id: string, fuoco?: Fuoco) => void
   onArchivio: () => void
+  onImpostazioni: () => void
 }) {
   const pagine = documenti.filter(soloPagine)
 
@@ -76,6 +77,9 @@ export function Rotaia({
 
       <button className={`${s.pulsante} ${archivioAperto ? s.attivo : ''}`} onClick={onArchivio} aria-label="Archivio" title="Archivio">
         <Icona nome="archivio" />
+      </button>
+      <button className={s.pulsante} onClick={onImpostazioni} aria-label="Impostazioni (⌘,)" title="Impostazioni  ⌘,">
+        <Icona nome="impostazioni" />
       </button>
     </nav>
   )

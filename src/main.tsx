@@ -6,6 +6,10 @@ import './stili/base.css'
 import './stili/editor.css'
 import './stili/movimento.css'
 import 'katex/dist/katex.min.css'
+import { applicaTema, leggiTema } from './stili/tema'
+
+// il tema scelto nelle Impostazioni, prima di disegnare qualunque cosa
+applicaTema(leggiTema())
 
 /*  Sul telefono si consulta, sul Mac si scrive: due gusci diversi,
  *  stessi dati. La soglia è la larghezza, non il tipo di dispositivo:

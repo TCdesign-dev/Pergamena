@@ -5,7 +5,7 @@ import type { Quaderno, Documento } from './documento/tipi'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
 import { Rotaia } from './layout/Rotaia'
-import { useStretto } from './layout/larghezza'
+import { useLargo, useStretto } from './layout/larghezza'
 import { BarraSuperiore } from './layout/BarraSuperiore'
 import { Home } from './layout/Home'
 import { Conferma } from './layout/Conferma'
@@ -14,6 +14,10 @@ import { Editor, type Fuoco, type RifEditore } from './editor/Editor'
 import { Comandi } from './layout/Comandi'
 import { esponi } from './lib/dev'
 import { PannelloImmagini } from './layout/PannelloImmagini'
+import { Impostazioni } from './layout/Impostazioni'
+import { apriImpostazioni } from './layout/statoImpostazioni'
+import { PannelloLezioni } from './registrazione/PannelloLezioni'
+import { apriLezioni, iscrivitiLezioni, leggiLezioni } from './registrazione/statoLezioni'
 import { iscrivitiPannello, leggiPannello, apriPannello } from './immagini/statoPannello'
 import { FinestraAccesso } from './sync/FinestraAccesso'
 import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
@@ -50,6 +54,8 @@ export function App() {
   const [latoAperto, setLatoAperto] = useState(true)
   const [sopraAperto, setSopraAperto] = useState(false)
   const stretto = useStretto()
+  const largo = useLargo()
+  const lezioniAperte = useSyncExternalStore(iscrivitiLezioni, leggiLezioni)
   const strettoRif = useRef(stretto)
   strettoRif.current = stretto
   const [comandiAperti, setComandiAperti] = useState(false)
@@ -153,7 +159,7 @@ export function App() {
     catch { /* finestra privata: pazienza */ }
   }, [apertoId])
 
-  // ⌘\ barra · ⌘K palette · ⌘/ immagini (⌘R sta nel pulsante della registrazione)
+  // ⌘\ barra · ⌘K palette · ⌘/ immagini · ⌘, impostazioni (⌘R sta nel pulsante della registrazione)
   useEffect(() => {
     const giu = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return
@@ -164,6 +170,7 @@ export function App() {
       }
       else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); setComandiAperti((v) => !v) }
       else if (e.key === '/') { e.preventDefault(); apriPannello(!leggiPannello().aperto) }
+      else if (e.key === ',') { e.preventDefault(); apriImpostazioni() }
     }
     window.addEventListener('keydown', giu)
     return () => window.removeEventListener('keydown', giu)
@@ -207,8 +214,12 @@ export function App() {
         modo={stretto || !latoAperto ? 'rotaia' : 'lato'}
         sopra={sopraAperto}
         onChiudiSopra={chiudiSopra}
-        destra={!mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && pannello.aperto && docAperto
-          ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
+        /*  Da 1200 px la colonna di destra: Lezioni o Immagini, uno per
+         *  volta. Sotto, sono tendine della barra in alto. */
+        destra={largo && !mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && docAperto && (lezioniAperte || pannello.aperto)
+          ? lezioniAperte
+            ? <PannelloLezioni key={aperto!.id} doc={docAperto} materia={materiaAperta?.nome ?? ''} rifEditore={rifEditore} modo="lato" onChiudi={() => apriLezioni(false)} />
+            : <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
         rotaia={
           <Rotaia
@@ -222,6 +233,7 @@ export function App() {
             onHome={vaiHome}
             onApri={apri}
             onArchivio={apriArchivio}
+            onImpostazioni={() => apriImpostazioni()}
           />
         }
         lato={
@@ -237,6 +249,7 @@ export function App() {
             onRipasso={apriRipasso}
             onHome={vaiHome}
             onArchivio={apriArchivio}
+            onImpostazioni={() => apriImpostazioni()}
             onCerca={cerca}
             onChiudi={chiudiBarra}
             onAccedi={() => setMostraAccesso(true)}
@@ -289,6 +302,8 @@ export function App() {
       />
 
       {mostraAccesso && <FinestraAccesso onChiudi={() => setMostraAccesso(false)} />}
+
+      <Impostazioni onArchivio={apriArchivio} />
 
       <FinestraQuiz />
 

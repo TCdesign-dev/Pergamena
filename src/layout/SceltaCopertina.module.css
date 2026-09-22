@@ -31,7 +31,8 @@
   outline: none;
 }
 .campo:focus { border-color: var(--accento); }
-.secondario { composes: secondario from './Superficie.module.css'; flex: none; height: auto; }
+.secondario { composes: secondario from './Superficie.module.css'; flex: none; }
+.cerca .secondario { height: auto; }
 
 .griglia {
   flex: 1; overflow-y: auto;

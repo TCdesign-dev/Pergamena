@@ -40,5 +40,5 @@
 .azioni { composes: azioni from '../../layout/Superficie.module.css'; }
 .tasto { composes: tasto from '../../layout/Superficie.module.css'; }
 .elimina { composes: trasparente from '../../layout/Superficie.module.css'; }
-.elimina:hover:not(:disabled) { color: var(--c-rosso); }
+.azioni .elimina:hover:not(:disabled) { color: var(--c-rosso); }
 .fatto { composes: primario from '../../layout/Superficie.module.css'; }

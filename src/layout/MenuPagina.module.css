@@ -15,10 +15,8 @@
  *  sotto al ⋯ e allineata al suo bordo destro. */
 .menu {
   composes: superficie from './Superficie.module.css';
-  position: absolute;
-  top: calc(100% + var(--u) / 2);
-  right: 0;
-  z-index: 60;
+  position: fixed;
+  z-index: 75;
   min-width: calc(var(--u) * 26);
   padding: calc(var(--u) / 2);
   transform-origin: top right;
@@ -42,9 +40,11 @@
 /* da tastiera la voce si accende col fondo, come nei menu del Mac */
 .voce:hover { background: var(--sfiorata); }
 .voce:focus-visible { outline: none; background: var(--carta-alt-2); }
-.pericolo:hover, .pericolo:hover svg, .pericolo:focus-visible, .pericolo:focus-visible svg { color: var(--c-rosso); }
+/* chi elimina è rosso sempre, non solo al passaggio */
+.pericolo, .pericolo svg { color: var(--registra); }
 
 .etichetta { flex: 1; }
+.linea { height: calc(var(--u) / 8); margin: calc(var(--u) / 2) 0; background: var(--linea); }
 
 .tasto {
   color: var(--tenue-testo);

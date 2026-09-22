@@ -7,20 +7,33 @@ import { eliminaRegistrazione } from './registrazione'
 import { integraLezione, type FaseMerge } from '../merge/merge'
 import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
-import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
+import { iscrivitiImpostazioni, leggiImpostazioni } from '../impostazioni'
+import { iscrivitiStatoCorrezioni, leggiStatoCorrezioni } from '../correzioni/statoCorrezioni'
+import { apriImpostazioni } from '../layout/statoImpostazioni'
 import { Barra, Rotella } from '../layout/Attesa'
-import { RiepilogoCorrezioni } from '../correzioni/RiepilogoCorrezioni'
+import { Conferma } from '../layout/Conferma'
+import { MenuPagina } from '../layout/MenuPagina'
+import { CorrezioniInAttesa, ContiCorrezioni } from '../correzioni/RiepilogoCorrezioni'
 import { Icona } from '../lib/Icona'
 import s from './PannelloLezioni.module.css'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
  *  legge la trascrizione, si riascolta il professore, si cancella.
  *  È anche il gestore delle trascrizioni: niente resta sul disco o
- *  sul server senza che tu possa toglierlo. */
+ *  sul server senza che tu possa toglierlo.
+ *
+ *  Sotto i 1200 px è una tendina sotto a «Lezioni»; da 1200 in su sta
+ *  nella colonna di destra, su --carta-alt. Microfono, audio e
+ *  correzioni in diretta si scelgono nelle Impostazioni: qui in fondo
+ *  si vede soltanto come sono messi. */
+
+type Microfono = { uid: string; nome: string; virtuale: boolean; sistema: boolean }
 
 function quando(t: number) {
-  return new Date(t).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  const d = new Date(t).toLocaleString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  return d.charAt(0).toUpperCase() + d.slice(1)
 }
+
 /*  Il merge dura da 4 a 30 secondi: si dice a che punto è, e da
  *  quanto si aspetta. Una frase ferma per mezzo minuto sembra un
  *  programma bloccato; una fase che cambia e i secondi che passano no. */
@@ -43,14 +56,14 @@ function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
     return () => clearInterval(t)
   }, [inCorso])
 
-  if (lavoro.fase === 'fatto') return <p className={`${s.stato} ${s.fatto}`}><Icona nome="accetta" dimensione={14} className={s.spunta} />{lavoro.messaggio}</p>
-  if (lavoro.fase === 'errore') return <p className={`${s.stato} ${s.guasto}`}>{lavoro.messaggio}</p>
+  if (lavoro.fase === 'fatto') return <p className={`${s.avviso} ${s.fatto}`}><Icona nome="accetta" dimensione={14} />{lavoro.messaggio}</p>
+  if (lavoro.fase === 'errore') return <p className={`${s.avviso} ${s.guasto}`}>{lavoro.messaggio}</p>
 
   const secondi = Math.max(0, Math.floor((ora - lavoro.inizio) / 1000))
   return (
     <div className={s.avanzamento}>
       <Barra />
-      <p key={lavoro.fase} className={`${s.stato} ${s.fase}`}>
+      <p key={lavoro.fase} className={s.avviso}>
         {FASI[lavoro.fase]}
         {secondi >= 2 && <span className={s.secondi}>{secondi} s</span>}
       </p>
@@ -66,6 +79,7 @@ function minuti(r: Registrazione) {
 }
 
 const quanto = (secondi: number) => secondi < 60 ? `${Math.round(secondi)} s` : `${Math.round(secondi / 60)} min`
+const tempo = (secondi: number) => `${Math.floor(secondi / 60)}:${String(Math.floor(secondi % 60)).padStart(2, '0')}`
 
 /** Le pause che cadono fra una frase e la successiva, per segnarle
  *  nella trascrizione: «— pausa di 12 min —». */
@@ -75,20 +89,26 @@ function pausePrima(r: Registrazione, i: number) {
   return r.pause.filter((p) => p.a !== null && p.da >= da && p.da < a)
 }
 
-export function PannelloLezioni({ doc, materia, rifEditore, suMicrofono = false, onChiudi }: {
+// quante frasi si vedono aprendo la trascrizione; le altre a richiesta
+const PRIME = 5
+
+export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   doc: Y.Doc
   materia: string
   rifEditore: RifEditore
-  /** aperto da «Cambia microfono»: si va dritti alla scelta del microfono */
-  suMicrofono?: boolean
+  /** tendina sotto a «Lezioni», o colonna di destra da 1200 px */
+  modo: 'tendina' | 'lato'
   onChiudi: () => void
 }) {
   const lezioni = useRegistrazioni(doc)
   const impostazioni = useSyncExternalStore(iscrivitiImpostazioni, leggiImpostazioni)
+  const correzioni = useSyncExternalStore(iscrivitiStatoCorrezioni, leggiStatoCorrezioni)
   const [aperta, setAperta] = useState<string | null>(null)
+  const [tutte, setTutte] = useState<string | null>(null)
   const [lavoro, setLavoro] = useState<Lavoro | null>(null)
+  const [daEliminare, setDaEliminare] = useState<Registrazione | null>(null)
   const lettore = useRef<HTMLAudioElement>(null)
-  const [microfoni, setMicrofoni] = useState<{ uid: string; nome: string; virtuale: boolean; sistema: boolean }[]>([])
+  const [microfoni, setMicrofoni] = useState<Microfono[]>([])
 
   useEffect(() => {
     fetch('/api/ascolto/dispositivi')
@@ -97,14 +117,15 @@ export function PannelloLezioni({ doc, materia, rifEditore, suMicrofono = false,
       .catch(() => setMicrofoni([]))
   }, [])
 
-  const diSistema = microfoni.find((m) => m.sistema)
-
-  const rifMicrofono = useRef<HTMLSelectElement>(null)
+  // Esc chiude, se non c'è una conferma aperta sopra
   useEffect(() => {
-    if (!suMicrofono || !microfoni.length) return
-    rifMicrofono.current?.scrollIntoView({ block: 'nearest' })
-    rifMicrofono.current?.focus()
-  }, [suMicrofono, microfoni.length])
+    const giu = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented || daEliminare) return
+      onChiudi()
+    }
+    window.addEventListener('keydown', giu)
+    return () => window.removeEventListener('keydown', giu)
+  }, [onChiudi, daEliminare])
 
   async function integra(r: Registrazione) {
     const editor = rifEditore.current
@@ -139,123 +160,156 @@ export function PannelloLezioni({ doc, materia, rifEditore, suMicrofono = false,
     void a.play()
   }
 
+  function scaricaAudio(r: Registrazione) {
+    const a = document.createElement('a')
+    a.href = `/api/audio/${encodeURIComponent(r.id)}`
+    a.download = `Lezione ${quando(r.inizio).replace(/[/:]/g, '.')}.m4a`
+    a.click()
+  }
+
+  // il piede: com'è messo il microfono, e le correzioni
+  const microfono = impostazioni.microfono
+    ? microfoni.find((m) => m.uid === impostazioni.microfono)?.nome
+    : microfoni.find((m) => m.sistema)?.nome
+  const statoCorrezioni = !impostazioni.correzioniInDiretta ? 'correzioni in diretta spente'
+    : correzioni.fermo === 'credito' ? 'correzioni in diretta ferme'
+    : 'correzioni in diretta attive'
+
   return (
-    <div className={s.pannello} onMouseDown={(e) => e.stopPropagation()}>
+    <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>Lezioni di questa pagina</span>
-        <button className={s.chiudi} title="Chiudi" aria-label="Chiudi" onClick={onChiudi}><Icona nome="chiudi" /></button>
+        <span className={s.titolo}>{modo === 'lato' ? 'Lezioni' : 'Lezioni di questa pagina'}</span>
+        <span className={s.numero}>{lezioni.length}</span>
+        <button className={s.chiudi} title="Chiudi  esc" aria-label="Chiudi il pannello delle lezioni" onClick={onChiudi}>
+          <Icona nome="chiudi" />
+        </button>
       </header>
 
-      {lezioni.length === 0 && (
-        <p className={s.vuoto}>Nessuna lezione registrata qui. Premi <b>Registra</b> quando comincia.</p>
-      )}
+      <div className={s.corpo}>
+        <CorrezioniInAttesa doc={doc} rifEditore={rifEditore} onVai={modo === 'tendina' ? onChiudi : () => {}} />
 
-      <ul className={s.elenco}>
-        {[...lezioni].reverse().map((r) => (
-          <li key={r.id} className={s.lezione}>
-            <div className={s.riga}>
-              <span className={s.data}>{quando(r.inizio)}</span>
-              <span className={s.misure}>
-                {r.fine === null
-                  ? r.pause.some((p) => p.a === null)
-                    ? 'in pausa'
-                    : <><span className={s.dalVivo} /> in corso</>
-                  : `${minuti(r)} min · ${r.segmenti.length} ${r.segmenti.length === 1 ? 'frase' : 'frasi'}`}
-                {r.audio && ' · audio'}
-                {r.interrotta && (
-                  <span className={s.interrotta} title="Si è fermata da sola, per esempio perché il server si è riavviato. Quello che era già trascritto è salvo.">
-                    {' '}· interrotta
+        {lezioni.length === 0 && (
+          <p className={s.vuoto}>Nessuna lezione registrata qui. Premi <b>Registra</b> quando comincia.</p>
+        )}
+
+        <ul className={s.elenco}>
+          {[...lezioni].reverse().map((r) => {
+            const occupata = lavoro?.id === r.id && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'
+            const finita = r.fine !== null
+            const aperte = aperta === r.id
+            const frasi = aperte ? (tutte === r.id ? r.segmenti : r.segmenti.slice(0, PRIME)) : []
+            return (
+              <li key={r.id} className={`${s.lezione} ${aperte ? s.aperta : ''}`}>
+                <div className={s.riga}>
+                  <span className={s.data}>{quando(r.inizio)}</span>
+                  <span className={s.misure}>
+                    {finita
+                      ? `${minuti(r)} min · ${r.segmenti.length} ${r.segmenti.length === 1 ? 'frase' : 'frasi'}`
+                      : r.pause.some((p) => p.a === null) ? 'in pausa' : 'si sta registrando'}
+                    {r.interrotta && (
+                      <span className={s.interrotta} title="Si è fermata da sola, per esempio perché il server si è riavviato. Quello che era già trascritto è salvo.">
+                        {' '}· interrotta
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
-            </div>
+                  <span className={s.stato}>
+                    {!finita ? <><span className={s.dalVivo} />in corso</>
+                      : r.integrata !== null ? (
+                        <span className={s.integrata} title={`${r.integrata} ${r.integrata === 1 ? 'proposta' : 'proposte'}`}>
+                          <Icona nome="accetta" dimensione={12} />Integrata
+                        </span>
+                      )
+                      : r.segmenti.length > 0 ? <><span className={s.daIntegrare} />Da integrare</>
+                      : null}
+                  </span>
+                </div>
 
-            {r.integrata !== null && (
-              <p className={s.stato}>integrata · {r.integrata} {r.integrata === 1 ? 'proposta' : 'proposte'}</p>
-            )}
-            {lavoro?.id === r.id && <Avanzamento lavoro={lavoro} />}
+                {lavoro?.id === r.id && <Avanzamento lavoro={lavoro} />}
 
-            <div className={s.azioni}>
-              {r.fine !== null && r.segmenti.length > 0 && (
-                <button className={s.principale} onClick={() => void integra(r)} disabled={lavoro?.id === r.id && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'}>
-                  {lavoro?.id === r.id && lavoro.fase !== 'fatto' && lavoro.fase !== 'errore'
-                    ? <><Rotella /> Integro…</>
-                    : r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
-                </button>
-              )}
-              <button className={s.secondario} onClick={() => setAperta(aperta === r.id ? null : r.id)}>
-                {aperta === r.id ? 'Nascondi' : 'Trascrizione'}
-              </button>
-              <button className={s.pericolo} onClick={() => void eliminaRegistrazione(doc, r.id)}>Elimina</button>
-            </div>
+                <div className={s.azioni}>
+                  {finita && r.segmenti.length > 0 && (
+                    <button
+                      className={r.integrata === null ? s.principale : s.secondario}
+                      onClick={() => void integra(r)}
+                      disabled={occupata}
+                    >
+                      {occupata ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
+                      {occupata ? 'Integro…' : r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
+                    </button>
+                  )}
+                  <button
+                    className={aperte ? s.secondario : s.trasparente}
+                    aria-expanded={aperte}
+                    onClick={() => { setAperta(aperte ? null : r.id); setTutte(null) }}
+                  >
+                    <Icona nome="trascrizione" dimensione={14} />
+                    Trascrizione
+                  </button>
+                  <span className={s.spazio} />
+                  <MenuPagina
+                    etichetta="Altre azioni sulla lezione"
+                    voci={[
+                      ...(r.audio ? [{ etichetta: 'Scarica l’audio', icona: 'scarica' as const, azione: () => scaricaAudio(r) }] : []),
+                      { etichetta: 'Elimina la lezione…', icona: 'elimina', pericolo: true, staccata: r.audio, azione: () => setDaEliminare(r) },
+                    ]}
+                  />
+                </div>
 
-            {aperta === r.id && (
-              <div className={s.trascrizione}>
-                {r.segmenti.map((seg, i) => (
-                  <Fragment key={i}>
-                    {pausePrima(r, i).map((p) => (
-                      <p key={`p${p.da}`} className={s.pausaTrascritta}>
-                        pausa di {quanto((p.a ?? p.da) - p.da)}
-                      </p>
+                {aperte && (
+                  <div className={s.trascrizione}>
+                    {r.segmenti.length === 0 && <p className={s.nessuna}>Ancora nessuna frase.</p>}
+                    {frasi.map((seg, i) => (
+                      <Fragment key={i}>
+                        {pausePrima(r, i).map((p) => (
+                          <p key={`p${p.da}`} className={s.pausaTrascritta}>
+                            pausa di {quanto((p.a ?? p.da) - p.da)}
+                          </p>
+                        ))}
+                        <p className={s.frase}>
+                          {r.audio
+                            ? <button className={s.minuto} title="Riascolta da qui" onClick={() => riascolta(r, seg.inizio)}>{tempo(seg.inizio)}</button>
+                            : <span className={s.minuto}>{tempo(seg.inizio)}</span>}
+                          <span>{seg.testo}</span>
+                        </p>
+                      </Fragment>
                     ))}
-                    <p>
-                      <button
-                        className={s.minuto}
-                        disabled={!r.audio}
-                        title={r.audio ? 'Riascolta da qui' : 'Audio non salvato'}
-                        onClick={() => riascolta(r, seg.inizio)}
-                      >
-                        {Math.floor(seg.inizio / 60)}:{String(Math.floor(seg.inizio % 60)).padStart(2, '0')}
+                    {tutte !== r.id && r.segmenti.length > PRIME && (
+                      <button className={s.tutte} onClick={() => setTutte(r.id)}>
+                        Mostra tutte le {r.segmenti.length} frasi <Icona nome="giu" dimensione={12} />
                       </button>
-                      {seg.testo}
-                    </p>
-                  </Fragment>
-                ))}
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+                    )}
+                  </div>
+                )}
+              </li>
+            )
+          })}
+        </ul>
 
-      {microfoni.length > 0 && (
-        <label className={s.microfono}>
-          <span>Microfono</span>
-          <select
-            ref={rifMicrofono}
-            value={impostazioni.microfono ?? ''}
-            onChange={(e) => imposta('microfono', e.target.value || null)}
-          >
-            <option value="">Come il sistema{diSistema ? ` · ${diSistema.nome}` : ''}</option>
-            {/* i virtuali in fondo: servono solo per l'audio di altre app */}
-            {[...microfoni].sort((a, b) => Number(a.virtuale) - Number(b.virtuale)).map((m) => (
-              <option key={m.uid} value={m.uid}>
-                {m.nome}{m.virtuale ? ' — virtuale' : ''}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ContiCorrezioni lezioni={lezioni} />
+        <audio ref={lettore} className={s.lettore} controls preload="none" />
+      </div>
+
+      <footer className={s.piede}>
+        <Icona nome="microfono" dimensione={14} />
+        <span className={s.come}>
+          {/* «Microfono MacBook Pro» si chiama già così: niente «Microfono» due volte */}
+          {!microfono ? `Microfono ${impostazioni.microfono ? 'scelto' : 'di sistema'}`
+            : /^microfono\b/i.test(microfono) ? microfono : `Microfono ${microfono}`} · {statoCorrezioni}
+        </span>
+        <button className={s.impostazioni} onClick={() => apriImpostazioni('registrazione')}>
+          <Icona nome="impostazioni" dimensione={14} />
+          Impostazioni
+        </button>
+      </footer>
+
+      {daEliminare && (
+        <Conferma
+          titolo={`Eliminare la lezione di ${quando(daEliminare.inizio)}?`}
+          dettaglio={`Spariscono la trascrizione${daEliminare.audio ? ', l’audio' : ''} e le correzioni ancora aperte di questa lezione. Gli appunti restano come sono.`}
+          onConferma={() => { const r = daEliminare; setDaEliminare(null); void eliminaRegistrazione(doc, r.id) }}
+          onAnnulla={() => setDaEliminare(null)}
+        />
       )}
-
-      <label className={s.opzione}>
-        <input
-          type="checkbox"
-          checked={impostazioni.salvaAudio}
-          onChange={(e) => imposta('salvaAudio', e.target.checked)}
-        />
-        <span>Tieni anche l’audio delle prossime lezioni <em>(circa 17 MB l’ora)</em></span>
-      </label>
-
-      <label className={s.opzione}>
-        <input
-          type="checkbox"
-          checked={impostazioni.correzioniInDiretta}
-          onChange={(e) => imposta('correzioniInDiretta', e.target.checked)}
-        />
-        <span>Correzioni in diretta <em>— mentre registri, un pallino a margine quando una data, un numero o un nome non torna con quello che ha detto il professore</em></span>
-      </label>
-      <RiepilogoCorrezioni doc={doc} rifEditore={rifEditore} lezioni={lezioni} onVai={onChiudi} />
-
-      <audio ref={lettore} className={s.lettore} controls preload="none" />
     </div>
   )
 }

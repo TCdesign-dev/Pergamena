@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
 import type { Quaderno, Documento } from '../documento/tipi'
 import type { RifEditore } from '../editor/Editor'
 import { apriDocumento } from '../documento/archivio'
@@ -6,6 +6,10 @@ import { PulsanteRegistra, registra } from '../registrazione/PulsanteRegistra'
 import { AvvisoRegistrazione } from '../registrazione/AvvisoRegistrazione'
 import { PannelloLezioni } from '../registrazione/PannelloLezioni'
 import { useRegistrazioni } from '../registrazione/useRegistrazioni'
+import { apriLezioni, iscrivitiLezioni, leggiLezioni } from '../registrazione/statoLezioni'
+import { apriPannello, iscrivitiPannello, leggiPannello } from '../immagini/statoPannello'
+import { PannelloImmagini } from './PannelloImmagini'
+import { apriImpostazioni } from './statoImpostazioni'
 import { MenuPagina, type VoceMenu } from './MenuPagina'
 import { useLargo } from './larghezza'
 import { Icona } from '../lib/Icona'
@@ -16,7 +20,11 @@ import s from './BarraSuperiore.module.css'
  *  Quando manca spazio cede il percorso, e per primo il nome della
  *  pagina. Da 1200 px in su Immagini esce dal menu e sta accanto a
  *  Lezioni. Sotto la barra, sopra il margine del foglio, gli avvisi
- *  della registrazione. */
+ *  della registrazione.
+ *
+ *  Lezioni e Immagini sotto i 1200 px si aprono qui, in una tendina
+ *  sotto la barra; da 1200 in su stanno nella colonna di destra, e le
+ *  mette lì App. */
 
 export function BarraSuperiore({
   quaderno, documento, pannelloAperto, rifEditore, onHome, onScheda, onPannello, onElimina,
@@ -32,10 +40,11 @@ export function BarraSuperiore({
 }) {
   const doc = useMemo(() => apriDocumento(documento.id).doc, [documento.id])
   const lezioni = useRegistrazioni(doc)
-  // il pannello Lezioni, aperto dal suo pulsante o da «Cambia microfono»
-  const [lezioniAperte, setLezioniAperte] = useState<false | 'lezioni' | 'microfono'>(false)
+  const lezioniAperte = useSyncExternalStore(iscrivitiLezioni, leggiLezioni)
+  const immagini = useSyncExternalStore(iscrivitiPannello, leggiPannello).aperto
   const largo = useLargo()
   const materia = quaderno?.nome ?? ''
+  const rifLezioni = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
     ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: '⌘/', azione: onPannello } satisfies VoceMenu]),
@@ -66,11 +75,12 @@ export function BarraSuperiore({
       <div className={s.azioni}>
         <PulsanteRegistra documentoId={documento.id} materia={materia} rifEditore={rifEditore} />
         <button
+          ref={rifLezioni}
           className={`${s.lezioni} ${lezioniAperte ? s.attivo : ''}`}
           title="Lezioni di questa pagina"
           aria-label={`Lezioni di questa pagina: ${lezioni.length}`}
-          aria-expanded={lezioniAperte !== false}
-          onClick={() => setLezioniAperte((v) => (v ? false : 'lezioni'))}
+          aria-expanded={lezioniAperte}
+          onClick={() => apriLezioni(!lezioniAperte)}
         >
           <Icona nome="lezioni" />
           <span>{lezioni.length}</span>
@@ -92,18 +102,54 @@ export function BarraSuperiore({
       <AvvisoRegistrazione
         documentoId={documento.id}
         onRiprendi={() => void registra(documento.id, materia, rifEditore)}
-        onCambiaMicrofono={() => setLezioniAperte('microfono')}
+        onCambiaMicrofono={() => apriImpostazioni('registrazione', true)}
       />
 
-      {lezioniAperte && (
-        <PannelloLezioni
-          doc={doc}
-          materia={materia}
-          rifEditore={rifEditore}
-          suMicrofono={lezioniAperte === 'microfono'}
-          onChiudi={() => setLezioniAperte(false)}
-        />
+      {!largo && lezioniAperte && (
+        <Tendina escludi={rifLezioni} onChiudi={() => apriLezioni(false)}>
+          <PannelloLezioni doc={doc} materia={materia} rifEditore={rifEditore} modo="tendina" onChiudi={() => apriLezioni(false)} />
+        </Tendina>
+      )}
+      {!largo && immagini && (
+        <Tendina alta onChiudi={() => apriPannello(false)}>
+          <PannelloImmagini key={documento.id} rifEditore={rifEditore} doc={doc} materia={materia} />
+        </Tendina>
       )}
     </header>
+  )
+}
+
+/*  La tendina sotto la barra: la superficie fluttuante, larga fino a
+ *  440 px, agganciata a destra. Si chiude con Esc o con un clic fuori
+ *  (non sul pulsante che la apre e chiude: ci pensa lui). */
+function Tendina({ alta = false, escludi, onChiudi, children }: {
+  /** alta quanto può: il pannello delle immagini ha le sue schede che scorrono */
+  alta?: boolean
+  escludi?: RefObject<HTMLElement | null>
+  onChiudi: () => void
+  children: ReactNode
+}) {
+  const rif = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const fuori = (e: MouseEvent) => {
+      const dove = e.target as Node
+      if (rif.current?.contains(dove) || escludi?.current?.contains(dove)) return
+      onChiudi()
+    }
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !e.defaultPrevented) onChiudi()
+    }
+    window.addEventListener('mousedown', fuori)
+    window.addEventListener('keydown', esc)
+    return () => {
+      window.removeEventListener('mousedown', fuori)
+      window.removeEventListener('keydown', esc)
+    }
+  }, [escludi, onChiudi])
+
+  return (
+    <div ref={rif} className={`${s.tendina} ${alta ? s.alta : ''}`}>
+      {children}
+    </div>
   )
 }

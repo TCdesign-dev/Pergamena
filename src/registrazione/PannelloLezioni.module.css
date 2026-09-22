@@ -1,125 +1,170 @@
-/*  La superficie fluttuante di tutta l'app, agganciata sotto a
- *  «Lezioni». Il contenuto si riordina col suo ridisegno; qui ci sono
- *  già la superficie, l'intestazione a titolo e i pulsanti. */
+/*  Il pannello Lezioni. Il contenitore lo decide chi lo mostra: la
+ *  tendina sotto a «Lezioni» (la superficie fluttuante, 440 px) o la
+ *  colonna di destra da 1200 px (360, su --carta-alt). Qui dentro:
+ *  intestazione, corpo che scorre, piede. */
+
 .pannello {
-  composes: superficie from '../layout/Superficie.module.css';
-  position: absolute;
-  top: calc(var(--barra) + var(--u) / 4);
-  right: calc(var(--u) * 1.5);
-  z-index: 60;
-  width: calc(var(--u) * 47.5);
-  max-height: min(calc(var(--u) * 70), 76vh);
   display: flex;
   flex-direction: column;
-  padding: 0 calc(var(--u) * 2) calc(var(--u) * 1.75);
-  transform-origin: top right;
-  animation: var(--entra-tendina);
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 
-/* l'intestazione a titolo occupa tutta la larghezza della superficie */
-.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; margin: 0 calc(var(--u) * -2); }
+/* ── intestazione ───────────────────────────────────────────── */
+/*  Le regole comuni composte arrivano anche da altri fogli, caricati
+ *  dopo: quando qui se ne cambia una, il selettore è più preciso. */
+.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; }
+.pannello .testa { gap: calc(var(--u) / 4); padding-right: var(--u); }
+[data-modo="tendina"] .testa { border-bottom: calc(var(--u) / 8) solid var(--linea); }
 .titolo { composes: titolo from '../layout/Superficie.module.css'; }
-.chiudi { composes: icona from '../layout/Superficie.module.css'; }
+.testa .titolo { flex: 0 1 auto; }
+.numero { flex: none; margin-left: calc(var(--u) / 2); color: var(--tenue-testo); font-size: var(--t-piccolo); font-variant-numeric: tabular-nums; }
+.chiudi { composes: icona from '../layout/Superficie.module.css'; margin-left: auto; }
 
-.vuoto { margin: var(--u) 0; color: var(--tenue-testo); font-size: var(--t-piccolo); line-height: 1.6; }
-
-.elenco { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
-.lezione { padding: calc(var(--u) * 1.25) 0; border-bottom: 1px solid var(--linea); animation: var(--entra); }
-.lezione:last-child { border-bottom: none; }
-
-.riga { display: flex; align-items: baseline; gap: var(--u); }
-.data { font-size: 12.5px; font-weight: 550; }
-.misure { color: var(--tenue); font-size: 11px; }
-
-.stato { margin: 4px 0 0; color: var(--inchiostro-tenue); font-size: 11.5px; }
-
-/* i pulsanti della superficie: principale, secondario, e Elimina trasparente */
-.azioni { display: flex; flex-wrap: wrap; gap: calc(var(--u) / 2); margin-top: var(--u); }
-.principale { composes: primario from '../layout/Superficie.module.css'; }
-.secondario { composes: secondario from '../layout/Superficie.module.css'; }
-.pericolo { composes: trasparente from '../layout/Superficie.module.css'; }
-.pericolo:hover:not(:disabled) { color: var(--c-rosso); }
-
-.trascrizione {
-  margin-top: var(--u);
-  max-height: 220px;
+/* ── corpo: scorre lui, non le singole trascrizioni ─────────── */
+.corpo {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: var(--u);
-  border-radius: var(--raggio);
-  background: var(--carta-alt);
-  font-size: 12px;
+  padding-top: calc(var(--u) * 1.25);
+}
+[data-modo="lato"] .corpo { padding-top: calc(var(--u) / 2); }
+
+.vuoto {
+  margin: 0;
+  padding: var(--u) calc(var(--u) * 2) calc(var(--u) * 2);
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-ui);
   line-height: 1.6;
 }
-.trascrizione p { margin: 0 0 6px; }
-.minuto {
-  margin-right: 6px;
-  color: var(--accento);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-}
-.minuto:disabled { color: var(--tenue); cursor: default; }
 
-.microfono {
-  display: flex;
+.elenco { list-style: none; margin: 0; padding: 0; }
+
+/*  Una lezione per sezione: nella tendina separate da una linea, di
+ *  lato come schede; quella con la trascrizione aperta su carta. */
+.lezione { padding: calc(var(--u) * 1.75) calc(var(--u) * 2) calc(var(--u) * 1.5); animation: var(--entra); }
+.lezione + .lezione { border-top: calc(var(--u) / 8) solid var(--linea); }
+[data-modo="lato"] .lezione {
+  margin: var(--u) var(--u) 0;
+  padding: calc(var(--u) * 1.5);
+  border-radius: var(--raggio-g);
+}
+[data-modo="lato"] .lezione + .lezione { border-top: none; }
+[data-modo="lato"] .aperta { background: var(--carta); }
+
+.riga { display: flex; flex-wrap: wrap; align-items: baseline; gap: calc(var(--u) / 4) var(--u); }
+.data { font-size: calc(var(--t-ui) * 14 / 13); font-weight: 600; }
+.misure { color: var(--tenue-testo); font-size: var(--t-piccolo); font-variant-numeric: tabular-nums; }
+[data-modo="lato"] .misure { order: 3; flex-basis: 100%; }
+.interrotta { color: var(--avviso); cursor: help; }
+
+.stato {
+  display: inline-flex;
   align-items: center;
-  gap: var(--u);
-  margin-top: var(--u);
-  padding-top: var(--u);
-  border-top: 1px solid var(--linea);
+  gap: calc(var(--u) * 0.625);
+  margin-left: auto;
   color: var(--inchiostro-tenue);
-  font-size: 11.5px;
+  font-size: var(--t-piccolo);
 }
-.microfono select {
-  flex: 1;
-  min-width: 0;
-  padding: 4px 6px;
-  border: 1px solid var(--linea-forte);
-  border-radius: var(--raggio);
-  background: var(--carta);
-  color: var(--inchiostro);
-  font: inherit;
-}
-.microfono + .opzione { border-top: none; padding-top: 4px; margin-top: 4px; }
-
-.opzione {
-  display: flex; align-items: flex-start; gap: 6px;
-  margin-top: var(--u);
-  padding-top: var(--u);
-  border-top: 1px solid var(--linea);
-  color: var(--inchiostro-tenue);
-  font-size: 11.5px;
-  line-height: 1.5;
-  cursor: pointer;
-}
-.opzione em { color: var(--tenue); font-style: normal; }
-
-.lettore { width: 100%; height: 30px; margin-top: var(--u); }
-.lettore:not([src]) { display: none; }
-
-/* ── il merge mentre lavora, e quando ha finito ─────────────── */
-.avanzamento { display: flex; flex-direction: column; gap: 6px; margin-top: var(--u); }
-.fase { margin: 0; animation: var(--entra); }
-.secondi { margin-left: 6px; color: var(--tenue); font-variant-numeric: tabular-nums; }
-.fatto { display: flex; align-items: center; gap: 6px; color: var(--c-verde); animation: var(--entra-conferma); }
-.spunta { flex: none; }
-.guasto { color: var(--c-rosso); line-height: 1.5; animation: var(--entra); }
-
+.daIntegrare { width: calc(var(--u) * 0.75); height: calc(var(--u) * 0.75); border-radius: 50%; background: var(--accento); }
+.integrata { display: inline-flex; align-items: center; gap: calc(var(--u) * 0.625); color: var(--fatto); }
 .dalVivo {
-  display: inline-block;
-  width: 6px; height: 6px;
-  margin-right: 2px;
+  width: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 0.75);
   border-radius: 50%;
-  background: var(--c-rosso);
-  vertical-align: 1px;
+  background: var(--registra);
   animation: var(--pulsa);
 }
-.interrotta { color: var(--c-arancio); cursor: help; }
 
+/* ── le azioni, sopra la trascrizione ───────────────────────── */
+.azioni { display: flex; align-items: center; gap: calc(var(--u) * 0.75); margin-top: calc(var(--u) * 1.25); }
+.spazio { flex: 1; }
+.principale { composes: primario from '../layout/Superficie.module.css'; }
+.secondario { composes: secondario from '../layout/Superficie.module.css'; }
+.trasparente { composes: trasparente from '../layout/Superficie.module.css'; }
+
+/* il merge mentre lavora, e quando ha finito */
+.avanzamento { display: flex; flex-direction: column; gap: calc(var(--u) * 0.75); margin-top: var(--u); }
+.avviso {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  margin: var(--u) 0 0;
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-piccolo);
+  animation: var(--entra);
+}
+.avanzamento .avviso { margin: 0; }
+.secondi { color: var(--tenue-testo); font-variant-numeric: tabular-nums; }
+.fatto { color: var(--fatto); animation: var(--entra-conferma); }
+.guasto { color: var(--c-rosso); line-height: 1.5; }
+
+/* ── la trascrizione: le prime frasi, le altre a richiesta ──── */
+.trascrizione {
+  margin-top: calc(var(--u) * 1.25);
+  padding: var(--u) calc(var(--u) * 1.5);
+  border-radius: var(--u);
+  background: var(--carta-alt);
+  font-size: calc(var(--t-ui) * 1.04);
+  line-height: 1.55;
+}
+[data-modo="lato"] .trascrizione {
+  margin-top: calc(var(--u) * 1.5);
+  padding: var(--u) 0 0;
+  border-radius: 0;
+  border-top: calc(var(--u) / 8) solid var(--linea);
+  background: none;
+}
+.frase {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 4.5) 1fr;
+  gap: var(--u);
+  margin: 0;
+  padding: calc(var(--u) / 2) 0;
+}
+.minuto {
+  justify-self: start;
+  color: var(--tenue-testo);
+  font-family: var(--font-mono);
+  font-size: var(--t-piccolo);
+  line-height: 1.6;
+  text-align: left;
+}
+button.minuto:hover { color: var(--accento-testo); }
+.nessuna { margin: 0; color: var(--tenue-testo); font-size: var(--t-piccolo); }
+.tutte {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  padding: calc(var(--u) * 0.75) 0 calc(var(--u) / 4);
+  color: var(--accento-testo);
+  font-size: calc(var(--t-piccolo) * 1.04);
+}
+.tutte:hover { text-decoration: underline; }
 .pausaTrascritta {
-  margin: 8px 0 !important;
-  color: var(--tenue);
-  font-size: 11px;
+  margin: var(--u) 0;
+  color: var(--tenue-testo);
+  font-size: var(--t-etichetta);
   text-align: center;
   letter-spacing: 0.02em;
 }
 .pausaTrascritta::before, .pausaTrascritta::after { content: ' — '; }
+
+.lettore { display: block; width: calc(100% - var(--u) * 4); height: calc(var(--u) * 3.75); margin: var(--u) calc(var(--u) * 2); }
+.lettore:not([src]) { display: none; }
+
+/* ── piede: com'è messo il microfono, e le Impostazioni ─────── */
+.piede {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  padding: calc(var(--u) * 1.25) calc(var(--u) * 1.5) calc(var(--u) * 1.25) calc(var(--u) * 2);
+  background: var(--carta-alt);
+  color: var(--inchiostro-tenue);
+  font-size: calc(var(--t-piccolo) * 1.04);
+}
+.come { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.impostazioni { composes: trasparente from '../layout/Superficie.module.css'; flex: none; }
+.piede .impostazioni { height: calc(var(--u) * 3); padding: 0 var(--u); font-size: calc(var(--t-piccolo) * 1.04); }
