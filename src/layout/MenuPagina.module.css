@@ -1,0 +1,56 @@
+.menuPagina { position: relative; flex: none; }
+
+.pulsante {
+  display: grid;
+  place-items: center;
+  width: var(--controllo);
+  height: var(--controllo);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+}
+.pulsante:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.attivo, .attivo:hover { background: var(--carta-alt-2); color: var(--inchiostro); }
+
+/*  La tendina: la superficie fluttuante di tutta l'app, agganciata
+ *  sotto al ⋯ e allineata al suo bordo destro. */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--u) / 2);
+  right: 0;
+  z-index: 60;
+  min-width: calc(var(--u) * 26);
+  padding: calc(var(--u) / 2);
+  background: var(--superficie);
+  border: calc(var(--u) / 8) solid var(--superficie-bordo);
+  border-radius: var(--raggio-sup);
+  box-shadow: var(--ombra);
+  transform-origin: top right;
+  animation: var(--entra-tendina);
+}
+
+.voce {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  width: 100%;
+  height: calc(var(--u) * 3.75);
+  padding: 0 var(--u);
+  border-radius: var(--raggio);
+  color: var(--inchiostro);
+  font-size: var(--t-ui);
+  text-align: left;
+  white-space: nowrap;
+}
+.voce svg { color: var(--inchiostro-tenue); }
+/* da tastiera la voce si accende col fondo, come nei menu del Mac */
+.voce:hover { background: var(--sfiorata); }
+.voce:focus-visible { outline: none; background: var(--carta-alt-2); }
+.pericolo:hover, .pericolo:hover svg, .pericolo:focus-visible, .pericolo:focus-visible svg { color: var(--c-rosso); }
+
+.etichetta { flex: 1; }
+
+.tasto {
+  color: var(--tenue-testo);
+  font-family: var(--font-mono);
+  font-size: var(--t-etichetta);
+}

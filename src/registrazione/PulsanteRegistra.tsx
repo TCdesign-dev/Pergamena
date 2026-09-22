@@ -1,15 +1,29 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { RifEditore } from '../editor/Editor'
-import { iscrivitiRegistrazione, leggiRegistrazione, azzera } from './statoRegistrazione'
+import { iscrivitiRegistrazione, leggiRegistrazione, type StatoRegistrazione } from './statoRegistrazione'
 import {
-  avviaRegistrazione, collegaEditore, fermaRegistrazione, pausaRegistrazione, prendiQui, riprendiRegistrazione,
+  avviaRegistrazione, collegaEditore, fermaRegistrazione, pausaRegistrazione, riprendiRegistrazione,
 } from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
-import { Rotella } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
-import s from './Registrazione.module.css'
+import s from './PulsanteRegistra.module.css'
 
-function durata(ms: number) {
+/*  Il controllo della registrazione, nella barra in alto: sempre nello
+ *  stesso posto, cambia forma con lo stato.
+ *
+ *   · pronta: «Registra ⌘R»;
+ *   · mentre parte o chiude: una rotellina e due parole;
+ *   · in registrazione: una pillola rossa col cronometro, il livello,
+ *     pausa e termina. Termina è un pulsante a sé: un clic distratto
+ *     sulla pillola non chiude la lezione;
+ *   · in pausa: grigia, il cronometro fermo, «Riprendi»;
+ *   · collegamento perso o microfono muto: arancio, e registra ancora;
+ *   · in un'altra finestra o in un'altra pagina: grigia, qui non si registra;
+ *   · interrotta: rossa, finché non si riprende o si chiude l'avviso.
+ *
+ *  Cosa c'è da sapere, e da fare, lo dice l'avviso sotto la barra. */
+
+export function durata(ms: number) {
   const t = Math.max(0, Math.floor(ms / 1000))
   const h = Math.floor(t / 3600)
   const m = Math.floor((t % 3600) / 60)
@@ -17,12 +31,57 @@ function durata(ms: number) {
   return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`
 }
 
+export type Forma =
+  | 'pronta' | 'parto' | 'chiudo'
+  | 'registra' | 'pausa' | 'perso' | 'muto'
+  | 'finestra' | 'pagina' | 'interrotta'
+
+/** La forma del controllo nella pagina `documentoId`. */
+export function formaDi(r: StatoRegistrazione, documentoId: string): Forma {
+  if (r.attiva && r.documentoId !== documentoId) return 'pagina'
+  if (r.attiva) {
+    if (r.avvio === 'parto') return 'parto'
+    if (r.avvio === 'chiudo') return 'chiudo'
+    if (r.scollegato) return 'perso'
+    if (r.pausa) return 'pausa'
+    if (r.silenzio) return 'muto'
+    return 'registra'
+  }
+  if (r.altrove) return 'finestra'
+  if (r.errore && r.documentoId === documentoId) return 'interrotta'
+  return 'pronta'
+}
+
+// finché la prima partenza non ha risposto, una seconda (doppio clic,
+// ⌘R tenuto giù) aprirebbe due registrazioni
+let partendo = false
+
+/** Registra la pagina: dal pulsante, da ⌘R, da «Riprendi» dopo un errore. */
+export async function registra(documentoId: string, materia: string, rifEditore: RifEditore) {
+  if (partendo) return
+  partendo = true
+  try {
+    await avviaRegistrazione({
+      documentoId,
+      materia,
+      editor: () => rifEditore.current,
+      salvaAudio: leggiImpostazioni().salvaAudio,
+    })
+  } finally {
+    partendo = false
+  }
+}
+
+// il livello diventa quattro tacche: -60 dB silenzio, -20 dB voce piena
+const SOGLIE = [0.1, 0.35, 0.6, 0.85]
+
 export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
   documentoId: string
   materia: string
   rifEditore: RifEditore
 }) {
   const r = useSyncExternalStore(iscrivitiRegistrazione, leggiRegistrazione)
+  const forma = formaDi(r, documentoId)
   const [ora, setOra] = useState(Date.now())
 
   // chi riprende una registrazione dopo un ricaricamento deve trovare l'editor
@@ -34,142 +93,101 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
     return () => clearInterval(t)
   }, [r.avvio, r.pausa])
 
-  // si registra in un'altra pagina: qui lo si dice, senza pulsante
-  if (r.attiva && r.documentoId !== documentoId) {
-    return <span className={s.altrove} title="La registrazione è in un'altra pagina"><span className={`${s.pallino} ${s.acceso}`} /> registrazione in corso altrove</span>
+  // ⌘R registra la pagina aperta. Mentre una lezione è in corso non fa
+  // niente: nemmeno ricaricare la pagina, che è quello che farebbe di suo
+  const rifForma = useRef(forma)
+  rifForma.current = forma
+  useEffect(() => {
+    const giu = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'r') return
+      e.preventDefault()
+      if (e.repeat) return
+      if (rifForma.current === 'pronta' || rifForma.current === 'interrotta') void registra(documentoId, materia, rifEditore)
+    }
+    window.addEventListener('keydown', giu)
+    return () => window.removeEventListener('keydown', giu)
+  }, [documentoId, materia, rifEditore])
+
+  switch (forma) {
+    case 'pronta':
+      return (
+        <button
+          className={s.registra}
+          title="Registra la lezione e trascrivila sul Mac  ⌘R"
+          onClick={() => void registra(documentoId, materia, rifEditore)}
+        >
+          <span className={s.pallino} />
+          Registra
+          <kbd className={s.tasto}>⌘R</kbd>
+        </button>
+      )
+    case 'parto':
+    case 'chiudo':
+      return (
+        <span className={s.stato}>
+          <Icona nome="attesa" dimensione={14} className={s.gira} />
+          {forma === 'parto' ? 'Preparo il microfono…' : 'Chiudo la lezione…'}
+        </span>
+      )
+    case 'finestra':
+      return (
+        <span className={`${s.stato} ${s.grigio}`}>
+          <Icona nome="altra-finestra" dimensione={14} />
+          In un’altra finestra
+        </span>
+      )
+    case 'pagina':
+      return (
+        <span className={`${s.stato} ${s.grigio}`} title="La lezione si sta registrando in un’altra pagina">
+          <span className={`${s.pallino} ${s.acceso}`} />
+          In un’altra pagina
+        </span>
+      )
+    case 'interrotta':
+      return (
+        <span className={`${s.stato} ${s.rosso}`}>
+          <Icona nome="errore" dimensione={14} />
+          Interrotta
+        </span>
+      )
   }
 
-  // il microfono è acceso ma scrive un'altra finestra
-  if (!r.attiva && r.altrove) {
-    return (
-      <button
-        className={`${s.registra} ${s.inCorso}`}
-        title="Una registrazione è in corso in un'altra finestra: continuala qui"
-        onClick={() => void prendiQui()}
-      >
-        <span className={`${s.pallino} ${s.acceso}`} /> in corso altrove · <u>continua qui</u>
-      </button>
-    )
-  }
-
-  if (!r.attiva) {
-    return (
-      <button
-        className={s.registra}
-        title="Registra la lezione e trascrivila sul Mac"
-        onClick={() => void avviaRegistrazione({
-          documentoId,
-          materia,
-          editor: () => rifEditore.current,
-          salvaAudio: leggiImpostazioni().salvaAudio,
-        })}
-      >
-        <span className={s.pallino} /> Registra
-      </button>
-    )
-  }
-
-  // il livello diventa tre tacche: -60 dB silenzio, -20 dB voce piena
   const forza = Math.min(1, Math.max(0, (r.livello + 60) / 40))
   // il cronometro conta la lezione registrata, non le pause
   const adesso = r.pausa && r.pausaDa ? r.pausaDa : ora
   const trascorso = adesso - (r.inizio ?? adesso) - r.pausaTotale
+  const tono = forma === 'registra' ? s.rossa : forma === 'pausa' ? s.grigia : s.arancio
 
   return (
-    <span className={s.gruppo}>
-      <button
-        className={`${s.registra} ${r.pausa ? s.inPausa : s.inCorso}`}
-        title="Ferma la registrazione"
-        onClick={() => void fermaRegistrazione()}
-      >
-        <span className={`${s.pallino} ${r.pausa ? '' : s.acceso}`} />
-        {r.avvio === 'parto' && <span className={s.preparo}><Rotella /> mi preparo…</span>}
-        {r.avvio === 'chiudo' && <span className={s.preparo}><Rotella /> chiudo…</span>}
-        {r.avvio === 'ascolto' && (
-          <>
-            <span className={s.tempo}>{durata(trascorso)}</span>
-            {r.pausa ? <span>in pausa</span> : (
-              <span className={`${s.tacche} ${r.silenzio ? s.muto : ''}`} aria-hidden title={r.silenzio ? 'nessun suono' : undefined}>
-                {[0.15, 0.45, 0.75].map((soglia) => (
-                  <i key={soglia} className={forza > soglia ? s.tacca : undefined} />
-                ))}
-              </span>
-            )}
-          </>
-        )}
-      </button>
-      {r.avvio === 'ascolto' && (
+    <div className={`${s.pillola} ${tono}`} role="group" aria-label="Lezione in registrazione">
+      {forma === 'registra' && <span className={`${s.pallino} ${s.acceso}`} />}
+      {forma === 'pausa' && <Icona nome="pausa" dimensione={14} />}
+      {forma === 'perso' && <Icona nome="scollegato" dimensione={14} />}
+      {forma === 'muto' && <Icona nome="microfono-muto" dimensione={14} />}
+      <span className={s.tempo}>{durata(trascorso)}</span>
+      {forma === 'registra' && (
+        <span className={s.tacche} aria-hidden>
+          {SOGLIE.map((soglia) => <i key={soglia} className={forza > soglia ? s.accesa : undefined} />)}
+        </span>
+      )}
+      {r.pausa ? (
+        <button className={s.riprendi} title="Riprendi a registrare" onClick={() => void riprendiRegistrazione()}>
+          <Icona nome="registra" dimensione={12} />
+          Riprendi
+        </button>
+      ) : (
         <button
-          className={s.pausa}
-          title={r.pausa ? 'Riprendi a registrare' : 'Metti in pausa: il microfono non registra finché non riprendi'}
-          aria-label={r.pausa ? 'Riprendi' : 'Pausa'}
-          onClick={() => void (r.pausa ? riprendiRegistrazione() : pausaRegistrazione())}
+          className={s.icona}
+          title="Pausa: il microfono non registra finché non riprendi"
+          aria-label="Pausa"
+          onClick={() => void pausaRegistrazione()}
         >
-          <span className={r.pausa ? s.iconaRiprendi : s.iconaPausa} />
+          <Icona nome="pausa" dimensione={14} />
         </button>
       )}
-    </span>
-  )
-}
-
-/** La frase che il riconoscitore sta ancora formando, in fondo alla pagina. */
-export function Striscia({ documentoId }: { documentoId: string }) {
-  const r = useSyncExternalStore(iscrivitiRegistrazione, leggiRegistrazione)
-
-  // registrazione finita male: l'errore resta finché non lo chiudi
-  if (!r.attiva && r.errore && r.documentoId === documentoId) {
-    return (
-      <div className={`${s.striscia} ${s.avviso} ${s.guasto}`} role="alert">
-        <span>La registrazione si è fermata: {r.errore}</span>
-        <button className={s.chiudiAvviso} onClick={() => azzera()} title="Chiudi" aria-label="Chiudi"><Icona nome="chiudi" dimensione={14} /></button>
-      </div>
-    )
-  }
-
-  // questa lezione la sta scrivendo un'altra finestra
-  if (!r.attiva && r.altrove?.documentoId === documentoId) {
-    return (
-      <div className={`${s.striscia} ${s.riga}`} aria-live="polite">
-        <span>Questa lezione si sta registrando in un’altra finestra.</span>
-        <button className={s.azioneStriscia} onClick={() => void prendiQui()}>Continua qui</button>
-      </div>
-    )
-  }
-
-  if (!r.attiva || r.documentoId !== documentoId) return null
-  if (r.pausa) {
-    return (
-      <div className={`${s.striscia} ${s.riga}`} aria-live="polite">
-        <span>In pausa: il microfono non registra.</span>
-        <button className={s.azioneStriscia} onClick={() => void riprendiRegistrazione()}>Riprendi</button>
-      </div>
-    )
-  }
-  if (r.scollegato) {
-    return (
-      <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">
-        <span className={s.attesa}>Collegamento con il server perso: riprovo…</span>
-      </div>
-    )
-  }
-  if (r.silenzio) {
-    return (
-      <div className={`${s.striscia} ${s.avviso}`} aria-live="assertive">
-        <span>
-          Non sento niente da «{r.dispositivo}».
-          {r.virtuale
-            ? ' È un ingresso virtuale: scegli il microfono vero da Lezioni.'
-            : ' Controlla che il microfono non sia spento o coperto.'}
-        </span>
-      </div>
-    )
-  }
-
-  return (
-    <div className={s.striscia} aria-live="polite">
-      {r.errore ? <span className={s.errore}>{r.errore}</span>
-        : r.provvisorio ? <span>{r.provvisorio}</span>
-        : <span className={s.attesa}>ascolto da {r.dispositivo ?? 'microfono'}…</span>}
+      <button className={s.icona} title="Termina la lezione" aria-label="Termina la lezione" onClick={() => void fermaRegistrazione()}>
+        <Icona nome="termina" dimensione={14} />
+      </button>
     </div>
   )
 }

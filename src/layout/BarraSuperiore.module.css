@@ -4,63 +4,79 @@
   align-items: center;
   gap: var(--u);
   height: var(--barra);
-  padding: 0 calc(var(--u) * 2);
+  padding: 0 var(--u) 0 calc(var(--u) * 1.5);
   flex: none;
+  font-size: var(--t-ui);
 }
 
+/* ── il percorso ────────────────────────────────────────────── */
 .percorso {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: calc(var(--u) / 4);
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  font-size: 12px;
 }
 
 .passo {
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
   min-width: 0;
-  padding: 3px 5px;
-  border-radius: 4px;
-  color: var(--tenue);
-  font-size: 12px;
+  padding: calc(var(--u) / 2) calc(var(--u) * 0.625);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
   white-space: nowrap;
 }
-/*  Nella barra stretta (il pannello dell'app Claude è largo 716px) i
- *  nomi lunghi si accorciano coi puntini invece di finire sotto al
- *  pulsante della registrazione. «Materie» resta sempre intero. */
-.passo:first-child, .sbarra { flex: none; }
-.nome { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-button.passo:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
+.passo:hover { background: var(--sfiorata); color: var(--inchiostro); }
 
-.pallino { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+/*  Quando manca spazio si accorcia per primo il nome della pagina,
+ *  dalla fine; la materia cede solo quando la pagina è già al minimo.
+ *  La pagina parte da zero e prende quello che avanza dopo la materia
+ *  (flex-basis 0), mai meno del suo minimo: così la materia non perde
+ *  una lettera finché la pagina ha ancora spazio da dare. */
+.materie, .sbarra { flex: none; }
+.materia { flex: 0 1 auto; }
+.nome { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+.pagina {
+  flex: 1 1 0;
+  min-width: calc(var(--u) * 6);
+  padding: calc(var(--u) / 2) calc(var(--u) * 0.625);
+  color: var(--inchiostro);
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sbarra { color: var(--tenue); }
+
+.pallino { flex: none; width: var(--u); height: var(--u); border-radius: 50%; }
 .pallino[data-colore="rosso"]   { background: var(--c-rosso); }
 .pallino[data-colore="arancio"] { background: var(--c-arancio); }
 .pallino[data-colore="verde"]   { background: var(--c-verde); }
 .pallino[data-colore="blu"]     { background: var(--c-blu); }
 .pallino[data-colore="viola"]   { background: var(--c-viola); }
 
-.sbarra { color: var(--linea-forte); }
+/* ── a destra: fissi ────────────────────────────────────────── */
+.azioni { display: flex; align-items: center; gap: var(--u); flex: none; }
 
-.corrente {
-  min-width: 0;
-  padding: 3px 5px;
-  color: var(--inchiostro-tenue);
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-}
-
-.azioni { display: flex; align-items: center; gap: 2px; flex: none; }
-/*  Solo i pulsanti-icona sono quadrati. Una regola su «tutti i
- *  pulsanti della barra» stringeva a 26px anche «Registra», che
- *  finiva sopra a «Lezioni». */
-.icona, .testo {
-  height: 26px;
+.lezioni, .icona {
+  height: var(--controllo);
   border-radius: var(--raggio);
-  color: var(--tenue); font-size: 12px; line-height: 1;
+  color: var(--inchiostro-tenue);
 }
-.icona { width: 26px; display: inline-grid; place-items: center; }
-.icona:hover, .testo:hover { background: var(--sfiorata); color: var(--inchiostro); }
-.attivo { background: var(--premuta); color: var(--inchiostro) !important; }
-
-.testo { padding: 0 8px; }
+.lezioni {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  padding: 0 var(--u);
+  font-size: var(--t-ui);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.icona { width: var(--controllo); display: inline-grid; place-items: center; }
+.lezioni:hover, .icona:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.attivo, .attivo:hover { background: var(--carta-alt-2); color: var(--inchiostro); }

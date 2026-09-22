@@ -1,0 +1,120 @@
+/*  Il controllo della registrazione. Tutto alto 28 (--controllo): gli
+ *  stati fermi hanno gli angoli dei pulsanti, la lezione in corso è
+ *  una pillola tonda. Rosso solo mentre registra o quando si è fermata
+ *  da sola; arancio quando registra ma c'è da sapere una cosa. */
+
+.registra, .stato {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: var(--controllo);
+  padding: 0 calc(var(--u) * 1.25);
+  border-radius: var(--raggio);
+  font-size: var(--t-ui);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── pronta ─────────────────────────────────────────────────── */
+.registra { color: var(--inchiostro); }
+.registra:hover { background: var(--sfiorata); }
+
+.tasto {
+  padding: calc(var(--u) * 0.375) calc(var(--u) * 0.625);
+  border-radius: calc(var(--u) / 2);
+  background: var(--carta-alt-2);
+  color: var(--inchiostro-tenue);
+  font-family: var(--font-mono);
+  font-size: var(--t-etichetta);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.pallino {
+  flex: none;
+  width: var(--u);
+  height: var(--u);
+  border-radius: 50%;
+  background: var(--registra);
+}
+.acceso {
+  box-shadow: 0 0 0 calc(var(--u) * 0.375) color-mix(in srgb, var(--registra) 25%, transparent);
+  animation: var(--pulsa-lento);
+}
+
+/* ── gli stati fermi ────────────────────────────────────────── */
+.stato { color: var(--inchiostro-tenue); }
+.grigio { background: var(--carta-alt-2); }
+.rosso { background: var(--registra-fondo); color: var(--registra); }
+
+/* la rotellina: con «riduci movimento» sta ferma */
+.gira { animation: var(--gira); }
+
+/* ── la lezione in corso ────────────────────────────────────── */
+.pillola {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) / 4);
+  height: var(--controllo);
+  padding: 0 calc(var(--u) / 4) 0 calc(var(--u) * 1.25);
+  border-radius: calc(var(--controllo) / 2);
+  font-size: var(--t-ui);
+  white-space: nowrap;
+}
+.rossa { background: var(--registra-fondo); color: var(--registra); }
+.arancio { background: var(--avviso-fondo); color: var(--avviso); }
+.grigia { background: var(--carta-alt-2); color: var(--inchiostro-tenue); }
+
+/* l'unico numero che si muove: cifre tutte larghe uguali */
+.tempo {
+  margin: 0 calc(var(--u) * 0.75);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.acceso + .tempo { margin-left: var(--u); }
+
+.tacche {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: calc(var(--u) / 4);
+  height: calc(var(--u) * 1.5);
+}
+.tacche i {
+  width: calc(var(--u) * 0.375);
+  border-radius: calc(var(--u) / 8);
+  background: currentColor;
+  opacity: 0.35;
+}
+.tacche i:nth-child(1) { height: calc(var(--u) * 0.625); }
+.tacche i:nth-child(2) { height: calc(var(--u) * 1.125); }
+.tacche i:nth-child(3) { height: calc(var(--u) * 1.5); }
+.tacche i:nth-child(4) { height: calc(var(--u) * 0.875); }
+.tacche i.accesa { opacity: 1; }
+
+/* pausa e termina: quadrati, del colore della pillola */
+.icona {
+  display: grid;
+  place-items: center;
+  width: var(--controllo);
+  height: var(--controllo);
+  border-radius: var(--raggio);
+  color: inherit;
+}
+.icona:hover { background: var(--premuta); }
+.tacche + .icona { margin-left: calc(var(--u) / 2); }
+
+.riprendi {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 3);
+  padding: 0 var(--u);
+  border-radius: var(--raggio);
+  color: var(--inchiostro);
+  font-size: var(--t-ui);
+  font-weight: 500;
+}
+.riprendi:hover { background: var(--premuta); }
+.riprendi svg { color: var(--registra); }

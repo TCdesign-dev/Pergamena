@@ -1,0 +1,58 @@
+/*  Sotto la barra in alto, largo quanto il centro meno 16 px per lato.
+ *  Il foglio ha 48 px vuoti in cima: l'avviso ci sta sopra, e non
+ *  sposta niente. */
+
+.posto {
+  position: absolute;
+  top: 100%;
+  left: calc(var(--u) * 2);
+  right: calc(var(--u) * 2);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.avviso {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  min-height: calc(var(--u) * 4.5);
+  padding: calc(var(--u) * 0.75) var(--u) calc(var(--u) * 0.75) calc(var(--u) * 1.5);
+  border-radius: var(--u);
+  font-size: var(--t-ui);
+  line-height: 1.35;
+  pointer-events: auto;
+  animation: var(--entra-tendina);
+}
+
+/* il fondo e l'icona dicono quanto è grave; il testo resta nero */
+.rosso   { background: var(--registra-fondo); color: var(--registra); }
+.arancio { background: var(--avviso-fondo); color: var(--avviso); }
+.grigio  { background: var(--carta-alt); color: var(--inchiostro-tenue); }
+.verde   { background: var(--fatto-fondo); color: var(--fatto); }
+
+.testo { flex: 1; min-width: 0; color: var(--inchiostro); }
+
+.azione {
+  flex: none;
+  height: calc(var(--u) * 3);
+  padding: 0 calc(var(--u) * 1.25);
+  border-radius: var(--raggio);
+  background: var(--superficie);
+  box-shadow: 0 0 0 calc(var(--u) / 8) var(--linea);
+  color: var(--inchiostro);
+  font-size: var(--t-ui);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.azione:hover { box-shadow: 0 0 0 calc(var(--u) / 8) var(--linea-forte); }
+
+.chiudi {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+}
+.chiudi:hover { background: var(--premuta); color: var(--inchiostro); }

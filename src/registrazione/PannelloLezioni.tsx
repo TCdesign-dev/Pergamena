@@ -75,10 +75,12 @@ function pausePrima(r: Registrazione, i: number) {
   return r.pause.filter((p) => p.a !== null && p.da >= da && p.da < a)
 }
 
-export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
+export function PannelloLezioni({ doc, materia, rifEditore, suMicrofono = false, onChiudi }: {
   doc: Y.Doc
   materia: string
   rifEditore: RifEditore
+  /** aperto da «Cambia microfono»: si va dritti alla scelta del microfono */
+  suMicrofono?: boolean
   onChiudi: () => void
 }) {
   const lezioni = useRegistrazioni(doc)
@@ -96,6 +98,13 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
   }, [])
 
   const diSistema = microfoni.find((m) => m.sistema)
+
+  const rifMicrofono = useRef<HTMLSelectElement>(null)
+  useEffect(() => {
+    if (!suMicrofono || !microfoni.length) return
+    rifMicrofono.current?.scrollIntoView({ block: 'nearest' })
+    rifMicrofono.current?.focus()
+  }, [suMicrofono, microfoni.length])
 
   async function integra(r: Registrazione) {
     const editor = rifEditore.current
@@ -212,6 +221,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
         <label className={s.microfono}>
           <span>Microfono</span>
           <select
+            ref={rifMicrofono}
             value={impostazioni.microfono ?? ''}
             onChange={(e) => imposta('microfono', e.target.value || null)}
           >

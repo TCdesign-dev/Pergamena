@@ -1,0 +1,17 @@
+/* ── la frase in formazione ─────────────────────────────────── */
+.striscia {
+  flex: none;
+  padding: var(--u) calc(var(--u) * 3) calc(var(--u) * 1.25);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: rtl;             /* si vede la FINE della frase, che è la parte nuova */
+  text-align: left;
+  color: var(--tenue-testo);
+  font-size: calc(var(--t-piccolo) * 1.04);
+  border-top: calc(var(--u) / 8) solid var(--linea);
+  background: var(--carta);
+  animation: var(--entra);
+}
+.striscia span { direction: ltr; unicode-bidi: plaintext; }
+.attesa { font-style: italic; }

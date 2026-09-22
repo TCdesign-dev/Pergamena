@@ -25,6 +25,7 @@
   --gira: pg-gira 0.7s linear infinite;
   --scorre: pg-scorre 1.2s var(--curva) infinite;
   --pulsa: pg-pulsa 1.4s ease-in-out infinite;
+  --pulsa-lento: pg-pulsa 2.4s ease-in-out infinite;           /* il pallino di chi registra */
   --luccichio: pg-luccica 1.4s ease-in-out infinite;
 
   /* dove sta per arrivare qualcosa: un riflesso che passa */

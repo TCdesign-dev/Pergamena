@@ -1,6 +1,6 @@
 .pannello {
   position: absolute;
-  top: 40px;
+  top: calc(var(--barra) + var(--u) / 4);
   right: 12px;
   z-index: 60;
   width: 380px;

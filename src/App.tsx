@@ -5,7 +5,7 @@ import type { Quaderno, Documento } from './documento/tipi'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
 import { Rotaia } from './layout/Rotaia'
-import { useStretto } from './layout/useStretto'
+import { useStretto } from './layout/larghezza'
 import { BarraSuperiore } from './layout/BarraSuperiore'
 import { Home } from './layout/Home'
 import { Conferma } from './layout/Conferma'
@@ -19,7 +19,7 @@ import { FinestraAccesso } from './sync/FinestraAccesso'
 import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
 import { accendiSincronia, spegniSincronia } from './sync/sincronia'
 import { allineaTutto } from './sync/allineaTutto'
-import { Striscia } from './registrazione/PulsanteRegistra'
+import { Striscia } from './registrazione/Striscia'
 import { chiudiOrfane, recuperaInterrotte, riprendiSeInCorso } from './registrazione/registrazione'
 import { Revisione } from './merge/Revisione'
 import { SchedaMateria } from './materia/SchedaMateria'
@@ -153,7 +153,7 @@ export function App() {
     catch { /* finestra privata: pazienza */ }
   }, [apertoId])
 
-  // ⌘\ barra · ⌘K palette · ⌘/ immagini
+  // ⌘\ barra · ⌘K palette · ⌘/ immagini (⌘R sta nel pulsante della registrazione)
   useEffect(() => {
     const giu = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return
