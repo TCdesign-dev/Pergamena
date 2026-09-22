@@ -9,6 +9,7 @@ import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
 import { Barra, Rotella } from '../layout/Attesa'
+import { RiepilogoCorrezioni } from '../correzioni/RiepilogoCorrezioni'
 import s from './PannelloLezioni.module.css'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
@@ -232,6 +233,16 @@ export function PannelloLezioni({ doc, materia, rifEditore, onChiudi }: {
         />
         <span>Tieni anche l’audio delle prossime lezioni <em>(circa 17 MB l’ora)</em></span>
       </label>
+
+      <label className={s.opzione}>
+        <input
+          type="checkbox"
+          checked={impostazioni.correzioniInDiretta}
+          onChange={(e) => imposta('correzioniInDiretta', e.target.checked)}
+        />
+        <span>Correzioni in diretta <em>— mentre registri, un pallino a margine quando una data, un numero o un nome non torna con quello che ha detto il professore</em></span>
+      </label>
+      <RiepilogoCorrezioni doc={doc} rifEditore={rifEditore} lezioni={lezioni} onVai={onChiudi} />
 
       <audio ref={lettore} className={s.lettore} controls preload="none" />
     </div>

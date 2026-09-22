@@ -115,6 +115,41 @@
   border-radius: 2px;
 }
 
+/* ── Correzioni in diretta ──────────────────────────────────── */
+/*  Il pezzo che non torna con quello che ha detto il professore:
+ *  sottolineato e non colorato, come il testo dell'AI, perché i colori
+ *  sono tuoi. Ondulato e arancio, così non si confonde col punteggiato
+ *  blu di ciò che la macchina ha già scritto. Il pallino sta nel
+ *  margine destro, all'altezza della prima riga del blocco. */
+.ProseMirror .correzione-da-vedere {
+  text-decoration: underline wavy 1px;
+  text-decoration-color: var(--avviso);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+}
+.ProseMirror .ha-correzione { position: relative; }
+.ProseMirror .correzione-pallino {
+  position: absolute;
+  top: 0;
+  right: -26px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 1lh;
+  cursor: pointer;
+}
+.ProseMirror .correzione-pallino::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--avviso);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--avviso) 20%, transparent);
+  transition: transform var(--veloce) ease;
+  animation: var(--entra-conferma);
+}
+.ProseMirror .correzione-pallino:hover::before { transform: scale(1.3); }
+
 /* ── Segnaposto ─────────────────────────────────────────────── */
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

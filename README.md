@@ -55,6 +55,7 @@ src/
 ├── lib/
 │   ├── testo.ts         normalizzazione per le ricerche (accenti, maiuscole)
 │   ├── modello.ts       le chiamate al modello che rispondono in JSON
+│   ├── decisioni.ts     le domande a Jev: rispondono numeri, non testo
 │   └── dev.ts           la maniglia `pergamena` in console (solo in sviluppo)
 │
 ├── ricerca/
@@ -68,6 +69,18 @@ src/
 │   ├── risultati.ts     com'è andato l'ultimo quiz
 │   ├── FinestraQuiz.tsx
 │   └── RipassoMateria.tsx
+│
+├── correzioni/          date, numeri e nomi che non tornano con la lezione
+│   ├── sorveglianza.ts  quando controllare: righe finite, al più ogni 10 s
+│   ├── finestra.ts      gli ultimi 90 secondi di lezione
+│   ├── triage.ts        Jev: quali righe sono sospette
+│   ├── proponi.ts       DeepSeek, solo sulle sospette: cosa cambiare
+│   ├── confronto.ts     le regole: pezzo minimo, niente invenzioni, nomi storpiati
+│   ├── posto.ts         dove sta adesso una correzione negli appunti
+│   ├── deposito.ts      le correzioni nel documento Yjs
+│   ├── applica.ts       «Correggi» e «Lascia così»
+│   ├── SchedaCorrezione.tsx     la scheda che si apre dal pallino
+│   └── RiepilogoCorrezioni.tsx  nel pannello delle lezioni
 │
 ├── archivio/
 │   ├── misure.ts        quanto occupa cosa
@@ -101,7 +114,8 @@ src/
 │   │   ├── formule.ts   LaTeX con KaTeX: $$…$$ nel testo, $$$…$$$ a sé
 │   │   ├── slash.ts     il plugin di «/» (intercetta frecce e Invio)
 │   │   ├── immagine.ts  il nodo, più incolla e trascina
-│   │   └── richiestaImmagine.ts   la sintassi !…!
+│   │   ├── richiestaImmagine.ts   la sintassi !…!
+│   │   └── correzioni.ts   il segno a margine, e quali righe stai scrivendo
 │   ├── immagine/
 │   │   └── NodoImmagine.tsx    ridimensionamento e allineamento
 │   ├── formula/
@@ -673,11 +687,75 @@ punto della lezione in 13 s (sei punti, voto finale 10+10+10), un quiz di
 5 domande in 21 s, «rileggi» sul blocco giusto, l'esito salvato («4 su 5
 · oggi»), un quiz su un passaggio selezionato in 4 s.
 
-### Fase 5 — correzioni in diretta
-Confronto fra quello che scrivi e quello che il professore ha appena
-detto, su una finestra di ~90 s. Si parte da **date, numeri e nomi**:
-è la categoria che la trascrizione azzecca di più e che serve di più.
-Segno discreto a margine, mai modifiche automatiche al testo.
+### ✅ Fase 5 — correzioni in diretta
+
+Mentre registri, quello che scrivi si confronta con quello che il
+professore ha detto negli ultimi 90 secondi. Solo **date, numeri e
+nomi**: sbagliati («14 luglio 1798» quando ha detto 1789) o lasciati a
+metà («26 agosto 17..»). Il pezzo che non torna si sottolinea in arancio
+e nel margine destro compare un pallino. Il testo non cambia mai da solo.
+
+Il clic sul pallino apre la scheda: le parole del professore, il pezzo
+vecchio barrato e quello nuovo, **Correggi** (Invio) o **Lascia così**.
+Esc la chiude e la lascia lì per dopo. «Correggi» cambia solo il pezzo
+(«1798», non la riga), tiene grassetto e colori, e il pezzo nuovo resta
+segnato come testo della macchina; ⌘Z lo annulla. Se correggi da te, o
+riscrivi la riga, il pallino sparisce da solo. In classe si può
+ignorare: le correzioni senza risposta restano nella pagina, e il
+pannello delle lezioni dice quante sono («vedi» porta alla prima), con
+i conti della lezione. L'interruttore sta nello stesso pannello.
+
+**Quando controlla.** Una riga si controlla quando è finita: il cursore
+è passato a un'altra, o da 4 secondi non batti tasti. A metà frase
+«nel…» è solo una frase che stai scrivendo. Al più un controllo ogni 10
+secondi, fino a sei righe insieme, e ogni versione di una riga una volta
+sola. Alla pressione di Ferma, un ultimo giro per le righe che
+aspettavano ancora: altrimenti l'errore nell'ultima riga prima di
+fermare non si vedrebbe mai. Si controllano solo le righe con qualcosa di
+verificabile, cioè una cifra, un nome o un buco: «il terzo stato si
+ribella» non costa niente.
+
+```
+riga finita ─→ Jev: sospetta?          0,3-0,6 s   ~0,003 cent
+            ─→ DeepSeek, solo sospette ~1,5 s      ~0,012 cent
+            ─→ regole (confronto.ts)   ─→ pallino a margine
+```
+
+**Jev** fa il filtro, e non scrive: a ogni riga risponde con la
+probabilità che contenga un dato che non torna. Gli errori veri escono
+fra 0,75 e 0,98, le righe giuste fra 0,1 e 0,3; la soglia è 0,5.
+**DeepSeek** vede solo le righe sospette e dice cosa cambiare, con le
+parole del professore che lo dimostrano. Poi tre regole senza modelli:
+
+- ogni parola o numero *nuovo* deve essere nella trascrizione: il
+  modello non corregge con quello che sa lui, anche se ha ragione;
+- la citazione deve esserci davvero, non riassunta;
+- due nomi che suonano uguali sono lo stesso nome. Il riconoscitore li
+  storpia (nella prova: «Versailles» → «avversari», «ghigliottinato» →
+  «ghittinato»), e «Russo» contro il tuo «Rousseau» non è un errore tuo.
+
+Una correzione lasciata non torna, nemmeno se ritocchi la riga. Una
+lezione eliminata si porta via le sue correzioni ancora aperte.
+
+**Costi.** In una lezione di prova: 4 controlli, 3 correzioni, 0,04
+centesimi. A 32 ore a settimana la stima è fra 30 e 50 centesimi al
+mese. La chiave ha un tetto di 1 $ che non si ricarica, condiviso con
+merge e quiz: al 22/09 ne restano 0,98. Quando finisce, le correzioni
+si fermano senza disturbare e il pannello delle lezioni lo dice.
+
+**La latenza la faceva OpenRouter.** Le prime correzioni arrivavano dopo
+12-13 s. Chiedendo il fornitore «più rapido», le richieste in JSON
+finivano su uno degradato che rispondeva dopo 10 s, e poi si ripiegava.
+Col fornitore più veloce a generare: 1,2-1,6 s. Vale anche per le
+immagini consigliate, che usano lo stesso compito.
+
+Collaudato con una lezione sintetica (`say -v Alice`, 66 s sulla
+Rivoluzione francese) riprodotta come dal vivo, in un browser separato
+senza chiavi Supabase. Presi 5 errori su 5: 98% → 97%, 1798 → 1789,
+17.. → 1789, Montesquieu → Rousseau, 1795 → 1794. Nessun falso allarme
+sulle 5 righe giuste, compreso «Rousseau». Il pallino arriva circa 6 s
+dopo la fine della riga se il cursore resta lì: 4 sono l'attesa che sia
+finita, e andando a capo si risparmiano. Dopo Ferma, 2,3 s.
 
 ---
 

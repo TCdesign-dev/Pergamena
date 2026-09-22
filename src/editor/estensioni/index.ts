@@ -14,10 +14,11 @@ import { RichiestaImmagine } from './richiestaImmagine'
 import { Elenchi } from './elenchi'
 import { SpostaBlocchi, GruppoDiBlocchi } from './spostaBlocchi'
 import { FormulaASe, FormulaNelTesto, FormuleLettura } from './formule'
+import { Correzioni } from './correzioni'
 
 /** L'elenco delle estensioni sta in un posto solo: da qui in poi
  *  aggiungere una funzione all'editor è aggiungere una riga qui. */
-export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string } = {}) {
+export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string; documentoId?: string } = {}) {
   return [
     StarterKit.configure({
       // l'undo lo gestisce Yjs, non ProseMirror: altrimenti i due
@@ -43,6 +44,7 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string } = {}) {
     RichiestaImmagine,
     FormulaNelTesto,
     FormulaASe,
+    Correzioni.configure({ doc, documentoId: opzioni.documentoId ?? null }),
     Collaboration.configure({ document: doc, field: 'contenuto' }),
   ]
 }

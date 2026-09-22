@@ -21,7 +21,10 @@ type Compito = { variabile: string; attesa: number; ordine: 'throughput' | 'late
 const COMPITI: Record<string, Compito> = {
   merge: { variabile: 'MODELLO_MERGE', attesa: 90_000, ordine: 'throughput' },
   quiz: { variabile: 'MODELLO_QUIZ', attesa: 60_000, ordine: 'throughput' },
-  veloce: { variabile: 'MODELLO_VELOCE', attesa: 30_000, ordine: 'latency' },
+  // anche il veloce per «throughput»: misurato il 21/09, ordinando per
+  // «latency» le richieste in JSON finivano su un fornitore degradato che
+  // rispondeva dopo 10-13 s ripiegando su un altro; per «throughput», 1,2-1,6 s
+  veloce: { variabile: 'MODELLO_VELOCE', attesa: 30_000, ordine: 'throughput' },
 }
 
 const TENTATIVI = 2

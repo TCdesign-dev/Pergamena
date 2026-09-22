@@ -8,6 +8,7 @@ import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
 import { EditorFormula } from './formula/EditorFormula'
+import { SchedaCorrezione } from '../correzioni/SchedaCorrezione'
 import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
 import s from './Editor.module.css'
@@ -69,7 +70,7 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   const rifTitolo = useRef<HTMLInputElement>(null)
 
   const editor = useEditor({
-    extensions: estensioni(doc, { segnaposto }),
+    extensions: estensioni(doc, { segnaposto, documentoId: documento.id }),
     autofocus: fuoco === 'corpo' ? 'end' : false,
     onUpdate: () => {
       // non scriviamo l'indice a ogni battuta
@@ -123,6 +124,7 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
         {editor && <MenuSelezione editor={editor} documentoId={documento.id} />}
         {editor && <Maniglia editor={editor} />}
         {editor && <EditorFormula editor={editor} />}
+        {editor && <SchedaCorrezione editor={editor} doc={doc} />}
         <EditorContent editor={editor} />
         <MenuSlash />
       </div>

@@ -1,0 +1,66 @@
+.velo { position: fixed; inset: 0; z-index: 70; }
+
+.scheda {
+  position: fixed;
+  max-width: calc(100vw - 24px);
+  padding: 4px;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--raggio-g);
+  box-shadow: var(--ombra);
+  font-family: var(--font-ui);
+  animation: var(--entra-tendina);
+}
+
+.voce { padding: 8px 10px 10px; }
+.voce + .voce { border-top: 1px solid var(--linea); }
+
+.etichetta {
+  color: var(--tenue);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.citazione {
+  margin: 6px 0 0;
+  color: var(--inchiostro-tenue);
+  font-family: var(--font-testo);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.citazione b { color: var(--inchiostro); font-weight: 600; }
+
+.cambio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+  font-family: var(--font-testo);
+  font-size: 15px;
+}
+.vecchio {
+  color: var(--tenue);
+  text-decoration: line-through;
+  text-decoration-color: var(--avviso);
+}
+.freccia { color: var(--tenue); font-size: 13px; }
+.nuovo { color: var(--inchiostro); font-weight: 600; }
+
+.azioni { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; }
+.lascia, .correggi {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--raggio);
+  font-size: 12px;
+}
+.lascia { color: var(--inchiostro-tenue); }
+.lascia:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.correggi { background: var(--accento); color: #fff; }
+.correggi:hover { filter: brightness(1.07); }
+.correggi:focus-visible { outline: 2px solid color-mix(in srgb, var(--accento) 45%, transparent); outline-offset: 2px; }
+.correggi kbd { font-family: var(--font-ui); font-size: 11px; opacity: 0.75; }

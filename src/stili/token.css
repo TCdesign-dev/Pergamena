@@ -36,6 +36,9 @@
   --accento: #2a6df4;
   --selezione: #d8e5fd;
   --evidenziatore: #fdeaa0;
+  /*  Quello che non torna con la lezione (le correzioni in diretta).
+   *  Segue l'arancio, che cambia da solo col tema. */
+  --avviso: var(--c-arancio);
 
   /* ── Rilievo ──────────────────────────────────────────────── */
   --ombra-bassa: 0 1px 2px #0000000d, 0 1px 1px #00000008;

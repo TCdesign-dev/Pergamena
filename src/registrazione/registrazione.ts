@@ -9,6 +9,7 @@ import {
 import { recuperaInterrotte, recuperaSospese } from './recupero'
 import { esponi } from '../lib/dev'
 import { leggiImpostazioni } from '../impostazioni'
+import { togliCorrezioniDi } from '../correzioni/deposito'
 
 export { mappaRegistrazioni, leggiRegistrazioni } from './voci'
 export { chiudiOrfane, recuperaInterrotte } from './recupero'
@@ -410,10 +411,12 @@ export async function riprendiRegistrazione() {
   if (attiva && pausa) await posta('riprendi', { id })
 }
 
-/** Toglie una registrazione dal documento, e il suo audio dal disco. */
+/** Toglie una registrazione dal documento, il suo audio dal disco e le
+ *  sue correzioni in diretta rimaste senza risposta. */
 export async function eliminaRegistrazione(doc: Y.Doc, id: string) {
   const audio = mappaRegistrazioni(doc).get(id)?.get('audio')
   mappaRegistrazioni(doc).delete(id)
+  togliCorrezioniDi(doc, id)
   if (audio) await fetch(`/api/audio/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {})
 }
 

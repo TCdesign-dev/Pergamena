@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { ascolto } from './server/ascolto'
 import { llm } from './server/llm'
 import { immagini } from './server/immagini'
+import { decisioni } from './server/decisioni'
 
 export default defineConfig(({ mode }) => {
   // tutte le variabili, anche quelle SENZA prefisso VITE_: servono
@@ -10,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    plugins: [react(), ascolto(env), llm(env), immagini(env)],
+    plugins: [react(), ascolto(env), llm(env), decisioni(env), immagini(env)],
     server: { port: 5180 },
   }
 })

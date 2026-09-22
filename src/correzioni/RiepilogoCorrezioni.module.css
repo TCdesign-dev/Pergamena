@@ -1,0 +1,27 @@
+.riepilogo {
+  margin-top: 4px;
+  padding-left: 22px;
+  color: var(--inchiostro-tenue);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.riepilogo p { margin: 2px 0 0; }
+
+.sospese { display: flex; align-items: center; gap: 6px; color: var(--inchiostro); }
+.pallino {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--avviso);
+}
+.vedi {
+  margin-left: auto;
+  padding: 1px 8px;
+  border-radius: var(--raggio);
+  color: var(--accento);
+  font-size: 11.5px;
+}
+.vedi:hover { background: var(--sfiorata); }
+
+.conti { color: var(--tenue); }
+.fermo, .intoppo { color: var(--avviso); }
