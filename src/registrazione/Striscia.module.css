@@ -1,17 +1,62 @@
-/* ── la frase in formazione ─────────────────────────────────── */
-.striscia {
-  flex: none;
-  padding: var(--u) calc(var(--u) * 3) calc(var(--u) * 1.25);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  direction: rtl;             /* si vede la FINE della frase, che è la parte nuova */
-  text-align: left;
-  color: var(--tenue-testo);
-  font-size: calc(var(--t-piccolo) * 1.04);
-  border-top: calc(var(--u) / 8) solid var(--linea);
-  background: var(--carta);
+/*  La fascia «Ora», in fondo al foglio: galleggia sopra il testo, larga
+ *  quanto la colonna di scrittura più un dito per parte, e non sposta
+ *  niente. Sopra, una sfumatura verso la carta: il testo ci passa sotto
+ *  senza stacco. */
+
+.fascia {
+  position: absolute;
+  left: calc(max(var(--margine-sx), (100% - var(--colonna)) / 2) - var(--u) * 1.5);
+  right: calc(max(var(--margine-ai), (100% - var(--colonna)) / 2) - var(--u) * 1.5);
+  bottom: calc(var(--u) * 2.25);
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--u) * 1.5);
+  padding: calc(var(--u) * 1.25) calc(var(--u) * 1.75);
+  border-radius: var(--raggio-g);
+  background: var(--carta-alt);
   animation: var(--entra);
 }
-.striscia span { direction: ltr; unicode-bidi: plaintext; }
-.attesa { font-style: italic; }
+
+.sfumatura {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 19;
+  height: calc(var(--u) * 15);
+  background: linear-gradient(to bottom, transparent, var(--carta) 55%);
+  pointer-events: none;
+}
+
+/* «● ORA», in rosso: si registra adesso */
+.ora {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  margin-top: calc(var(--u) / 4);
+  color: var(--registra);
+  font-size: var(--t-etichetta);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pallino { width: calc(var(--u) * 0.75); height: calc(var(--u) * 0.75); border-radius: 50%; background: var(--registra); }
+
+/*  Due righe al massimo: le parole più vecchie le toglie il componente,
+ *  dall'inizio; qui si taglia solo se avanza qualcosa. */
+.testo {
+  flex: 1;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.5;
+}
+.sicuro { color: var(--inchiostro-tenue); }
+.provvisorio { color: var(--tenue-testo); }
+.attesa { color: var(--tenue-testo); font-style: italic; }
