@@ -35,16 +35,21 @@ export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto 
   segnaposto?: string
 }) {
   const voce = useMemo(() => apriDocumento(documento.id), [documento.id])
-  const [pronto, setPronto] = useState(false)
+  /*  QUALE documento è pronto, non «se». Con un sì/no, passando a una
+   *  pagina non ancora letta da IndexedDB, per un giro valeva ancora il
+   *  «pronto» della pagina di prima: l'editor partiva su un documento
+   *  vuoto, ci scriveva la sua riga vuota iniziale, e y-indexeddb la
+   *  salvava e la fondeva col contenuto vero. Una riga vuota in più, in
+   *  cima o in fondo, a ogni pagina aperta dopo un riavvio. */
+  const [pronto, setPronto] = useState<string | null>(null)
 
   useEffect(() => {
     let vivo = true
-    setPronto(false)
-    voce.pronto.then(() => vivo && setPronto(true))
+    voce.pronto.then(() => vivo && setPronto(documento.id))
     return () => { vivo = false }
-  }, [voce])
+  }, [voce, documento.id])
 
-  if (!pronto) return <div className={s.attesa} aria-busy><Tessere quante={4} /></div>
+  if (pronto !== documento.id) return <div className={s.attesa} aria-busy><Tessere quante={4} /></div>
   return (
     <Tela
       key={documento.id}
