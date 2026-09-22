@@ -3,9 +3,8 @@ import type * as Y from 'yjs'
 import type { RifEditore } from '../editor/Editor'
 import type { Registrazione } from '../registrazione/tipi'
 import { iscrivitiStatoCorrezioni, leggiStatoCorrezioni } from './statoCorrezioni'
-import { inAttesa, mappaCorrezioni } from './deposito'
-import { trovaCorrezione } from './posto'
-import { apriScheda } from './statoScheda'
+import { mappaCorrezioni } from './deposito'
+import { mostraSegnalazione, segnalazioni } from './naviga'
 import s from './RiepilogoCorrezioni.module.css'
 
 /*  Nel pannello delle lezioni: le correzioni a cui non hai ancora
@@ -16,14 +15,6 @@ import s from './RiepilogoCorrezioni.module.css'
 function centesimi(dollari: number) {
   const c = dollari * 100
   return c < 0.01 ? 'meno di 0,01 cent' : `${c.toLocaleString('it-IT', { maximumFractionDigits: 2 })} cent`
-}
-
-/** Porta il pallino al centro e apre la sua scheda. */
-function mostra(blocco: string) {
-  const pallino = document.querySelector<HTMLElement>(`.correzione-pallino[data-blocco="${CSS.escape(blocco)}"]`)
-  if (!pallino) return
-  pallino.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  window.setTimeout(() => apriScheda(blocco, pallino.getBoundingClientRect()), 400)
 }
 
 export function RiepilogoCorrezioni({ doc, rifEditore, lezioni, onVai }: {
@@ -42,7 +33,7 @@ export function RiepilogoCorrezioni({ doc, rifEditore, lezioni, onVai }: {
   }, [doc])
 
   const editor = rifEditore.current
-  const inSospeso = editor ? inAttesa(doc).filter((c) => trovaCorrezione(editor.state.doc, c)) : []
+  const inSospeso = editor ? segnalazioni(editor, doc) : []
   const qui = stato.registrazione !== null && lezioni.some((l) => l.id === stato.registrazione)
 
   if (!inSospeso.length && !qui && !stato.fermo) return null
@@ -52,7 +43,7 @@ export function RiepilogoCorrezioni({ doc, rifEditore, lezioni, onVai }: {
         <p className={s.sospese}>
           <span className={s.pallino} aria-hidden />
           {inSospeso.length === 1 ? 'Una correzione aspetta' : `${inSospeso.length} correzioni aspettano`} una risposta
-          <button className={s.vedi} onClick={() => { onVai(); mostra(inSospeso[0].blocco) }}>vedi</button>
+          <button className={s.vedi} onClick={() => { onVai(); if (editor) mostraSegnalazione(editor, inSospeso[0].c.id) }}>vedi</button>
         </p>
       )}
       {qui && (

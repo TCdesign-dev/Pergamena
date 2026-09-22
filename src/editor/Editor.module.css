@@ -6,11 +6,17 @@
 }
 
 /*  Il canvas verticale continuo: una pagina non finisce mai,
- *  ci stanno dentro molte lezioni e molti argomenti. */
+ *  ci stanno dentro molte lezioni e molti argomenti.
+ *
+ *  La colonna di scrittura ha due margini veri: a sinistra 40 px, dove
+ *  sta la maniglia, a destra 48, il margine dell'AI, dove stanno i
+ *  pallini delle correzioni. È larga fino a --colonna; quando la
+ *  finestra è più larga si centra, e i margini crescono insieme. */
 .colonna {
   max-width: var(--colonna);
-  margin: 0 auto;
-  padding: calc(var(--u) * 6) calc(var(--u) * 4) 0;
+  margin-left: max(var(--margine-sx), (100% - var(--colonna)) / 2);
+  margin-right: max(var(--margine-ai), (100% - var(--colonna)) / 2);
+  padding-top: calc(var(--u) * 6);
   animation: var(--entra-velo);
 }
 
@@ -35,14 +41,14 @@
 .attesa {
   flex: 1;
   max-width: var(--colonna);
-  width: 100%;
-  margin: 0 auto;
-  padding: calc(var(--u) * 6) calc(var(--u) * 4) 0;
+  margin-left: max(var(--margine-sx), (100% - var(--colonna)) / 2);
+  margin-right: max(var(--margine-ai), (100% - var(--colonna)) / 2);
+  padding-top: calc(var(--u) * 6);
   animation: var(--entra-velo);
   animation-delay: 250ms;
 }
-.attesa span { height: 14px; margin-bottom: 14px; }
-.attesa span:first-child { width: 45%; height: 30px; margin-bottom: calc(var(--u) * 4); }
+.attesa span { height: calc(var(--u) * 1.75); margin-bottom: calc(var(--u) * 1.75); }
+.attesa span:first-child { width: 45%; height: calc(var(--u) * 3.75); margin-bottom: calc(var(--u) * 4); }
 .attesa span:nth-child(2) { width: 92%; }
 .attesa span:nth-child(3) { width: 84%; }
 .attesa span:nth-child(4) { width: 60%; }
@@ -51,10 +57,10 @@
 .maniglia {
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 24px;
-  margin-right: 4px;
-  border-radius: 4px;
+  width: calc(var(--u) * 2.25);
+  height: calc(var(--u) * 3);
+  margin-right: calc(var(--u) / 2);
+  border-radius: calc(var(--u) / 2);
   color: var(--tenue);
   cursor: grab;
 }

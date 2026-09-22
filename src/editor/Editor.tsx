@@ -112,7 +112,7 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   }, [editor, documento.id])
 
   return (
-    <div className={s.tela}>
+    <div className={s.tela} data-scorre>
       <div className={s.colonna}>
         {intestazione ?? <input
           ref={rifTitolo}
