@@ -1,0 +1,24 @@
+/*  13 px, grigia; 22 px sotto e una linea, poi 30 prima degli argomenti. */
+.riga {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--u);
+  margin: calc(var(--u) * 1.25) 0 calc(var(--u) * 3.75);
+  padding-bottom: calc(var(--u) * 2.75);
+  border-bottom: calc(var(--u) / 8) solid var(--linea);
+  color: var(--inchiostro-tenue);
+  font-family: var(--font-ui);
+  font-size: var(--t-ui);
+  user-select: none;
+}
+
+.pezzo, .materia { display: inline-flex; align-items: center; gap: var(--u); }
+.punto { color: var(--tenue); }
+
+.pallino { flex: none; width: var(--u); height: var(--u); border-radius: 50%; }
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }

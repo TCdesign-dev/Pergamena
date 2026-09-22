@@ -280,7 +280,7 @@ export function App() {
                 onPannello={() => apriPannello(!pannello.aperto)}
                 onElimina={() => setDaEliminare({ tipo: 'pagina', documento: aperto! })}
               />
-              <Editor documento={aperto!} fuoco={fuoco} rifEditore={rifEditore} />
+              <Editor documento={aperto!} quaderno={materiaAperta} fuoco={fuoco} rifEditore={rifEditore} />
               <Striscia documentoId={aperto!.id} />
               <Revisione key={aperto!.id} rifEditore={rifEditore} />
             </div>

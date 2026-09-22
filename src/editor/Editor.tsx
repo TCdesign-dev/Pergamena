@@ -2,13 +2,14 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } 
 import { useEditor, EditorContent, type Editor as EditoreTipTap } from '@tiptap/react'
 import { DragHandle } from '@tiptap/extension-drag-handle-react'
 import { apriDocumento, rinominaDocumento, segnaModificato } from '../documento/archivio'
-import type { Documento } from '../documento/tipi'
+import type { Documento, Quaderno } from '../documento/tipi'
 import { estensioni } from './estensioni'
 import { esponi } from '../lib/dev'
 import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
 import { EditorFormula } from './formula/EditorFormula'
 import { SchedaCorrezione } from '../correzioni/SchedaCorrezione'
+import { RigaDati } from './RigaDati'
 import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
@@ -26,8 +27,10 @@ export type RifEditore = RefObject<EditoreTipTap | null>
 /** Aspetta che IndexedDB abbia restituito il documento, poi monta
  *  l'editor vero. Il `key` fa sì che cambiando documento si riparta
  *  pulito invece di riciclare uno stato che non c'entra più. */
-export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto }: {
+export function Editor({ documento, quaderno = null, fuoco, rifEditore, intestazione, segnaposto }: {
   documento: Documento
+  /** la materia della pagina, per la riga dei dati sotto il titolo */
+  quaderno?: Quaderno | null
   fuoco: Fuoco
   rifEditore: RifEditore
   /** Al posto del titolo della pagina: la scheda della materia ci mette
@@ -55,6 +58,7 @@ export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto 
     <Tela
       key={documento.id}
       documento={documento}
+      quaderno={quaderno}
       doc={voce.doc}
       fuoco={fuoco}
       rifEditore={rifEditore}
@@ -64,8 +68,9 @@ export function Editor({ documento, fuoco, rifEditore, intestazione, segnaposto 
   )
 }
 
-function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
+function Tela({ documento, quaderno, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   documento: Documento
+  quaderno: Quaderno | null
   doc: ReturnType<typeof apriDocumento>['doc']
   fuoco: Fuoco
   rifEditore: RifEditore
@@ -114,19 +119,24 @@ function Tela({ documento, doc, fuoco, rifEditore, intestazione, segnaposto }: {
   return (
     <div className={s.tela} data-scorre>
       <div className={s.colonna}>
-        {intestazione ?? <input
-          ref={rifTitolo}
-          className={s.titolo}
-          defaultValue={documento.titolo}
-          placeholder="Senza titolo"
-          onChange={(e) => rinominaDocumento(documento.id, e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === 'ArrowDown') {
-              e.preventDefault()
-              editor?.chain().focus('start').run()
-            }
-          }}
-        />}
+        {intestazione ?? (
+          <>
+            <input
+              ref={rifTitolo}
+              className={s.titolo}
+              defaultValue={documento.titolo}
+              placeholder="Senza titolo"
+              onChange={(e) => rinominaDocumento(documento.id, e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                  e.preventDefault()
+                  editor?.chain().focus('start').run()
+                }
+              }}
+            />
+            <RigaDati documento={documento} doc={doc} quaderno={quaderno} />
+          </>
+        )}
         {editor && <MenuSelezione editor={editor} documentoId={documento.id} />}
         {editor && <Maniglia editor={editor} />}
         {editor && <EditorFormula editor={editor} />}

@@ -20,17 +20,19 @@
   animation: var(--entra-velo);
 }
 
+/*  Il titolo della pagina: 32, peso 700. Sotto, la riga dei dati. */
 .titolo {
   display: block;
   width: 100%;
-  margin-bottom: calc(var(--u) * 4);
+  padding: 0;                /* allineato al testo e alla riga dei dati */
   border: none;
   background: none;
   color: var(--inchiostro);
   font-family: var(--font-testo);
-  font-size: 2.1em;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: var(--t-pagina);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
   outline: none;
 }
 .titolo::placeholder { color: var(--tenue); }
