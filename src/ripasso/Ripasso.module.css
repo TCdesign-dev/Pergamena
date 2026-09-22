@@ -2,7 +2,7 @@
 
 .percorso {
   display: flex; align-items: center; gap: 5px;
-  flex: none; height: 38px; padding: 0 calc(var(--u) * 2);
+  flex: none; height: var(--barra); padding: 0 calc(var(--u) * 2);
   font-size: 12px;
 }
 .passo { padding: 3px 5px; border-radius: 4px; color: var(--tenue); }

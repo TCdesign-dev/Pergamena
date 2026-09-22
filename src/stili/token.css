@@ -1,6 +1,11 @@
 /*  I token sono l'intero progetto grafico di Pergamena.
  *  Cambiare un valore qui cambia l'app ovunque.
- *  Nessun componente deve contenere un colore o una misura letterale. */
+ *  Nessun componente deve contenere un colore o una misura letterale.
+ *
+ *  Restyling, settembre 2026. Rispetto alla versione precedente:
+ *  i nomi esistenti restano tutti (nessun componente si rompe);
+ *  si aggiungono layout, scala tipografica, superficie fluttuante unica,
+ *  i colori degli stati della registrazione e un «tenue» leggibile. */
 
 :root {
   /* ── Tipografia: quella di sistema, niente grazie ──────────── */
@@ -12,37 +17,77 @@
   --interlinea: 1.68;
   --colonna: 44rem;
 
+  /*  Scala. Il salto fra titolo della pagina e argomento (Titolo 1)
+   *  è netto apposta: 32 contro 22, più la riga dei dati sotto il titolo. */
+  --t-pagina: 32px;       /* peso 700, interlinea 1.15, spaziatura -0.022em */
+  --t-argomento: 22px;    /* Titolo 1: peso 650, interlinea 1.25, -0.015em */
+  --t-h2: 18px;           /* peso 650 */
+  --t-h3: 16.5px;         /* peso 600 */
+  --t-ui: 13px;           /* peso 500 per i pulsanti, 400 per il resto */
+  --t-piccolo: 12px;      /* didascalie, contatori */
+  --t-etichetta: 11px;    /* peso 600, MAIUSCOLO, spaziatura +0.06em */
+
   /* ── Ritmo ────────────────────────────────────────────────── */
   --u: 8px;
-  --raggio: 5px;           /* controlli */
-  --raggio-g: 10px;        /* superfici: finestre, schede, copertine */
+  --raggio: 6px;           /* controlli (era 5) */
+  --raggio-g: 10px;        /* copertine, blocchi dentro i pannelli */
+  --raggio-sup: 12px;      /* superfici fluttuanti: TUTTE uguali */
+
+  /* ── Impaginazione ────────────────────────────────────────── */
+  --barra: 44px;           /* barra in alto (era 38) */
+  --lato: 248px;           /* barra laterale aperta (era 236) */
+  --rotaia: 48px;          /* barra laterale chiusa: colonna di icone */
+  --margine-ai: 48px;      /* margine destro riservato ai pallini dell'AI */
+  --margine-sx: 40px;      /* respiro a sinistra della colonna, sotto i 1024 */
+  --pannello-destro: 360px;/* Lezioni e Immagini, quando stanno di lato */
+  --controllo: 28px;       /* altezza di pulsanti e pulsanti-icona */
 
   /* ── Superfici ────────────────────────────────────────────── */
   /*  La separazione la fa il FONDO, non il bordo. I bordi netti su
    *  ogni cosa sono la firma delle interfacce fatte in fretta. */
   --carta: #ffffff;
-  --carta-alt: #f7f7f8;    /* barre laterali */
+  --carta-alt: #f7f7f8;    /* barre laterali, fascia della trascrizione */
+  --carta-alt-2: #efeff1;  /* voce scelta, pulsante secondario, tasti */
   --sfiorata: #00000008;   /* passaggio del mouse */
   --premuta: #0000000f;    /* voce scelta */
   --linea: #ebebed;        /* quasi invisibile, apposta */
   --linea-forte: #d6d6da;  /* solo dove serve davvero un confine */
+  --velo: #19191908;       /* sotto una finestra modale */
+
+  /*  La superficie fluttuante: menu «/», selezione, correzione,
+   *  formula, Lezioni, ⌘K, quiz, impostazioni. Una sola ricetta. */
+  --superficie: #ffffff;
+  --superficie-bordo: #0000000f;
 
   /* ── Inchiostro ───────────────────────────────────────────── */
   --inchiostro: #191919;
   --inchiostro-tenue: #5f5f66;
-  --tenue: #a1a1a8;
+  --tenue: #a1a1a8;        /* SOLO separatori, puntini, icone spente */
+  --tenue-testo: #8b8b93;  /* testo piccolo grigio: regge il contrasto */
 
   /* ── Accento e stati ──────────────────────────────────────── */
   --accento: #2a6df4;
+  --accento-testo: #1f56d3;     /* link e testo accento su fondo chiaro */
+  --accento-fondo: #e9f0fe;     /* etichette «esame vicino», «da integrare» */
   --selezione: #d8e5fd;
   --evidenziatore: #fdeaa0;
+  --proposta-fondo: #2a6df41f;  /* il fondo azzurro delle proposte dell'AI */
+
   /*  Quello che non torna con la lezione (le correzioni in diretta).
    *  Segue l'arancio, che cambia da solo col tema. */
   --avviso: var(--c-arancio);
+  --avviso-fondo: #fdf1e4;
+
+  /*  La registrazione. Rosso SOLO mentre registra o quando si è fermata
+   *  per un errore; arancio quando registra ma c'è da sapere una cosa. */
+  --registra: #d93025;
+  --registra-fondo: #fde8e6;
+  --fatto: #147a40;
+  --fatto-fondo: #e5f4ea;
 
   /* ── Rilievo ──────────────────────────────────────────────── */
   --ombra-bassa: 0 1px 2px #0000000d, 0 1px 1px #00000008;
-  --ombra: 0 2px 6px #0000000f, 0 12px 28px #00000014;
+  --ombra: 0 1px 2px #0000000d, 0 8px 28px #00000014;
 
   /* ── I cinque colori del testo ────────────────────────────── */
   /*  Si salva il NOME, non il codice: la stessa parola resta
@@ -58,21 +103,35 @@
   :root:not([data-tema="chiaro"]) {
     --carta: #191a1c;
     --carta-alt: #202124;
+    --carta-alt-2: #27282b;
     --sfiorata: #ffffff0a;
     --premuta: #ffffff14;
     --linea: #2a2b2f;
     --linea-forte: #3c3d43;
+    --velo: #00000040;
+    --superficie: #232427;
+    --superficie-bordo: #ffffff14;
 
     --inchiostro: #ececed;
     --inchiostro-tenue: #9d9ea6;
     --tenue: #6c6d75;
+    --tenue-testo: #7c7d86;
 
     --accento: #6f9df8;
+    --accento-testo: #8fb3fa;
+    --accento-fondo: #1f2a42;
     --selezione: #2a3a5c;
     --evidenziatore: #5a4c1c;
+    --proposta-fondo: #6f9df82e;
+
+    --avviso-fondo: #3a2a16;
+    --registra: #ff6b5e;
+    --registra-fondo: #3d1e1b;
+    --fatto: #5dbe84;
+    --fatto-fondo: #16301f;
 
     --ombra-bassa: 0 1px 2px #00000059;
-    --ombra: 0 2px 6px #00000066, 0 12px 28px #00000073;
+    --ombra: 0 1px 2px #00000059, 0 10px 30px #00000073;
 
     --c-rosso: #f0827a;
     --c-arancio: #e0a353;
@@ -85,18 +144,31 @@
 :root[data-tema="scuro"] {
   --carta: #191a1c;
   --carta-alt: #202124;
+  --carta-alt-2: #27282b;
   --sfiorata: #ffffff0a;
   --premuta: #ffffff14;
   --linea: #2a2b2f;
   --linea-forte: #3c3d43;
+  --velo: #00000040;
+  --superficie: #232427;
+  --superficie-bordo: #ffffff14;
   --inchiostro: #ececed;
   --inchiostro-tenue: #9d9ea6;
   --tenue: #6c6d75;
+  --tenue-testo: #7c7d86;
   --accento: #6f9df8;
+  --accento-testo: #8fb3fa;
+  --accento-fondo: #1f2a42;
   --selezione: #2a3a5c;
   --evidenziatore: #5a4c1c;
+  --proposta-fondo: #6f9df82e;
+  --avviso-fondo: #3a2a16;
+  --registra: #ff6b5e;
+  --registra-fondo: #3d1e1b;
+  --fatto: #5dbe84;
+  --fatto-fondo: #16301f;
   --ombra-bassa: 0 1px 2px #00000059;
-  --ombra: 0 2px 6px #00000066, 0 12px 28px #00000073;
+  --ombra: 0 1px 2px #00000059, 0 10px 30px #00000073;
   --c-rosso: #f0827a;
   --c-arancio: #e0a353;
   --c-verde: #5dbe84;
