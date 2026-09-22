@@ -2,6 +2,7 @@ import * as Y from 'yjs'
 import { useEffect, useState } from 'react'
 import type { Editor } from '@tiptap/core'
 import { cercaSuCommons, type Trovata } from './commons'
+import { daWikipedia } from './wikipedia'
 import { cercaSulWeb } from './web'
 import { blocchiDi } from '../merge/applica'
 import { normalizza } from '../lib/testo'
@@ -24,7 +25,7 @@ export type Consiglio = {
   blocco: string          // l'id del blocco che lo nomina
   citazione: string       // un pezzo di quel blocco, per dire «perché»
   stato: 'nuovo' | 'inserito' | 'scartato'
-  risultati: Trovata[]    // i primi quattro da Commons
+  risultati: Trovata[]    // le prime quattro foto trovate
   creato: number
 }
 
@@ -53,8 +54,9 @@ export function useConsigli(doc: Y.Doc | null) {
   return elenco
 }
 
-/** Aggiunge i consigli nuovi, cercandoli su Commons. Salta quelli già
- *  presenti o già scartati, e quelli per cui Commons non ha niente. */
+/** Aggiunge i consigli nuovi, cercandone le foto (vedi `fotoPer`).
+ *  Salta quelli già presenti o già scartati, e quelli per cui non si
+ *  è trovato niente. */
 export async function aggiungiConsigli(editor: Editor, doc: Y.Doc, richieste: Richiesta[]) {
   const mappa = mappaConsigli(doc)
   const gia = new Set([...mappa.values()].map((c) => normalizza(c.concetto)))
@@ -68,12 +70,7 @@ export async function aggiungiConsigli(editor: Editor, doc: Y.Doc, richieste: Ri
 
   let aggiunti = 0
   for (const r of scelte) {
-    // prima Commons (licenze pulite); se non ha niente, il web
-    let risultati = await cercaSuCommons(r.query, 4).catch(() => [] as Trovata[])
-    if (!risultati.length) {
-      const web = await cercaSulWeb(r.query, 4).catch(() => null)
-      risultati = (web?.risultati ?? []).map((t) => ({ ...t, fonte: web!.fonte })).slice(0, 4)
-    }
+    const risultati = await fotoPer(r.query)
     if (!risultati.length) continue
     const testo = blocchi.get(r.blocco) ?? ''
     const id = `c-${Date.now().toString(36)}-${aggiunti}`
@@ -90,6 +87,33 @@ export async function aggiungiConsigli(editor: Editor, doc: Y.Doc, richieste: Ri
     aggiunti++
   }
   return aggiunti
+}
+
+const unici = (t: Trovata[]) => t.filter((x, i) => t.findIndex((y) => y.chiave === x.chiave) === i)
+
+/*  Le foto di un consiglio, in ordine di quanto è probabile che
+ *  c'entrino.
+ *
+ *  Prima Wikipedia: l'immagine in cima all'articolo che parla di
+ *  quella cosa l'ha scelta chi l'articolo l'ha scritto, ed è quasi
+ *  sempre quella giusta. La ricerca a parole di Commons non ci
+ *  arriva, perché guarda i nomi dei file: «cane» le fa tirare fuori
+ *  «Cane cutters in Jamaica», e per questo le immagini consigliate
+ *  quasi non c'entravano mai.
+ *
+ *  Poi Commons, ma col termine inglese che Wikipedia ha appena dato:
+ *  i file, lì, si chiamano quasi tutti in inglese. Il web soltanto se
+ *  le prime due non hanno trovato niente. */
+async function fotoPer(query: string): Promise<Trovata[]> {
+  const { inglese, immagini } = await daWikipedia(query, 2)
+    .catch(() => ({ inglese: null, immagini: [] as Trovata[] }))
+  const commons = await cercaSuCommons(inglese ?? query, 4).catch(() => [] as Trovata[])
+
+  const insieme = unici([...immagini, ...commons])
+  if (insieme.length) return insieme.slice(0, 4)
+
+  const web = await cercaSulWeb(query, 4, inglese).catch(() => null)
+  return (web?.risultati ?? []).map((t) => ({ ...t, fonte: web!.fonte })).slice(0, 4)
 }
 
 export function cambiaStato(doc: Y.Doc, id: string, stato: Consiglio['stato']) {
@@ -112,8 +136,8 @@ export const DOMANDA_IMMAGINI = `Indica al massimo 4 concetti degli appunti per 
 davvero a capire o a ricordare: luoghi, edifici, opere d'arte, persone, oggetti,
 schemi, mappe. Niente concetti astratti che non hanno un'immagine chiara, niente
 concetti che negli appunti hanno già un'immagine (blocchi di tipo «immagine»).
-Per ciascuno: "concetto" (breve), "query" per Wikimedia Commons (nella lingua che
-dà i risultati migliori, spesso l'inglese), "blocco" (l'id del blocco che lo nomina).`
+Per ciascuno: "concetto" (breve), "query" per cercare l'immagine — in italiano,
+come la cosa si chiama davvero — e "blocco" (l'id del blocco che lo nomina).`
 
 export async function suggerisci(editor: Editor, doc: Y.Doc, materia: string) {
   const blocchi = blocchiDi(editor)

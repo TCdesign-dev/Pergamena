@@ -237,6 +237,8 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
               <span className={s.query}>{r.query}</span>
               {r.origine === 'sintassi' && <span className={s.marchio}>dagli appunti</span>}
               {r.fonte && <span className={s.marchio}>{NOMI_FONTI[r.fonte] ?? r.fonte}</span>}
+              {/* cercata anche in inglese: là le foto sono catalogate così */}
+              {r.tradotta && <span className={s.marchio} title="Commons e Openverse sono catalogati in inglese: la parola è stata tradotta con Wikipedia">→ {r.tradotta}</span>}
               <button className={s.scarta} title="Togli" aria-label="Togli questa ricerca" onClick={() => scartaRicerca(r.id)}><Icona nome="chiudi" dimensione={12} /></button>
             </div>
 
@@ -244,7 +246,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
             {r.stato === 'errore' && <p className={s.stato}>{r.errore}</p>}
             {r.stato === 'pronta' && r.risultati.length === 0 && <p className={s.stato}>niente su {NOMI_FONTI[r.fonte ?? 'commons'] ?? 'Commons'}</p>}
             {r.fonte === 'openverse' && r.risultati.length > 0 && (
-              <p className={s.stato}>Immagini libere da Openverse. Con una chiave Serper nel .env.local arrivano quelle di Google Immagini.</p>
+              <p className={s.stato}>Le prime arrivano da Wikipedia, le altre da Openverse. Con una chiave Serper nel .env.local arrivano quelle di Google Immagini.</p>
             )}
 
             <div className={s.griglia}>

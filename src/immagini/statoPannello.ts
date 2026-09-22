@@ -1,6 +1,8 @@
 import { cercaSuCommons, type Trovata } from './commons'
+import { daWikipedia } from './wikipedia'
 import { cercaSulWeb } from './web'
 import { leggiImpostazioni } from '../impostazioni'
+import { normalizza } from '../lib/testo'
 
 /*  Il pannello è una pila di ricerche, dalla più recente.
  *  Ci finiscono sia quelle scritte a mano sia quelle nate dalla
@@ -16,6 +18,8 @@ export type Ricerca = {
   errore?: string
   /** da dove sono arrivati: Commons, Google Immagini, Openverse… */
   fonte?: string
+  /** com'è stata cercata in inglese, se c'è stato bisogno di tradurla */
+  tradotta?: string
 }
 
 export type Scheda = 'consigliate' | 'cercate'
@@ -23,6 +27,8 @@ type Stato = { aperto: boolean; scheda: Scheda; ricerche: Ricerca[] }
 
 let stato: Stato = { aperto: false, scheda: 'cercate', ricerche: [] }
 const ascoltatori = new Set<() => void>()
+
+const unici = (t: Trovata[]) => t.filter((x, i) => t.findIndex((y) => y.chiave === x.chiave) === i)
 
 export const leggiPannello = () => stato
 
@@ -68,12 +74,25 @@ export async function avviaRicerca(query: string, origine: Ricerca['origine'] = 
       ricerche: stato.ricerche.map((r) => (r.id === id ? { ...r, ...patch } : r)),
     })
 
+  /*  Wikipedia per prima, sempre: risolve la parola («cane» è Canis
+   *  lupus familiaris, in inglese Dog) e intanto regala le immagini
+   *  degli articoli, che di solito sono le migliori. Le altre fonti
+   *  vengono dopo, interrogate col termine che hanno bisogno. */
   try {
+    const { inglese, immagini } = await daWikipedia(q, 3).catch(() => ({ inglese: null, immagini: [] as Trovata[] }))
+    const tradotta = inglese && normalizza(inglese) !== normalizza(q) ? inglese : undefined
+
     if (leggiImpostazioni().fonteImmagini === 'commons') {
-      aggiorna({ risultati: await cercaSuCommons(q), stato: 'pronta', fonte: 'commons' })
+      const commons = await cercaSuCommons(inglese ?? q)
+      aggiorna({ risultati: unici([...immagini, ...commons]), stato: 'pronta', fonte: 'commons', tradotta })
     } else {
-      const { fonte, risultati } = await cercaSulWeb(q)
-      aggiorna({ risultati: risultati.map((t) => ({ ...t, fonte })), stato: 'pronta', fonte })
+      const { fonte, risultati } = await cercaSulWeb(q, 12, inglese)
+      aggiorna({
+        risultati: unici([...immagini, ...risultati.map((t) => ({ ...t, fonte }))]),
+        stato: 'pronta',
+        fonte,
+        tradotta: fonte === 'openverse' ? tradotta : undefined,
+      })
     }
   } catch (e) {
     aggiorna({ stato: 'errore', errore: e instanceof Error ? e.message : 'ricerca fallita' })

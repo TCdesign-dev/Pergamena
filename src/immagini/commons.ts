@@ -41,11 +41,36 @@ function autore(html: string | undefined) {
   return primaFrase.length > 48 ? `${primaFrase.slice(0, 45)}…` : primaFrase
 }
 
+/** La scheda di un file, dalla risposta dell'API. */
+function scheda(p: Record<string, unknown>): Trovata | null {
+  const info = (p.imageinfo as Array<Record<string, string>> | undefined)?.[0]
+  if (!info?.thumburl) return null
+  const meta = (info.extmetadata ?? {}) as unknown as Record<string, { value?: string }>
+  return {
+    chiave: String(p.pageid),
+    titolo: String(p.title).replace(/^File:/, '').replace(/\.\w+$/, ''),
+    miniatura: info.thumburl,
+    originale: info.url,
+    larghezza: Number(info.thumbwidth) || 400,
+    altezza: Number(info.thumbheight) || 300,
+    autore: autore(meta.Artist?.value) || 'Autore non indicato',
+    licenza: ripulisci(meta.LicenseShortName?.value) || 'vedi Commons',
+    pagina: info.descriptionurl ?? '',
+  }
+}
+
+const pagineDi = async (parametri: URLSearchParams) => {
+  const risposta = await fetch(`${API}?${parametri}`)
+  if (!risposta.ok) throw new Error(`Commons ha risposto ${risposta.status}`)
+  const dati = await risposta.json()
+  return Object.values(dati.query?.pages ?? {}) as Array<Record<string, unknown>>
+}
+
 export async function cercaSuCommons(query: string, limite = 12): Promise<Trovata[]> {
   const q = query.trim()
   if (q.length < 2) return []
 
-  const parametri = new URLSearchParams({
+  const pagine = await pagineDi(new URLSearchParams({
     action: 'query',
     generator: 'search',
     gsrsearch: q,
@@ -56,33 +81,33 @@ export async function cercaSuCommons(query: string, limite = 12): Promise<Trovat
     iiurlwidth: '400',
     format: 'json',
     origin: '*',
-  })
+  }))
 
-  const risposta = await fetch(`${API}?${parametri}`)
-  if (!risposta.ok) throw new Error(`Commons ha risposto ${risposta.status}`)
-  const dati = await risposta.json()
+  return pagine.map(scheda).filter((x): x is Trovata => x !== null)
+}
 
-  const pagine = Object.values(dati.query?.pages ?? {}) as Array<Record<string, never>>
+/*  Le schede di file precisi, che a trovare ci ha pensato qualcun
+ *  altro: le immagini principali degli articoli di Wikipedia stanno
+ *  qui sopra, e qui sopra c'è anche chi le ha fatte. */
+export async function schedeDiFile(nomi: string[]): Promise<Map<string, Trovata>> {
+  const mappa = new Map<string, Trovata>()
+  if (!nomi.length) return mappa
 
-  return pagine
-    .map((p) => {
-      const i = (p as Record<string, unknown>).imageinfo as Array<Record<string, string>> | undefined
-      const info = i?.[0]
-      if (!info?.thumburl) return null
-      const meta = (info.extmetadata ?? {}) as unknown as Record<string, { value?: string }>
-      return {
-        chiave: String((p as Record<string, unknown>).pageid),
-        titolo: String((p as Record<string, unknown>).title).replace(/^File:/, '').replace(/\.\w+$/, ''),
-        miniatura: info.thumburl,
-        originale: info.url,
-        larghezza: Number(info.thumbwidth) || 400,
-        altezza: Number(info.thumbheight) || 300,
-        autore: autore(meta.Artist?.value) || 'Autore non indicato',
-        licenza: ripulisci(meta.LicenseShortName?.value) || 'vedi Commons',
-        pagina: info.descriptionurl ?? '',
-      }
-    })
-    .filter((x): x is Trovata => x !== null)
+  const pagine = await pagineDi(new URLSearchParams({
+    action: 'query',
+    titles: nomi.slice(0, 40).map((n) => `File:${n}`).join('|'),
+    prop: 'imageinfo',
+    iiprop: 'url|extmetadata|size',
+    iiurlwidth: '400',
+    format: 'json',
+    origin: '*',
+  }))
+
+  for (const p of pagine) {
+    const t = scheda(p)
+    if (t) mappa.set(String(p.title).replace(/^File:/, ''), t)
+  }
+  return mappa
 }
 
 /** Scarica i byte veri. Commons manda CORS aperto, quindi si può

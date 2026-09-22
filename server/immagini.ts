@@ -85,6 +85,9 @@ async function daBrave(chiave: string, q: string, n: number): Promise<Trovata[]>
   }))
 }
 
+/*  Openverse indicizza in inglese: cercare «cane» dà canne da
+ *  zucchero e bastoni da passeggio. Il termine inglese lo trova il
+ *  browser su Wikipedia e lo manda qui; se non c'è, si cerca com'è. */
 async function daOpenverse(q: string, n: number): Promise<Trovata[]> {
   const p = new URLSearchParams({ q, page_size: String(Math.min(n, 20)), mature: 'false' })
   const r = await conTempo(`https://api.openverse.org/v1/images/?${p}`, { headers: { Accept: 'application/json' } })
@@ -131,12 +134,14 @@ export function immagini(env: Record<string, string>): Plugin {
 
         if (req.method === 'GET' && url.pathname === '/cerca') {
           const q = (url.searchParams.get('q') ?? '').trim()
+          const inglese = (url.searchParams.get('en') ?? '').trim()
           const n = Number(url.searchParams.get('n')) || 12
           if (q.length < 2) return rispondi(res, 400, { errore: 'ricerca troppo corta' })
           try {
+            // Google e Brave capiscono l'italiano, Openverse no
             if (env.SERPER_API_KEY) return rispondi(res, 200, { fonte: 'google', risultati: await daSerper(env.SERPER_API_KEY, q, n) })
             if (env.BRAVE_API_KEY) return rispondi(res, 200, { fonte: 'brave', risultati: await daBrave(env.BRAVE_API_KEY, q, n) })
-            return rispondi(res, 200, { fonte: 'openverse', risultati: await daOpenverse(q, n) })
+            return rispondi(res, 200, { fonte: 'openverse', risultati: await daOpenverse(inglese || q, n) })
           } catch (e) {
             return rispondi(res, 502, { errore: e instanceof Error ? e.message : 'ricerca fallita' })
           }
