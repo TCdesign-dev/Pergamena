@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Editor } from '@tiptap/core'
+import type { Node as NodoPM } from '@tiptap/pm/model'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { RifEditore } from '../editor/Editor'
@@ -39,7 +40,19 @@ function accetta(editor: Editor, p: Proposta) {
   editor.view.dispatch(tr)
 }
 
+/*  Una proposta che riempie tutta la riga se ne va con la riga; un
+ *  completamento — il pezzo attaccato in fondo, o dentro, a una riga
+ *  TUA — se ne va da solo, e quello che hai scritto resta dov'era. */
+function riempieLaRiga(doc: NodoPM, p: Proposta) {
+  const $da = doc.resolve(Math.min(p.da, doc.content.size))
+  return $da.depth > 0 && p.da <= $da.start($da.depth) && p.a >= $da.end($da.depth)
+}
+
 function rifiuta(editor: Editor, p: Proposta) {
+  if (!riempieLaRiga(editor.state.doc, p)) {
+    editor.view.dispatch(editor.state.tr.delete(p.da, p.a))
+    return
+  }
   const $da = editor.state.doc.resolve(p.da)
   // il paragrafo che contiene la proposta — o la voce d'elenco intera
   let livello = $da.depth
@@ -58,7 +71,9 @@ function mostra(editor: Editor, p: Proposta) {
  *  segno nel testo, così le posizioni si spostano da sole quando
  *  scrivi. Sta intorno al BLOCCO — il paragrafo o la voce d'elenco,
  *  quello che «Rifiuta» toglierebbe — perché una proposta con dentro
- *  del grassetto è fatta di più pezzi, e l'anello si spezzerebbe. */
+ *  del grassetto è fatta di più pezzi, e l'anello si spezzerebbe.
+ *  Un completamento invece è solo un pezzo della tua riga: lì l'anello
+ *  diventa una tinta sul pezzo, che spezzarsi non può. */
 const chiaveCorrente = new PluginKey<Proposta | null>('propostaCorrente')
 const pluginCorrente = new Plugin<Proposta | null>({
   key: chiaveCorrente,
@@ -75,6 +90,13 @@ const pluginCorrente = new Plugin<Proposta | null>({
     decorations(stato) {
       const p = chiaveCorrente.getState(stato)
       if (!p || p.a <= p.da || p.da > stato.doc.content.size) return DecorationSet.empty
+      //  un completamento sta dentro a una riga tua: l'anello intorno
+      //  al blocco direbbe che la riga è sua. Si tinge solo il pezzo.
+      if (!riempieLaRiga(stato.doc, p)) {
+        return DecorationSet.create(stato.doc, [
+          Decoration.inline(p.da, p.a, { class: 'proposta-corrente-parte' }),
+        ])
+      }
       const $da = stato.doc.resolve(Math.min(p.da, stato.doc.content.size))
       let livello = $da.depth
       if (livello > 1 && $da.node(livello - 1).type.name === 'listItem') livello--

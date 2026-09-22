@@ -6,8 +6,12 @@ export type BloccoAppunti = { id: string; tipo: string; testo: string }
 /*  Il prompt chiede OPERAZIONI, non un riassunto.
  *
  *  Il modello non riscrive mai gli appunti: propone aggiunte, ognuna
- *  agganciata al blocco dopo cui va messa. Quello che hai scritto tu
- *  non viene toccato, e ogni proposta si accetta o si rifiuta da sola.
+ *  agganciata a un blocco. Una riga nuova dopo il blocco, oppure —
+ *  ed è la differenza che conta — il pezzo che manca dentro alla riga
+ *  che hai già scritto: la tua frase resta, e in fondo (o nel punto
+ *  che indica) le cresce accanto la parte che non avevi fatto in
+ *  tempo a scrivere. Niente di tuo viene cancellato o riformulato, e
+ *  ogni proposta si accetta o si rifiuta da sola.
  *
  *  Per lo stile non c'è una descrizione a parole («scrivi conciso»),
  *  che i modelli interpretano come vogliono: ci sono gli appunti
@@ -20,8 +24,30 @@ già divisa secondo il blocco che stava scrivendo mentre il professore parlava.
 Il tuo compito: trovare ciò che il professore ha detto, che è davvero utile
 per studiare, e che negli appunti MANCA — e proporre di aggiungerlo.
 
+Gli appunti sono suoi: il tuo lavoro è finirli, non riscriverli.
+
+Ogni proposta è UNA di queste tre operazioni:
+
+· "completa" — la riga c'è già, ma è monca: si ferma a metà, oppure le
+  manca un pezzo nel mezzo. In "testo" scrivi SOLTANTO il pezzo che si
+  aggiunge alla sua riga: niente di ciò che ha già scritto, nemmeno
+  detto con altre parole. Si deve poter leggere di seguito, come se
+  avesse continuato lui.
+  In "punto" copia le 2-5 parole della SUA riga dopo cui va infilato il
+  pezzo; lascia "punto" vuoto per metterlo in fondo alla riga.
+· "integra" — di quella cosa negli appunti non c'è traccia. Riga nuova,
+  messa dopo il blocco "dopo".
+· "correggi" — un dato negli appunti contraddice la lezione.
+
+Fra "completa" e "integra" scegli SEMPRE "completa" quando la riga parla
+già di quell'argomento. Una riga nuova che ridice a modo tuo ciò che lui
+ha già scritto è la cosa peggiore: gli fa rileggere due volte lo stesso
+concetto con parole diverse, e gli appunti non sembrano più i suoi.
+
 Regole:
 - Non riassumere la lezione. Colma soltanto i buchi.
+- Non riscrivere e non riformulare ciò che ha scritto lui, neanche se
+  ti sembra di poterlo scrivere meglio.
 - Non proporre ciò che negli appunti c'è già, anche se detto con altre parole.
 - Ignora saluti, battute, ripetizioni, istruzioni organizzative.
 - Il professore ripete spesso la stessa cosa («dicevo…», «riassumendo…»):
@@ -30,7 +56,8 @@ Regole:
 - Scrivi ESATTAMENTE come sono scritti gli appunti: stessa lunghezza delle
   frasi, stesso registro, stesse abbreviazioni, stessi simboli (per esempio →).
   Se lo studente scrive per frammenti, scrivi per frammenti.
-- Ogni proposta è breve: una o due righe al massimo.
+- Ogni proposta è breve: una o due righe al massimo. Un completamento
+  è più corto ancora: poche parole, quelle che mancano.
 - Formattazione: negli appunti **grassetto**, ==evidenziato== e il colore
   <rosso>…</rosso> (o <arancio>, <verde>, <blu>, <viola>) li ha messi lo
   studente. Usali come li usa lui, e solo se li usa: se scrive in grassetto
@@ -42,9 +69,9 @@ Regole:
   La trascrizione automatica sbaglia nomi propri e numeri: correggi solo
   se sei sicuro che l'errore sia negli appunti e non nella trascrizione.
 - Al massimo 8 proposte. Meglio 3 utili che 8 mediocri.
-- "dopo" è l'id del blocco dopo cui va inserita la proposta: uno degli id
-  fra parentesi quadre negli APPUNTI. Le proposte per lo stesso blocco
-  scrivile nell'ordine in cui vanno lette.
+- "dopo" è uno degli id fra parentesi quadre negli APPUNTI: il blocco
+  dopo cui va inserita la proposta, o quello da completare. Le proposte
+  per lo stesso blocco scrivile nell'ordine in cui vanno lette.
 - "importanza" va da 1 (curiosità) a 5 (indispensabile per l'esame).
 
 Poi, i titoli degli argomenti. Un argomento comincia con un blocco
@@ -56,7 +83,7 @@ un blocco che è già un titolo; nessuno se la pagina tratta un argomento solo.
 Poi, a parte: ${DOMANDA_IMMAGINI}
 
 Rispondi SOLO con un oggetto JSON:
-{"proposte":[{"dopo":"<id>","tipo":"integra"|"correggi","testo":"...","perche":"...","importanza":1-5}],
+{"proposte":[{"dopo":"<id>","tipo":"completa"|"integra"|"correggi","punto":"<parole sue, o vuoto>","testo":"...","perche":"...","importanza":1-5}],
  "titoli":[{"prima":"<id>","titolo":"..."}],
  "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
 Se non manca niente di utile: {"proposte":[], "titoli":[], "immagini":[...]}`

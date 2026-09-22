@@ -55,7 +55,12 @@ export async function integraLezione(
   const ben = proposte
     .map((p, ordine) => ({ ...p, ordine }))
     .filter((p) => p && typeof p.testo === 'string' && p.testo.trim() && idValidi.has(p.dopo))
-    .map((p) => ({ ...p, tipo: p.tipo === 'correggi' ? 'correggi' as const : 'integra' as const, importanza: Number(p.importanza) || 3 }))
+    .map((p) => ({
+      ...p,
+      tipo: p.tipo === 'correggi' ? 'correggi' as const : p.tipo === 'completa' ? 'completa' as const : 'integra' as const,
+      punto: typeof p.punto === 'string' ? p.punto : undefined,
+      importanza: Number(p.importanza) || 3,
+    }))
     .sort((a, b) => b.importanza - a.importanza)
 
   // le più importanti, senza doppioni; poi di nuovo nell'ordine del modello

@@ -97,6 +97,15 @@ export type Stile = {
   titolettiInGrassetto: boolean      // righe brevi tutte in grassetto
   paroleInGrassetto: boolean         // grassetto dentro una frase
   evidenziatore: boolean
+  /*  La FORMA delle righe. La formattazione non basta: una proposta
+   *  può avere il grassetto giusto e restare riconoscibile lontano un
+   *  miglio, perché è un periodo di tre righe con la maiuscola e il
+   *  punto finale in mezzo a frammenti in minuscolo. */
+  minuscolo: boolean                 // comincia le righe in minuscolo
+  senzaPunto: boolean                // non le chiude col punto
+  lunghezza: number                  // caratteri per riga, la mediana
+  simboli: string[]                  // i simboli che usa davvero (→, ·, =)
+  esempi: string[]                   // due righe sue, da imitare
 }
 
 export function stileDellaPagina(doc: NodoPM): Stile {
@@ -105,12 +114,16 @@ export function stileDellaPagina(doc: NodoPM): Stile {
   let evidenziatore = false
   let esempioColore: string | null = null
   const colore = coloreDellaPagina(doc)
+  const righe: { piano: string; marcato: string }[] = []
+
   doc.descendants((n) => {
     if (!n.isTextblock) return true
     const testi: { t: string; grassetto: boolean }[] = []
+    let daAi = false
     n.forEach((t) => {
       if (!t.isText) return
       testi.push({ t: t.text ?? '', grassetto: t.marks.some((m) => m.type.name === 'bold') })
+      if (t.marks.some((m) => m.type.name === 'segnoAi')) daAi = true
       if (t.marks.some((m) => m.type.name === 'highlight')) evidenziatore = true
       if (colore && !esempioColore && t.marks.some((m) => m.type.name === 'coloreTesto' && m.attrs.nome === colore)) {
         esempioColore = inMarcatura(n).slice(0, 120)
@@ -119,9 +132,50 @@ export function stileDellaPagina(doc: NodoPM): Stile {
     const tutto = testi.map((x) => x.t).join('').trim()
     if (tutto && testi.every((x) => x.grassetto || !x.t.trim()) && tutto.length < 60) titoletti = true
     else if (testi.some((x) => x.grassetto && x.t.trim())) parole = true
+    // la forma si misura solo su ciò che ha scritto LUI: le proposte
+    // dell'AI, se restano in pagina, gli farebbero imitare sé stesso
+    if (tutto && !daAi && n.type.name === 'paragraph') righe.push({ piano: tutto, marcato: inMarcatura(n) })
     return false
   })
-  return { colore, esempioColore, titolettiInGrassetto: titoletti, paroleInGrassetto: parole, evidenziatore }
+
+  return {
+    colore, esempioColore, titolettiInGrassetto: titoletti, paroleInGrassetto: parole, evidenziatore,
+    ...formaDelleRighe(righe),
+  }
+}
+
+/*  I simboli da cercare: quelli che uno scrive a mano al posto delle
+ *  parole. Non la punteggiatura, che c'è in qualunque testo. */
+const SIMBOLI = ['→', '⇒', '↔', '≈', '≠', '≥', '≤', '·', '–', '—', '=', '+', '%', '/']
+
+const mediana = (n: number[]) => (n.length ? [...n].sort((a, b) => a - b)[Math.floor(n.length / 2)] : 0)
+
+/** Com'è fatta una riga sua: lunghezza, maiuscole, punto, simboli. */
+function formaDelleRighe(righe: { piano: string; marcato: string }[]) {
+  const vere = righe.filter((r) => r.piano.length > 2)
+  const lunghezza = mediana(vere.map((r) => r.piano.length))
+  const conLettera = vere.filter((r) => /^\p{L}/u.test(r.piano))
+  const minuscole = conLettera.filter((r) => r.piano[0] === r.piano[0].toLowerCase()).length
+  const conPunto = vere.filter((r) => /[.!?]$/.test(r.piano)).length
+  // un simbolo vale solo se torna: una freccia sola può essere un caso
+  const simboli = SIMBOLI.filter((s) => vere.filter((r) => r.piano.includes(s)).length >= 2).slice(0, 4)
+
+  /*  Gli esempi: le righe di lunghezza mediana, cioè le più sue. La
+   *  più lunga e la più corta di una pagina sono due eccezioni, e
+   *  imitare un'eccezione è peggio che non imitare niente. */
+  const esempi = vere
+    .filter((r) => r.piano.length >= 12)
+    .sort((a, b) => Math.abs(a.piano.length - lunghezza) - Math.abs(b.piano.length - lunghezza))
+    .slice(0, 2)
+    .map((r) => (r.marcato.length > 140 ? `${r.marcato.slice(0, 137)}…` : r.marcato))
+
+  return {
+    minuscolo: conLettera.length >= 3 && minuscole / conLettera.length >= 0.6,
+    senzaPunto: vere.length >= 3 && conPunto / vere.length <= 0.25,
+    lunghezza: vere.length >= 3 ? lunghezza : 0,
+    simboli,
+    esempi,
+  }
 }
 
 /** Le istruzioni sulla formattazione, per il messaggio al modello. */
@@ -136,6 +190,16 @@ export function istruzioniDiStile(s: Stile): string {
   if (s.titolettiInGrassetto) righe.push('- Scrive i titoletti in **grassetto**: se proponi un titoletto, scrivilo così.')
   if (s.paroleInGrassetto) righe.push('- Mette in **grassetto** i termini chiave dentro le frasi: fallo anche tu, con misura.')
   if (s.evidenziatore) righe.push('- Usa l\'==evidenziatore== per ciò che conta di più: puoi usarlo anche tu, raramente.')
+  if (s.lunghezza) {
+    const quanto = s.lunghezza < 45 ? 'brevissime' : s.lunghezza < 90 ? 'brevi' : 'distese'
+    righe.push(`- Le sue righe sono ${quanto}: circa ${s.lunghezza} caratteri. Non scriverne di più lunghe.`)
+  }
+  if (s.minuscolo) righe.push('- Comincia le righe in minuscolo: comincia in minuscolo anche tu.')
+  if (s.senzaPunto) righe.push('- Non chiude le righe col punto: non metterlo neanche tu.')
+  if (s.simboli.length) righe.push(`- Usa questi simboli al posto delle parole: ${s.simboli.join(' ')} — usali dove li userebbe lui.`)
+  if (s.esempi.length) {
+    righe.push(`- Due righe scritte da lui. Le tue devono sembrare della stessa mano:\n${s.esempi.map((e) => `    «${e}»`).join('\n')}`)
+  }
   return righe.join('\n')
 }
 

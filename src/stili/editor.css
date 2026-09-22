@@ -132,6 +132,12 @@
   box-shadow: 0 0 0 calc(var(--u) / 4) var(--accento);
   border-radius: var(--raggio);
 }
+/*  Il completamento che stai rivedendo: sta dentro a una riga tua,
+ *  quindi si tinge il pezzo invece di cerchiare tutta la riga. */
+.ProseMirror .proposta-corrente-parte {
+  background: color-mix(in srgb, var(--accento) 26%, transparent);
+  border-radius: 2px;
+}
 
 /* ── Correzioni in diretta ──────────────────────────────────── */
 /*  Il pezzo che non torna con quello che ha detto il professore:

@@ -1,14 +1,22 @@
 import type { Editor } from '@tiptap/core'
 import type { Node as NodoPM } from '@tiptap/pm/model'
 import { daMarcatura, inMarcatura } from './marcatura'
+import { normalizza } from '../lib/testo'
 
 export type Proposta = {
   dopo: string
-  tipo: 'integra' | 'correggi'
+  /*  «integra» apre una riga nuova dopo il blocco; «completa» entra
+   *  DENTRO la riga che c'è già, in fondo o nel punto indicato;
+   *  «correggi» è una riga nuova che segnala un dato sbagliato. */
+  tipo: 'integra' | 'completa' | 'correggi'
+  /** solo per «completa»: le parole della sua riga dopo cui va infilato */
+  punto?: string
   testo: string
   perche: string
   importanza: number
 }
+
+const SEGNO_AI = [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }]
 
 /** Dove sta, adesso, il blocco di primo livello con quell'id. */
 function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null {
@@ -17,6 +25,82 @@ function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null
     if (!trovato && nodo.attrs.idBlocco === id) trovato = { pos, nodo }
   })
   return trovato
+}
+
+/*  ── I completamenti ─────────────────────────────────────────────
+ *
+ *  Una proposta che finisce la TUA riga invece di scriverne una nuova
+ *  accanto. Il modello manda solo il pezzo che manca e le parole dopo
+ *  cui va infilato: qui si ritrovano quelle parole nel documento.
+ *
+ *  Il confronto passa da `normalizza`, che toglie accenti e maiuscole
+ *  senza cambiare la lunghezza: ogni carattere del testo semplificato
+ *  corrisponde a un carattere vero, e quindi a una posizione. */
+type Carattere = { c: string; fine: number }
+
+function caratteri(nodo: NodoPM, pos: number): Carattere[] {
+  const out: Carattere[] = []
+  nodo.descendants((n, off) => {
+    if (!n.isText) return true
+    const t = n.text ?? ''
+    for (let i = 0; i < t.length; i++) out.push({ c: t[i], fine: pos + 1 + off + i + 1 })
+    return false
+  })
+  return out
+}
+
+const fuggi = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/*  Dove infilare il pezzo: dopo le parole di `punto`, o in fondo alla
+ *  riga se non le trova (o se non ne ha indicate).
+ *
+ *  L'àncora il modello la cita a memoria, quindi non combacia mai del
+ *  tutto: le parole si cercano separate da spazi qualunque, e se non
+ *  si trovano tutte si riprova senza la prima, perché la coda è la
+ *  parte che sbaglia di meno. Mai sotto le due parole: «di» da solo
+ *  si troverebbe ovunque. */
+function innesto(nodo: NodoPM, pos: number, punto?: string) {
+  const cs = caratteri(nodo, pos)
+  if (!cs.length) return null
+
+  const ultimo = cs[cs.length - 1]
+  const inFondo = () => ({ dove: ultimo.fine, prima: ultimo.c, dopo: '' })
+
+  const parole = normalizza((punto ?? '').trim()).split(/\s+/).filter(Boolean)
+  if (!parole.length) return inFondo()
+
+  const testo = normalizza(cs.map((c) => c.c).join(''))
+  const minime = Math.min(2, parole.length)
+  for (let da = 0; da <= parole.length - minime; da++) {
+    const re = new RegExp(parole.slice(da).map(fuggi).join('[\\s·]+'), 'g')
+    const trovati = [...testo.matchAll(re)]
+    const m = trovati[trovati.length - 1]
+    if (!m) continue
+    const i = m.index + m[0].length
+    /*  Se dopo l'àncora resta quasi niente — «misura del corpo» in
+     *  «misura del corpo umano» — il modello voleva la fine della riga
+     *  e ha smesso di copiare una parola troppo presto. Infilarsi lì
+     *  spezzerebbe la frase: meglio scivolare in fondo. */
+    const resto = testo.slice(i).trim()
+    if (resto.length < 15 && resto.split(/\s+/).filter(Boolean).length <= 2) return inFondo()
+    return { dove: cs[i - 1].fine, prima: cs[i - 1].c, dopo: cs[i]?.c ?? '' }
+  }
+  return inFondo()
+}
+
+function completa(editor: Editor, p: Proposta): boolean {
+  const bersaglio = trova(editor, p.dopo)
+  if (!bersaglio) return false
+  const dove = innesto(bersaglio.nodo, bersaglio.pos, p.punto)
+  if (!dove) return false
+
+  let testo = p.testo.trim().replace(/^[-–•*]\s+/, '')
+  if (!testo) return false
+  // gli spazi intorno li mette il programma: il modello manda il pezzo
+  if (dove.prima && !/\s/.test(dove.prima) && !/^[,.;:!?)»…]/.test(testo)) testo = ` ${testo}`
+  if (dove.dopo && !/[\s,.;:!?)»…]/.test(dove.dopo)) testo = `${testo} `
+
+  return editor.chain().insertContentAt(dove.dove, daMarcatura(testo, SEGNO_AI)).run()
 }
 
 /*  Inserisce le proposte come testo marcato «proposto».
@@ -34,10 +118,19 @@ function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null
  *  Le posizioni si ricalcolano per ogni blocco, cercando l'id: ogni
  *  inserimento sposta tutto quello che viene dopo. */
 export function applica(editor: Editor, proposte: Proposta[]) {
-  const perBlocco = new Map<string, Proposta[]>()
-  for (const p of proposte) perBlocco.set(p.dopo, [...(perBlocco.get(p.dopo) ?? []), p])
-
   let fatte = 0
+
+  /*  Prima i completamenti, che entrano dentro alle righe: le righe
+   *  nuove si agganciano al blocco cercandolo per id, quindi non
+   *  importa quanto testo è cresciuto prima di loro. */
+  for (const p of proposte) if (p.tipo === 'completa' && completa(editor, p)) fatte++
+
+  const perBlocco = new Map<string, Proposta[]>()
+  for (const p of proposte) {
+    if (p.tipo === 'completa') continue
+    perBlocco.set(p.dopo, [...(perBlocco.get(p.dopo) ?? []), p])
+  }
+
   for (const [dopo, gruppo] of perBlocco) {
     const bersaglio = trova(editor, dopo)
     if (!bersaglio) continue
@@ -50,10 +143,7 @@ export function applica(editor: Editor, proposte: Proposta[]) {
       // in un elenco il trattino lo mette già l'elenco
       if (elenco) testo = testo.replace(/^[-–•*]\s+/, '')
       // grassetto, colori ed evidenziatore come negli appunti (vedi marcatura.ts)
-      const segnato = daMarcatura(
-        (p.tipo === 'correggi' ? '⚠︎ ' : '') + testo,
-        [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }],
-      )
+      const segnato = daMarcatura((p.tipo === 'correggi' ? '⚠︎ ' : '') + testo, SEGNO_AI)
       return elenco
         ? { type: 'listItem', content: [{ type: 'paragraph', content: segnato }] }
         : { type: 'paragraph', content: segnato }
@@ -82,7 +172,7 @@ export function applicaTitoli(editor: Editor, titoli: Titolo[]) {
     const ok = editor.chain().insertContentAt(bersaglio.pos, {
       type: 'heading',
       attrs: { level: 1 },
-      content: [{ type: 'text', text: testo, marks: [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }] }],
+      content: [{ type: 'text', text: testo, marks: SEGNO_AI }],
     }).run()
     if (ok) fatti++
   }
