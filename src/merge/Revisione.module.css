@@ -1,45 +1,66 @@
+/*  La barra della revisione, centrata sulla colonna, e le azioni sopra
+ *  la proposta: la stessa superficie fluttuante di tutta l'app. */
+
 .invito, .barra {
   position: absolute;
   left: 50%;
-  bottom: 18px;
+  bottom: calc(var(--u) * 2.5);
   z-index: 30;
   transform: translateX(-50%);
-  border-radius: 999px;
-  box-shadow: var(--ombra);
   white-space: nowrap;
-  font-size: 12px;
+  /* arrivano dal basso; il translateX tiene il centro durante il movimento */
+  animation: sale var(--lento) var(--curva) both;
 }
+@keyframes sale { from { opacity: 0; transform: translate(-50%, 10px); } }
 
 .invito {
-  padding: 7px 14px;
-  background: var(--accento);
-  color: #fff;
-  font-weight: 550;
+  composes: primario from '../layout/Superficie.module.css';
+  border-radius: calc(var(--controllo) / 2);
+  box-shadow: var(--ombra);
 }
-.invito:hover { filter: brightness(1.07); }
 
 .barra {
+  composes: superficie from '../layout/Superficie.module.css';
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 7px 14px;
-  background: var(--inchiostro);
-  color: var(--carta);
-}
-.conto { font-weight: 600; font-variant-numeric: tabular-nums; }
-.tasti { opacity: 0.75; }
-.tasti kbd {
-  display: inline-block;
-  min-width: 16px;
-  margin: 0 1px;
-  padding: 0 4px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--carta) 18%, transparent);
-  font-family: var(--font-ui);
-  font-size: 10.5px;
-  text-align: center;
+  gap: calc(var(--u) / 2);
+  padding: calc(var(--u) * 0.75);
+  font-size: var(--t-ui);
 }
 
-/* arrivano dal basso; il translateX tiene il centro durante il movimento */
-.invito, .barra { animation: sale var(--lento) var(--curva) both; }
-@keyframes sale { from { opacity: 0; transform: translate(-50%, 10px); } }
+.conto { display: inline-flex; align-items: center; gap: calc(var(--u) * 0.75); padding: 0 var(--u); }
+.conto b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.scintilla { color: var(--accento); }
+.quali { color: var(--inchiostro-tenue); }
+
+.separatore { width: calc(var(--u) / 8); height: calc(var(--u) * 2.25); margin: 0 calc(var(--u) / 2); background: var(--linea); }
+
+.icona { composes: icona from '../layout/Superficie.module.css'; }
+.tasto { composes: tasto from '../layout/Superficie.module.css'; }
+.trasparente { composes: trasparente from '../layout/Superficie.module.css'; }
+.secondario { composes: secondario from '../layout/Superficie.module.css'; }
+.principale { composes: primario from '../layout/Superficie.module.css'; }
+
+/* ── le azioni sopra la proposta ────────────────────────────── */
+.azioni {
+  composes: superficie from '../layout/Superficie.module.css';
+  position: fixed;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) / 4);
+  padding: calc(var(--u) / 2);
+  font-size: var(--t-ui);
+  animation: var(--entra-tendina);
+}
+.fonte {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  padding: 0 var(--u) 0 calc(var(--u) * 0.75);
+  color: var(--accento-testo);
+  font-size: var(--t-piccolo);
+}
+.accetta { composes: trasparente from '../layout/Superficie.module.css'; }
+.azioni .accetta { color: var(--fatto); }
+.rifiuta { composes: trasparente from '../layout/Superficie.module.css'; }

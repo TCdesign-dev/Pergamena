@@ -126,6 +126,12 @@
   background: color-mix(in srgb, var(--accento) 11%, transparent);
   border-radius: 2px;
 }
+/*  Il blocco che stai rivedendo adesso: l'anello sta intorno a tutta
+ *  la proposta, anche quando dentro c'è del grassetto. */
+.ProseMirror .proposta-corrente {
+  box-shadow: 0 0 0 calc(var(--u) / 4) var(--accento);
+  border-radius: var(--raggio);
+}
 
 /* ── Correzioni in diretta ──────────────────────────────────── */
 /*  Il pezzo che non torna con quello che ha detto il professore:

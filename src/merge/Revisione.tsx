@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { Editor } from '@tiptap/core'
+import { Plugin, PluginKey } from '@tiptap/pm/state'
+import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import type { RifEditore } from '../editor/Editor'
 import { avviaRevisione, chiudiRevisione, iscrivitiRevisione, revisioneAttiva } from './statoRevisione'
+import { Icona } from '../lib/Icona'
 import s from './Revisione.module.css'
+
+/*  La revisione delle proposte del merge.
+ *
+ *  Due cose che si guardano: la barra in basso, centrata sulla colonna,
+ *  con il conto e tutte le azioni cliccabili; e, sopra ogni proposta
+ *  che sfiori col mouse (o su quella corrente), una piccola superficie
+ *  con Accetta e Rifiuta. La proposta corrente ha un anello azzurro. */
 
 type Proposta = { da: number; a: number }
 
@@ -44,10 +54,43 @@ function mostra(editor: Editor, p: Proposta) {
   el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
 }
 
+/*  L'anello azzurro sulla proposta corrente: una decorazione, non un
+ *  segno nel testo, così le posizioni si spostano da sole quando
+ *  scrivi. Sta intorno al BLOCCO — il paragrafo o la voce d'elenco,
+ *  quello che «Rifiuta» toglierebbe — perché una proposta con dentro
+ *  del grassetto è fatta di più pezzi, e l'anello si spezzerebbe. */
+const chiaveCorrente = new PluginKey<Proposta | null>('propostaCorrente')
+const pluginCorrente = new Plugin<Proposta | null>({
+  key: chiaveCorrente,
+  state: {
+    init: () => null,
+    apply(tr, prima) {
+      const meta = tr.getMeta(chiaveCorrente)
+      if (meta !== undefined) return meta as Proposta | null
+      if (!prima || !tr.docChanged) return prima
+      return { da: tr.mapping.map(prima.da), a: tr.mapping.map(prima.a) }
+    },
+  },
+  props: {
+    decorations(stato) {
+      const p = chiaveCorrente.getState(stato)
+      if (!p || p.a <= p.da || p.da > stato.doc.content.size) return DecorationSet.empty
+      const $da = stato.doc.resolve(Math.min(p.da, stato.doc.content.size))
+      let livello = $da.depth
+      if (livello > 1 && $da.node(livello - 1).type.name === 'listItem') livello--
+      if (livello < 1) return DecorationSet.empty
+      return DecorationSet.create(stato.doc, [
+        Decoration.node($da.before(livello), $da.after(livello), { class: 'proposta-corrente' }),
+      ])
+    },
+  },
+})
+
 export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
   const attiva = useSyncExternalStore(iscrivitiRevisione, revisioneAttiva)
   const [proposte, setProposte] = useState<Proposta[]>([])
   const [indice, setIndice] = useState(0)
+  const [sotto, setSotto] = useState<Proposta | null>(null)
 
   /*  Si riconta a ogni modifica del documento. L'editor però nasce
    *  DOPO questo componente — aspetta che IndexedDB restituisca la
@@ -63,9 +106,14 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
       if (!editor) { attesa = window.setTimeout(aggancia, 150); return }
       conta()
       editor.on('update', conta)
+      editor.registerPlugin(pluginCorrente)
     }
     aggancia()
-    return () => { window.clearTimeout(attesa); editor?.off('update', conta) }
+    return () => {
+      window.clearTimeout(attesa)
+      editor?.off('update', conta)
+      if (editor && !editor.isDestroyed) editor.unregisterPlugin(chiaveCorrente)
+    }
   }, [rifEditore])
 
   const corrente = proposte[Math.min(indice, proposte.length - 1)]
@@ -79,6 +127,13 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
     if (attiva && editor && corrente) mostra(editor, corrente)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attiva, indice, proposte.length])
+
+  // l'anello segue la proposta corrente, e sparisce con la revisione
+  useEffect(() => {
+    const editor = rifEditore.current
+    if (!editor || editor.isDestroyed) return
+    editor.view.dispatch(editor.state.tr.setMeta(chiaveCorrente, attiva && corrente ? corrente : null))
+  }, [rifEditore, attiva, corrente])
 
   const tasto = useCallback((e: KeyboardEvent) => {
     const editor = rifEditore.current
@@ -100,10 +155,7 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
     if (k === 'escape') { prendi(); chiudiRevisione() }
     else if (k === 'j' || k === 'arrowdown') { prendi(); setIndice((i) => (i + 1) % proposte.length) }
     else if (k === 'k' || k === 'arrowup') { prendi(); setIndice((i) => (i - 1 + proposte.length) % proposte.length) }
-    else if (k === 'enter' && (e.metaKey || e.ctrlKey)) {
-      prendi()
-      ;[...proposte].reverse().forEach((p) => accetta(editor, p))
-    }
+    else if (k === 'enter' && (e.metaKey || e.ctrlKey)) { prendi(); accettaTutte() }
     else if (k === 'enter') { prendi(); accetta(editor, corrente) }
     else if (k === 'x' || k === 'backspace') { prendi(); rifiuta(editor, corrente) }
   }, [corrente, proposte, rifEditore])
@@ -114,22 +166,147 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
     return () => window.removeEventListener('keydown', tasto, true)
   }, [attiva, tasto])
 
-  if (!proposte.length) return null
+  /*  Col mouse: sfiorando una proposta compaiono le sue azioni. Si
+   *  aspetta un attimo prima di toglierle, se no passando dal testo
+   *  alla superficie sparirebbero sotto il puntatore. */
+  const timerSotto = useRef<number | undefined>(undefined)
+  useEffect(() => {
+    const editor = rifEditore.current
+    if (!editor || editor.isDestroyed || !proposte.length) return
+    const dom = editor.view.dom
+    const sopra = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest?.('[data-ai][data-stato="proposto"]')
+      window.clearTimeout(timerSotto.current)
+      if (!el) { timerSotto.current = window.setTimeout(() => setSotto(null), 200); return }
+      const pos = editor.view.posAtDOM(el, 0)
+      setSotto(proposte.find((p) => pos >= p.da - 1 && pos <= p.a) ?? null)
+    }
+    const via = () => { window.clearTimeout(timerSotto.current); timerSotto.current = window.setTimeout(() => setSotto(null), 200) }
+    dom.addEventListener('mousemove', sopra)
+    dom.addEventListener('mouseleave', via)
+    return () => {
+      window.clearTimeout(timerSotto.current)
+      dom.removeEventListener('mousemove', sopra)
+      dom.removeEventListener('mouseleave', via)
+    }
+  }, [rifEditore, proposte])
 
-  if (!attiva) {
-    return (
-      <button className={s.invito} onClick={() => { setIndice(0); avviaRevisione() }}>
-        {proposte.length} {proposte.length === 1 ? 'proposta' : 'proposte'} dalla lezione · rivedi
-      </button>
-    )
+  function accettaTutte() {
+    const editor = rifEditore.current
+    if (!editor) return
+    ;[...proposte].reverse().forEach((p) => accetta(editor, p))
   }
 
+  if (!proposte.length) return null
+
+  const mostrata = attiva && corrente ? corrente : sotto
+  const editor = rifEditore.current
+
   return (
-    <div className={s.barra} role="toolbar" aria-label="Revisione delle proposte">
-      <span className={s.conto}>{Math.min(indice, proposte.length - 1) + 1} di {proposte.length}</span>
-      <span className={s.tasti}>
-        <kbd>J</kbd><kbd>K</kbd> scorri · <kbd>↵</kbd> accetta · <kbd>X</kbd> rifiuta · <kbd>⌘↵</kbd> tutte · <kbd>esc</kbd>
+    <>
+      {editor && mostrata && (
+        <AzioniProposta
+          editor={editor}
+          proposta={mostrata}
+          onEntra={() => window.clearTimeout(timerSotto.current)}
+          onEsci={() => { if (!attiva) setSotto(null) }}
+          onAccetta={() => accetta(editor, mostrata)}
+          onRifiuta={() => rifiuta(editor, mostrata)}
+        />
+      )}
+
+      {!attiva ? (
+        <button className={s.invito} onClick={() => { setIndice(0); avviaRevisione() }}>
+          <Icona nome="ai" dimensione={14} />
+          {proposte.length} {proposte.length === 1 ? 'proposta' : 'proposte'} dalla lezione · rivedi
+        </button>
+      ) : (
+        <div className={s.barra} role="toolbar" aria-label="Revisione delle proposte">
+          <span className={s.conto}>
+            <Icona nome="ai" dimensione={14} className={s.scintilla} />
+            <b>{Math.min(indice, proposte.length - 1) + 1} di {proposte.length}</b>
+            <span className={s.quali}>proposte dalla lezione</span>
+          </span>
+          <button className={s.icona} aria-label="Precedente (K)" title="Precedente  K" onClick={() => setIndice((i) => (i - 1 + proposte.length) % proposte.length)}>
+            <Icona nome="sinistra" />
+          </button>
+          <button className={s.icona} aria-label="Successiva (J)" title="Successiva  J" onClick={() => setIndice((i) => (i + 1) % proposte.length)}>
+            <Icona nome="destra" />
+          </button>
+          <span className={s.separatore} />
+          <button className={s.trasparente} onClick={() => editor && corrente && rifiuta(editor, corrente)}>
+            Rifiuta <kbd className={s.tasto}>X</kbd>
+          </button>
+          <button className={s.secondario} onClick={() => editor && corrente && accetta(editor, corrente)}>
+            Accetta <kbd className={s.tasto}>↵</kbd>
+          </button>
+          <button className={s.principale} onClick={accettaTutte}>
+            Accetta tutte <kbd className={s.tasto}>⌘↵</kbd>
+          </button>
+          <button className={s.icona} aria-label="Chiudi la revisione (Esc)" title="Chiudi  esc" onClick={chiudiRevisione}>
+            <Icona nome="chiudi" />
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
+/** Le azioni sopra la proposta: da dove viene, accetta, rifiuta. */
+function AzioniProposta({ editor, proposta, onEntra, onEsci, onAccetta, onRifiuta }: {
+  editor: Editor
+  proposta: Proposta
+  onEntra: () => void
+  onEsci: () => void
+  onAccetta: () => void
+  onRifiuta: () => void
+}) {
+  const rif = useRef<HTMLDivElement>(null)
+  const [dove, setDove] = useState<{ top: number; left: number } | null>(null)
+
+  useEffect(() => {
+    const posiziona = () => {
+      const el = rif.current
+      if (!el || editor.isDestroyed) return
+      let riga
+      try { riga = editor.view.coordsAtPos(proposta.da) } catch { return }
+      const largo = el.offsetWidth
+      const alto = el.offsetHeight
+      setDove({
+        top: Math.max(8, riga.top - alto - 6),
+        left: Math.min(Math.max(8, riga.left - 6), window.innerWidth - largo - 8),
+      })
+    }
+    posiziona()
+    window.addEventListener('scroll', posiziona, true)
+    window.addEventListener('resize', posiziona)
+    return () => {
+      window.removeEventListener('scroll', posiziona, true)
+      window.removeEventListener('resize', posiziona)
+    }
+  }, [editor, proposta])
+
+  return (
+    <div
+      ref={rif}
+      className={s.azioni}
+      style={dove ?? { visibility: 'hidden' }}
+      onMouseEnter={onEntra}
+      onMouseLeave={onEsci}
+      onMouseDown={(e) => e.preventDefault()}
+    >
+      <span className={s.fonte}>
+        <Icona nome="ai" dimensione={14} />
+        Dalla lezione
       </span>
+      <button className={s.accetta} onClick={onAccetta}>
+        <Icona nome="accetta" dimensione={14} />
+        Accetta
+      </button>
+      <button className={s.rifiuta} onClick={onRifiuta}>
+        <Icona nome="chiudi" dimensione={14} />
+        Rifiuta
+      </button>
     </div>
   )
 }
