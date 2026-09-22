@@ -1,4 +1,5 @@
 .velo {
+  composes: velo from '../layout/Superficie.module.css';
   position: fixed;
   inset: 0;
   z-index: 90;
@@ -6,73 +7,57 @@
   justify-content: center;
   align-items: flex-start;
   padding-top: 16vh;
-  background: rgb(0 0 0 / 0.3);
   animation: var(--entra-velo);
 }
 
 .pannello {
-  width: min(400px, calc(100vw - var(--u) * 6));
+  composes: superficie from '../layout/Superficie.module.css';
+  width: min(calc(var(--u) * 50), calc(100vw - var(--u) * 6));
   padding: calc(var(--u) * 3);
-  background: var(--carta);
-  border: 1px solid var(--linea);
-  border-radius: calc(var(--raggio) * 2.5);
-  box-shadow: var(--ombra);
   animation: var(--entra-finestra);
 }
 
-.titolo { margin: 0 0 var(--u); font-size: 16px; font-weight: 600; }
+.titolo { margin: 0 0 var(--u); font-size: calc(var(--t-ui) * 16 / 13); font-weight: 600; }
 
 .spiega {
   margin: 0 0 calc(var(--u) * 2.5);
   color: var(--inchiostro-tenue);
-  font-size: 12.5px;
+  font-size: calc(var(--t-piccolo) * 1.04);
   line-height: 1.6;
 }
 
 .campo {
   width: 100%;
-  padding: 9px 11px;
-  border: 1px solid var(--linea-forte);
+  padding: calc(var(--u) * 1.125) calc(var(--u) * 1.375);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
   border-radius: var(--raggio);
   background: var(--carta);
   color: var(--inchiostro);
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: calc(var(--t-ui) * 14 / 13);
   outline: none;
 }
 .campo:focus { border-color: var(--accento); }
 .sotto { margin-top: var(--u); }
-.cifre { font-family: var(--font-mono); font-size: 20px; letter-spacing: 0.3em; text-align: center; }
+.cifre { font-family: var(--font-mono); font-size: calc(var(--u) * 2.5); letter-spacing: 0.3em; text-align: center; }
 
 .errore {
   margin: var(--u) 0 0;
   color: var(--c-rosso);
-  font-size: 12px;
+  font-size: var(--t-piccolo);
   line-height: 1.5;
 }
 
-.piede {
-  display: flex;
-  align-items: center;
-  gap: var(--u);
-  margin-top: calc(var(--u) * 2.5);
-}
+/* il piede della superficie: il collegamento a sinistra, «Entra» a destra */
+.piede { composes: piede from '../layout/Superficie.module.css'; margin-top: calc(var(--u) * 2.5); }
 
+/* «usa un codice», «usa la password»: un collegamento, non un pulsante */
 .secondario {
-  color: var(--tenue);
-  font-size: 12px;
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: calc(var(--u) / 4);
 }
 .secondario:hover { color: var(--inchiostro-tenue); }
 
-.principale {
-  margin-left: auto;
-  padding: 8px 16px;
-  border-radius: var(--raggio);
-  background: var(--accento);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 550;
-}
-.principale:disabled { opacity: 0.55; }
+.principale { composes: primario from '../layout/Superficie.module.css'; margin-left: auto; }

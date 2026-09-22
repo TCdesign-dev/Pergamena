@@ -1,47 +1,44 @@
 .menu {
+  composes: superficie from '../../layout/Superficie.module.css';
   display: flex;
   align-items: center;
-  gap: 1px;
-  padding: 3px;
-  background: var(--carta);
-  border: 1px solid var(--linea);
-  border-radius: calc(var(--raggio) * 1.75);
-  box-shadow: var(--ombra);
+  gap: calc(var(--u) / 8);
+  padding: calc(var(--u) * 0.375);
   animation: var(--entra-tendina);
 }
 
+/* pulsanti alti 28, come tutti quelli delle superfici */
 .bottone {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 5px;
+  gap: calc(var(--u) / 4);
+  min-width: var(--controllo);
+  height: var(--controllo);
+  padding: 0 calc(var(--u) * 0.625);
   border-radius: var(--raggio);
   color: var(--inchiostro-tenue);
-  font-size: 12px;
+  font-size: var(--t-piccolo);
   line-height: 1;
-  transition: background 90ms ease, color 90ms ease;
 }
-.bottone:hover { background: var(--carta-alt); color: var(--inchiostro); }
+.bottone:hover { background: var(--sfiorata); color: var(--inchiostro); }
 .attivo { color: var(--accento); background: color-mix(in srgb, var(--accento) 11%, transparent); }
 
 .grassetto { font-weight: 700; }
 .corsivo { font-style: italic; font-family: var(--font-testo); }
-.sottolineato { text-decoration: underline; text-underline-offset: 2px; }
+.sottolineato { text-decoration: underline; text-underline-offset: calc(var(--u) / 4); }
 
 .separatore {
-  width: 1px;
-  height: 15px;
-  margin: 0 4px;
-  background: var(--linea);
   flex: none;
+  width: calc(var(--u) / 8);
+  height: calc(var(--u) * 1.875);
+  margin: 0 calc(var(--u) / 2);
+  background: var(--linea);
 }
 
 /* ── colore del testo ──────────────────────────────────────── */
-.apriColori { padding-right: 3px; }
-.lettera { font-weight: 600; font-size: 12.5px; opacity: 0.45; }
+.apriColori { padding-right: calc(var(--u) * 0.375); }
+.lettera { font-weight: 600; font-size: calc(var(--t-piccolo) * 1.04); opacity: 0.45; }
 .lettera[data-applicato] { opacity: 1; }   /* pieno = la selezione ha già quel colore */
 .freccetta { opacity: 0.65; }
 
@@ -51,12 +48,12 @@
 .lettera[data-colore="blu"]     { color: var(--c-blu); }
 .lettera[data-colore="viola"]   { color: var(--c-viola); }
 
-.pastiglia { min-width: 26px; }
+.pastiglia { min-width: var(--controllo); }
 .campione {
-  width: 13px;
-  height: 13px;
+  width: calc(var(--u) * 1.625);
+  height: calc(var(--u) * 1.625);
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+  box-shadow: inset 0 0 0 calc(var(--u) / 8) color-mix(in srgb, var(--inchiostro) 14%, transparent);
 }
 .campione[data-colore="rosso"]   { background: var(--c-rosso); }
 .campione[data-colore="arancio"] { background: var(--c-arancio); }
@@ -64,4 +61,4 @@
 .campione[data-colore="blu"]     { background: var(--c-blu); }
 .campione[data-colore="viola"]   { background: var(--c-viola); }
 
-.quiz { padding: 0 8px; font-size: 11.5px; font-weight: 600; }
+.quiz { padding: 0 var(--u); font-size: var(--t-etichetta); font-weight: 600; }

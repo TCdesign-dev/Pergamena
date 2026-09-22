@@ -183,7 +183,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, suMicrofono = false,
                     : r.integrata === null ? 'Integra negli appunti' : 'Integra di nuovo'}
                 </button>
               )}
-              <button onClick={() => setAperta(aperta === r.id ? null : r.id)}>
+              <button className={s.secondario} onClick={() => setAperta(aperta === r.id ? null : r.id)}>
                 {aperta === r.id ? 'Nascondi' : 'Trascrizione'}
               </button>
               <button className={s.pericolo} onClick={() => void eliminaRegistrazione(doc, r.id)}>Elimina</button>

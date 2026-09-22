@@ -32,7 +32,12 @@ function Finestrella({ editor, formula }: { editor: Editor; formula: FormulaAper
     })
   }, [editor, formula.pos])
 
-  useEffect(() => { campo.current?.focus(); campo.current?.select() }, [])
+  // il fuoco nel campo appena la finestrella è al suo posto: prima il
+  // campo non c'è ancora, e il fuoco resterebbe nel testo dietro
+  const pronta = dove !== null
+  useEffect(() => {
+    if (pronta) { campo.current?.focus(); campo.current?.select() }
+  }, [pronta])
 
   const anteprima = useMemo(() => {
     if (!latex.trim()) return ''
@@ -92,9 +97,13 @@ function Finestrella({ editor, formula }: { editor: Editor; formula: FormulaAper
           dangerouslySetInnerHTML={{ __html: anteprima || '<span class="vuota">l’anteprima compare qui</span>' }}
         />
         <div className={s.piede}>
-          <span className={s.aiuto}>{formula.tipo === 'inline' ? '↵ conferma' : '⌘↵ conferma'} · esc annulla</span>
-          {!formula.nuova && <button className={s.elimina} onClick={elimina}>Elimina</button>}
-          <button className={s.fatto} onClick={conferma}>Fatto</button>
+          <span className={s.aiuto}><kbd className={s.tasto}>esc</kbd> annulla</span>
+          <span className={s.azioni}>
+            {!formula.nuova && <button className={s.elimina} onClick={elimina}>Elimina</button>}
+            <button className={s.fatto} onClick={conferma}>
+              Fatto <kbd className={s.tasto}>{formula.tipo === 'inline' ? '↵' : '⌘↵'}</kbd>
+            </button>
+          </span>
         </div>
       </div>
     </div>

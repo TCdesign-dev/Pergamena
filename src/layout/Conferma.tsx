@@ -32,8 +32,10 @@ export function Conferma({
         <h2 className={s.titolo}>{titolo}</h2>
         {dettaglio && <p className={s.dettaglio}>{dettaglio}</p>}
         <div className={s.piede}>
-          <button className={s.annulla} onClick={onAnnulla}>Annulla</button>
-          <button ref={rif} className={s.pericolo} onClick={onConferma}>{azione}</button>
+          <span className={s.azioni}>
+            <button className={s.annulla} onClick={onAnnulla}>Annulla</button>
+            <button ref={rif} className={s.pericolo} onClick={onConferma}>{azione} <kbd className={s.tasto}>↵</kbd></button>
+          </span>
         </div>
       </div>
     </div>

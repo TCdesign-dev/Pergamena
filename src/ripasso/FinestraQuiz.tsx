@@ -181,7 +181,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
               </>
             ) : !svelata ? (
               <button className={s.svela} onClick={() => setSvelata(true)}>
-                Pensa alla risposta, poi scoprila <kbd>↵</kbd>
+                Pensa alla risposta, poi scoprila <kbd className={s.tasto}>↵</kbd>
               </button>
             ) : (
               <>
@@ -199,14 +199,17 @@ function Quiz({ ambito }: { ambito: Ambito }) {
 
             <footer className={s.piede}>
               <span className={s.aiuto}>
-                {!risposto
-                  ? d.tipo === 'scelta' ? 'premi 1-4, o clicca' : svelata ? 'S o N' : '↵ per scoprire la risposta'
-                  : ''}
+                {!risposto && (d.tipo === 'scelta'
+                  ? <>premi <kbd className={s.tasto}>1</kbd>–<kbd className={s.tasto}>4</kbd>, o clicca</>
+                  : svelata ? <><kbd className={s.tasto}>S</kbd> o <kbd className={s.tasto}>N</kbd></>
+                  : <><kbd className={s.tasto}>↵</kbd> per scoprire la risposta</>)}
               </span>
               {risposto && (
-                <button className={s.principale} onClick={avanti} autoFocus>
-                  {i + 1 < domande.length ? 'Avanti' : 'Com’è andata'} <kbd>↵</kbd>
-                </button>
+                <span className={s.azioni}>
+                  <button className={s.principale} onClick={avanti} autoFocus>
+                    {i + 1 < domande.length ? 'Avanti' : 'Com’è andata'} <kbd className={s.tasto}>↵</kbd>
+                  </button>
+                </span>
               )}
             </footer>
           </div>
@@ -232,9 +235,10 @@ function Quiz({ ambito }: { ambito: Ambito }) {
               ))}
             </ol>
             <footer className={s.piede}>
-              <span className={s.aiuto} />
-              <button className={s.secondario} onClick={() => void prepara()}>Altre domande</button>
-              <button className={s.principale} onClick={chiudi}>Chiudi <kbd>↵</kbd></button>
+              <span className={s.azioni}>
+                <button className={s.secondario} onClick={() => void prepara()}>Altre domande</button>
+                <button className={s.principale} onClick={chiudi}>Chiudi <kbd className={s.tasto}>↵</kbd></button>
+              </span>
             </footer>
           </div>
         )}

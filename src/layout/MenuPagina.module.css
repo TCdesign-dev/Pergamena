@@ -14,16 +14,13 @@
 /*  La tendina: la superficie fluttuante di tutta l'app, agganciata
  *  sotto al ⋯ e allineata al suo bordo destro. */
 .menu {
+  composes: superficie from './Superficie.module.css';
   position: absolute;
   top: calc(100% + var(--u) / 2);
   right: 0;
   z-index: 60;
   min-width: calc(var(--u) * 26);
   padding: calc(var(--u) / 2);
-  background: var(--superficie);
-  border: calc(var(--u) / 8) solid var(--superficie-bordo);
-  border-radius: var(--raggio-sup);
-  box-shadow: var(--ombra);
   transform-origin: top right;
   animation: var(--entra-tendina);
 }

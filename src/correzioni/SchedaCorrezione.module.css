@@ -1,16 +1,12 @@
 .velo { position: fixed; inset: 0; z-index: 70; }
 
-/*  La superficie fluttuante di tutta l'app: fondo, bordo leggero,
- *  raggio 12, un'ombra. Larghezza e posto li decide la scheda. */
+/*  La superficie fluttuante di tutta l'app. Larghezza e posto li
+ *  decide la scheda. */
 .scheda {
+  composes: superficie from '../layout/Superficie.module.css';
   position: fixed;
   max-width: calc(100vw - var(--u) * 3);
   padding: calc(var(--u) * 1.75) calc(var(--u) * 2) calc(var(--u) * 1.5);
-  background: var(--superficie);
-  border: calc(var(--u) / 8) solid var(--superficie-bordo);
-  border-radius: var(--raggio-sup);
-  box-shadow: var(--ombra);
-  font-family: var(--font-ui);
   animation: var(--entra-tendina);
 }
 
@@ -20,13 +16,7 @@
   justify-content: space-between;
   gap: var(--u);
 }
-.etichetta {
-  color: var(--tenue-testo);
-  font-size: var(--t-etichetta);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
+.etichetta { composes: etichetta from '../layout/Superficie.module.css'; }
 .contatore {
   flex: none;
   color: var(--tenue-testo);
@@ -58,54 +48,10 @@
 .freccia { color: var(--tenue); }
 .nuovo { color: var(--inchiostro); }
 
-/*  Il piede: a sinistra il tasto per la prossima, a destra le azioni.
- *  Nella scheda stretta (300 px, nel margine) non ci stanno su una
- *  riga: le azioni scendono insieme sotto, sempre a destra. */
-.piede {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--u);
-  margin-top: calc(var(--u) * 1.5);
-  padding-top: calc(var(--u) * 1.25);
-  border-top: calc(var(--u) / 8) solid var(--linea);
-}
-.suggerimento {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(var(--u) / 2);
-  color: var(--tenue-testo);
-  font-size: var(--t-piccolo);
-  white-space: nowrap;
-}
-.azioni { display: flex; gap: calc(var(--u) / 2); margin-left: auto; }
-
-.tasto {
-  padding: calc(var(--u) * 0.375) calc(var(--u) * 0.625);
-  border-radius: calc(var(--u) / 2);
-  background: var(--carta-alt-2);
-  color: var(--inchiostro-tenue);
-  font-family: var(--font-mono);
-  font-size: var(--t-etichetta);
-  font-weight: 500;
-  line-height: 1;
-}
-
-.pulsante {
-  display: inline-flex;
-  align-items: center;
-  gap: calc(var(--u) * 0.75);
-  height: var(--controllo);
-  padding: 0 calc(var(--u) * 1.25);
-  border-radius: var(--raggio);
-  font-size: var(--t-ui);
-  font-weight: 500;
-  white-space: nowrap;
-}
-.lascia { color: var(--inchiostro-tenue); }
-.lascia:hover { background: var(--sfiorata); color: var(--inchiostro); }
-
-/* il primario: testo del colore della carta, bianco in chiaro e scuro in scuro */
-.correggi { background: var(--accento); color: var(--carta); }
-.correggi:hover { background: color-mix(in srgb, var(--accento) 88%, var(--inchiostro)); }
-.correggi .tasto { background: color-mix(in srgb, currentColor 20%, transparent); color: inherit; }
+/* il piede: a sinistra il tasto per la prossima, a destra le azioni */
+.piede { composes: piede from '../layout/Superficie.module.css'; margin-top: calc(var(--u) * 1.5); }
+.suggerimento { composes: suggerimento from '../layout/Superficie.module.css'; }
+.azioni { composes: azioni from '../layout/Superficie.module.css'; }
+.tasto { composes: tasto from '../layout/Superficie.module.css'; }
+.lascia { composes: trasparente from '../layout/Superficie.module.css'; }
+.correggi { composes: primario from '../layout/Superficie.module.css'; }

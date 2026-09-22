@@ -1,0 +1,136 @@
+/*  La superficie fluttuante di Pergamena: una ricetta sola per tutto
+ *  quello che galleggia sopra il foglio — menu «/», menu della
+ *  selezione, scheda della correzione, formula, pannello Lezioni, ⌘K,
+ *  quiz, menu ⋯, finestre di conferma. Chi la usa la compone
+ *  (`composes: superficie from '…/Superficie.module.css'`) e ci mette
+ *  solo il suo posto, la sua larghezza e la sua animazione.
+ *
+ *  Dentro, pezzi che si possono comporre allo stesso modo: intestazione
+ *  a etichetta o a titolo, contenuto, piede coi tasti a sinistra e le
+ *  azioni a destra, pulsanti e tasti. */
+
+.superficie {
+  background: var(--superficie);
+  border: calc(var(--u) / 8) solid var(--superficie-bordo);
+  border-radius: var(--raggio-sup);
+  box-shadow: var(--ombra);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+}
+
+/* ── intestazione ───────────────────────────────────────────── */
+/*  a etichetta: 11 px, maiuscolo */
+.etichetta {
+  color: var(--tenue-testo);
+  font-size: var(--t-etichetta);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/*  a titolo: una riga alta 44, il titolo a 14 e chiudi a destra */
+.testa {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  min-height: var(--barra);
+  padding: 0 calc(var(--u) * 0.75) 0 calc(var(--u) * 2);
+}
+.titolo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(var(--t-ui) * 14 / 13);
+  font-weight: 600;
+}
+
+/* ── contenuto: 14-16 di margine, testo a 14 ────────────────── */
+.corpo {
+  padding: calc(var(--u) * 1.75) calc(var(--u) * 2);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.5;
+}
+
+/* ── piede: i tasti a sinistra, le azioni a destra ──────────── */
+/*  Separato da una linea. L'azione principale va per ultima; quando
+ *  non c'è posto per tutto su una riga, le azioni scendono insieme. */
+.piede {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u);
+  padding-top: calc(var(--u) * 1.25);
+  border-top: calc(var(--u) / 8) solid var(--linea);
+}
+.suggerimento {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) / 2);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  white-space: nowrap;
+}
+.azioni { display: flex; gap: calc(var(--u) / 2); margin-left: auto; }
+
+/* ── tasti ──────────────────────────────────────────────────── */
+.tasto {
+  padding: calc(var(--u) * 0.375) calc(var(--u) * 0.625);
+  border-radius: calc(var(--u) / 2);
+  background: var(--carta-alt-2);
+  color: var(--inchiostro-tenue);
+  font-family: var(--font-mono);
+  font-size: var(--t-etichetta);
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* ── pulsanti: alti 28, testo 13, icona 14 ──────────────────── */
+.pulsante {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.75);
+  height: var(--controllo);
+  padding: 0 calc(var(--u) * 1.25);
+  border-radius: var(--raggio);
+  font-size: var(--t-ui);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pulsante:disabled { opacity: 0.5; cursor: default; }
+
+.trasparente { composes: pulsante; color: var(--inchiostro-tenue); }
+.trasparente:hover:not(:disabled) { background: var(--sfiorata); color: var(--inchiostro); }
+
+.secondario { composes: pulsante; background: var(--carta-alt-2); color: var(--inchiostro); }
+.secondario:hover:not(:disabled) { background: var(--premuta); }
+
+/*  Il principale: testo del colore della carta, cioè bianco in chiaro
+ *  e scuro in scuro, sul blu che in scuro si schiarisce. */
+.primario { composes: pulsante; background: var(--accento); color: var(--carta); }
+.primario:hover:not(:disabled) { background: color-mix(in srgb, var(--accento) 88%, var(--inchiostro)); }
+
+/*  Per le azioni che tolgono qualcosa: come il principale, in rosso. */
+.pericolo { composes: pulsante; background: var(--c-rosso); color: var(--carta); }
+.pericolo:hover:not(:disabled) { background: color-mix(in srgb, var(--c-rosso) 88%, var(--inchiostro)); }
+
+/* il tasto dentro un pulsante pieno: un velo del colore del testo */
+.primario .tasto, .pericolo .tasto { background: color-mix(in srgb, currentColor 20%, transparent); color: inherit; }
+
+/*  Pulsante con la sola icona: 28×28, icona 16 */
+.icona {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--controllo);
+  height: var(--controllo);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+}
+.icona:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+/* ── il velo sotto una finestra ─────────────────────────────── */
+.velo { background: var(--velo); }

@@ -1,4 +1,5 @@
 .velo {
+  composes: velo from './Superficie.module.css';
   position: fixed;
   inset: 0;
   z-index: 80;
@@ -6,20 +7,16 @@
   justify-content: center;
   align-items: flex-start;   /* altrimenti il pannello si stira a 60vh */
   padding-top: 14vh;
-  background: rgb(0 0 0 / 0.28);
   animation: var(--entra-velo);
 }
 
 .pannello {
-  width: min(540px, calc(100vw - var(--u) * 6));
+  composes: superficie from './Superficie.module.css';
+  width: min(calc(var(--u) * 67.5), calc(100vw - var(--u) * 6));
   max-height: 60vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--carta);
-  border: 1px solid var(--linea);
-  border-radius: calc(var(--raggio) * 2.5);
-  box-shadow: var(--ombra);
   animation: var(--entra-finestra);
 }
 
@@ -27,23 +24,23 @@
   flex: none;
   padding: calc(var(--u) * 1.75) calc(var(--u) * 2);
   border: none;
-  border-bottom: 1px solid var(--linea);
+  border-bottom: calc(var(--u) / 8) solid var(--linea);
   background: none;
   color: var(--inchiostro);
   font-family: var(--font-ui);
-  font-size: 15px;
+  font-size: calc(var(--t-ui) * 15 / 13);
   outline: none;
 }
-.campo::placeholder { color: var(--tenue); }
+.campo::placeholder { color: var(--tenue-testo); }
 
-.elenco { overflow-y: auto; padding: 5px; }
+.elenco { overflow-y: auto; padding: calc(var(--u) * 0.625); }
 
 .riga {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: calc(var(--u) / 4);
   width: 100%;
-  padding: 7px 9px;
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.125);
   border-radius: var(--raggio);
   text-align: left;
 }
@@ -60,10 +57,10 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--inchiostro-tenue);
-  font-size: 11.5px;
+  font-size: var(--t-piccolo);
   line-height: 1.45;
 }
-.riga:hover { background: var(--carta-alt); }
+.riga:hover { background: var(--sfiorata); }
 .scelta, .scelta:hover { background: color-mix(in srgb, var(--accento) 12%, transparent); }
 
 .titolo {
@@ -71,20 +68,14 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 13.5px;
+  font-size: calc(var(--t-ui) * 1.04);
 }
-.materia {
-  flex: none;
-  color: var(--tenue);
-  font-size: 10.5px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
+.materia { composes: etichetta from './Superficie.module.css'; flex: none; }
 
 .nulla {
   margin: 0;
   padding: calc(var(--u) * 2);
-  color: var(--tenue);
-  font-size: 13px;
+  color: var(--tenue-testo);
+  font-size: var(--t-ui);
   text-align: center;
 }

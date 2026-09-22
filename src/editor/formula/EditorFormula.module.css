@@ -1,46 +1,44 @@
 .velo { position: fixed; inset: 0; z-index: 70; }
 
 .finestrella {
+  composes: superficie from '../../layout/Superficie.module.css';
   position: fixed;
-  width: 380px;
-  padding: 10px;
-  background: var(--carta);
-  border: 1px solid var(--linea);
-  border-radius: var(--raggio-g);
-  box-shadow: var(--ombra);
+  width: calc(var(--u) * 47.5);
+  padding: calc(var(--u) * 1.75) calc(var(--u) * 2) calc(var(--u) * 1.5);
   animation: var(--entra-tendina);
 }
 
 .campo {
   width: 100%;
   resize: vertical;
-  padding: 7px 9px;
-  border: 1px solid var(--linea-forte);
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.125);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
   border-radius: var(--raggio);
   background: var(--carta-alt);
   color: var(--inchiostro);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--t-ui);
   line-height: 1.5;
   outline: none;
 }
 .campo:focus { border-color: var(--accento); }
 
 .anteprima {
-  min-height: 34px;
-  margin-top: 8px;
-  padding: 6px 4px;
+  min-height: calc(var(--u) * 4.25);
+  margin-top: var(--u);
+  padding: calc(var(--u) * 0.75) calc(var(--u) / 2);
   overflow-x: auto;
   color: var(--inchiostro);
-  font-size: 15px;
+  font-size: calc(var(--t-ui) * 15 / 13);
 }
-.anteprima :global(.vuota) { color: var(--tenue); font-size: 12px; }
+.anteprima :global(.vuota) { color: var(--tenue-testo); font-size: var(--t-piccolo); }
 .aSe { text-align: center; }
 
-.piede { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-.aiuto { flex: 1; color: var(--tenue); font-size: 11px; }
-.elimina, .fatto { padding: 4px 10px; border-radius: var(--raggio); font-size: 12px; }
-.elimina { color: var(--inchiostro-tenue); }
-.elimina:hover { background: var(--sfiorata); color: var(--c-rosso); }
-.fatto { background: var(--accento); color: #fff; }
-.fatto:hover { filter: brightness(1.07); }
+/* il piede: esc a sinistra, a destra Elimina e Fatto */
+.piede { composes: piede from '../../layout/Superficie.module.css'; margin-top: var(--u); }
+.aiuto { composes: suggerimento from '../../layout/Superficie.module.css'; }
+.azioni { composes: azioni from '../../layout/Superficie.module.css'; }
+.tasto { composes: tasto from '../../layout/Superficie.module.css'; }
+.elimina { composes: trasparente from '../../layout/Superficie.module.css'; }
+.elimina:hover:not(:disabled) { color: var(--c-rosso); }
+.fatto { composes: primario from '../../layout/Superficie.module.css'; }

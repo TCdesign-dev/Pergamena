@@ -1,26 +1,27 @@
+/*  La superficie fluttuante di tutta l'app, agganciata sotto a
+ *  «Lezioni». Il contenuto si riordina col suo ridisegno; qui ci sono
+ *  già la superficie, l'intestazione a titolo e i pulsanti. */
 .pannello {
+  composes: superficie from '../layout/Superficie.module.css';
   position: absolute;
   top: calc(var(--barra) + var(--u) / 4);
-  right: 12px;
+  right: calc(var(--u) * 1.5);
   z-index: 60;
-  width: 380px;
-  max-height: min(560px, 76vh);
+  width: calc(var(--u) * 47.5);
+  max-height: min(calc(var(--u) * 70), 76vh);
   display: flex;
   flex-direction: column;
-  padding: calc(var(--u) * 1.5);
-  background: var(--carta);
-  border-radius: var(--raggio-g);
-  box-shadow: var(--ombra);
+  padding: 0 calc(var(--u) * 2) calc(var(--u) * 1.75);
   transform-origin: top right;
   animation: var(--entra-tendina);
 }
 
-.testa { display: flex; align-items: center; margin-bottom: var(--u); }
-.titolo { flex: 1; font-size: 12.5px; font-weight: 600; }
-.chiudi { width: 22px; height: 22px; border-radius: var(--raggio); color: var(--tenue); display: inline-grid; place-items: center; }
-.chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
+/* l'intestazione a titolo occupa tutta la larghezza della superficie */
+.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; margin: 0 calc(var(--u) * -2); }
+.titolo { composes: titolo from '../layout/Superficie.module.css'; }
+.chiudi { composes: icona from '../layout/Superficie.module.css'; }
 
-.vuoto { margin: var(--u) 0; color: var(--tenue); font-size: 12px; line-height: 1.6; }
+.vuoto { margin: var(--u) 0; color: var(--tenue-testo); font-size: var(--t-piccolo); line-height: 1.6; }
 
 .elenco { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
 .lezione { padding: calc(var(--u) * 1.25) 0; border-bottom: 1px solid var(--linea); animation: var(--entra); }
@@ -32,19 +33,12 @@
 
 .stato { margin: 4px 0 0; color: var(--inchiostro-tenue); font-size: 11.5px; }
 
-.azioni { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--u); }
-.azioni button {
-  padding: 4px 9px;
-  border-radius: var(--raggio);
-  background: var(--sfiorata);
-  color: var(--inchiostro-tenue);
-  font-size: 11.5px;
-}
-.azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
-.azioni button:disabled { opacity: 0.5; }
-.azioni .principale { display: inline-flex; align-items: center; gap: 6px; background: var(--accento); color: #fff; }
-.azioni .principale:hover { background: var(--accento); color: #fff; filter: brightness(1.07); }
-.azioni .pericolo:hover { color: var(--c-rosso); }
+/* i pulsanti della superficie: principale, secondario, e Elimina trasparente */
+.azioni { display: flex; flex-wrap: wrap; gap: calc(var(--u) / 2); margin-top: var(--u); }
+.principale { composes: primario from '../layout/Superficie.module.css'; }
+.secondario { composes: secondario from '../layout/Superficie.module.css'; }
+.pericolo { composes: trasparente from '../layout/Superficie.module.css'; }
+.pericolo:hover:not(:disabled) { color: var(--c-rosso); }
 
 .trascrizione {
   margin-top: var(--u);

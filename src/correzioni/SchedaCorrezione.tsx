@@ -170,10 +170,10 @@ function Scheda({ editor, doc, id }: { editor: Editor; doc: Y.Doc; id: string })
             <span className={s.suggerimento}><kbd className={s.tasto}>⌥⌘↓</kbd> prossima</span>
           )}
           <span className={s.azioni}>
-            <button className={`${s.pulsante} ${s.lascia}`} onClick={lascia}>
+            <button className={s.lascia} onClick={lascia}>
               Lascia così <kbd className={s.tasto}>X</kbd>
             </button>
-            <button ref={correggi} className={`${s.pulsante} ${s.correggi}`} onClick={() => { accettaCorrezione(editor, doc, c); chiudi() }}>
+            <button ref={correggi} className={s.correggi} onClick={() => { accettaCorrezione(editor, doc, c); chiudi() }}>
               Correggi <kbd className={s.tasto}>↵</kbd>
             </button>
           </span>

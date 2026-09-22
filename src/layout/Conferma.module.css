@@ -1,4 +1,5 @@
 .velo {
+  composes: velo from './Superficie.module.css';
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -6,43 +7,28 @@
   justify-content: center;
   align-items: flex-start;
   padding-top: 20vh;
-  background: #00000047;
   animation: var(--entra-velo);
 }
 
 .pannello {
-  width: min(380px, calc(100vw - var(--u) * 6));
+  composes: superficie from './Superficie.module.css';
+  width: min(calc(var(--u) * 47.5), calc(100vw - var(--u) * 6));
   padding: calc(var(--u) * 3);
-  background: var(--carta);
-  border-radius: var(--raggio-g);
-  box-shadow: var(--ombra);
   animation: var(--entra-finestra);
 }
 
-.titolo { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.4; }
+.titolo { margin: 0; font-size: calc(var(--t-ui) * 15 / 13); font-weight: 600; line-height: 1.4; }
 
 .dettaglio {
   margin: var(--u) 0 0;
   color: var(--inchiostro-tenue);
-  font-size: 12.5px;
+  font-size: calc(var(--t-piccolo) * 1.04);
   line-height: 1.6;
 }
 
-.piede {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--u);
-  margin-top: calc(var(--u) * 3);
-}
-
-.annulla, .pericolo {
-  padding: 7px 14px;
-  border-radius: var(--raggio);
-  font-size: 13px;
-  font-weight: 500;
-}
-.annulla { color: var(--inchiostro-tenue); }
-.annulla:hover { background: var(--sfiorata); color: var(--inchiostro); }
-
-.pericolo { background: var(--c-rosso); color: #fff; }
-.pericolo:hover { filter: brightness(1.08); }
+/* il piede della superficie: le azioni a destra, quella che elimina per ultima */
+.piede { composes: piede from './Superficie.module.css'; margin-top: calc(var(--u) * 2.5); }
+.azioni { composes: azioni from './Superficie.module.css'; }
+.tasto { composes: tasto from './Superficie.module.css'; }
+.annulla { composes: trasparente from './Superficie.module.css'; }
+.pericolo { composes: pericolo from './Superficie.module.css'; }
