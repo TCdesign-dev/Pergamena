@@ -11,7 +11,7 @@
   /* arrivano dal basso; il translateX tiene il centro durante il movimento */
   animation: sale var(--lento) var(--curva) both;
 }
-@keyframes sale { from { opacity: 0; transform: translate(-50%, 10px); } }
+@keyframes sale { from { opacity: 0; transform: translate(-50%, calc(var(--u) * 1.25)); } }
 
 .invito {
   composes: primario from '../layout/Superficie.module.css';

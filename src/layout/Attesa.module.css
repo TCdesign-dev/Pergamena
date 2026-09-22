@@ -4,7 +4,7 @@
   width: 0.9em;
   height: 0.9em;
   vertical-align: -0.1em;
-  border: 1.5px solid currentColor;
+  border: calc(var(--u) * 0.1875) solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
   opacity: 0.75;
@@ -14,9 +14,9 @@
 .barra {
   position: relative;
   display: block;
-  height: 2px;
+  height: calc(var(--u) / 4);
   overflow: hidden;
-  border-radius: 1px;
+  border-radius: calc(var(--u) / 8);
   background: var(--sfiorata);
 }
 .barra::after {
