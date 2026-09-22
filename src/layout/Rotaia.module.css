@@ -1,0 +1,57 @@
+/*  La rotaia: pulsanti 32×32 su una colonna di 48, il fondo delle barre. */
+
+.rotaia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 0.5);
+  height: 100%;
+  padding-block: var(--u);
+  background: var(--carta-alt);
+  user-select: none;
+}
+
+.pulsante {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 4);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+}
+.pulsante:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.attivo, .attivo:hover { background: var(--carta-alt-2); color: var(--inchiostro); }
+.spento { color: var(--tenue-testo); }
+
+.separatore {
+  flex: none;
+  width: calc(var(--u) * 2.5);
+  height: calc(var(--u) / 8);
+  margin-block: calc(var(--u) * 0.75);
+  background: var(--linea);
+}
+
+/*  Con tante materie la colonna scorre, e l'archivio resta in fondo. */
+.materie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 0.5);
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.spazio { flex: 1; }
+
+.pallino {
+  width: calc(var(--u) * 1.25);
+  height: calc(var(--u) * 1.25);
+  border-radius: 50%;
+}
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }

@@ -1,122 +1,239 @@
+/*  La barra laterale aperta. Righe alte 28-30, testo 13,5 (il 13
+ *  dell'interfaccia un filo più grande: qui si legge, non si clicca e
+ *  basta). Tutte le misure vengono dai token. */
+
 .barra {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: calc(var(--u) * 1.25);
+  padding: var(--u);
+  background: var(--carta-alt);
   user-select: none;
 }
 
-/* ── alto ───────────────────────────────────────────────────── */
-.alto { padding: 0 calc(var(--u) * 0.5) calc(var(--u) * 1.5); }
-
-.home {
-  display: block; width: 100%;
-  padding: 5px 7px;
-  border-radius: var(--raggio);
-  text-align: left;
+/* ── in alto ────────────────────────────────────────────────── */
+.testa {
+  display: flex;
+  align-items: center;
+  height: calc(var(--u) * 4.5);
+  padding: 0 calc(var(--u) * 0.5) 0 var(--u);
 }
-.home:hover { background: var(--sfiorata); }
-.attivo { background: var(--premuta); }
-.marchio { font-size: 14px; font-weight: 620; letter-spacing: -0.01em; }
-
-.ordine {
-  display: block; width: 100%;
-  padding: 3px 7px; margin-top: 2px;
+.marchio {
+  flex: 1;
+  font-size: calc(var(--t-ui) * 1.08);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.chiudi {
+  display: grid;
+  place-items: center;
+  width: var(--controllo);
+  height: var(--controllo);
   border-radius: var(--raggio);
-  color: var(--tenue); font-size: 10.5px;
+  color: var(--inchiostro-tenue);
+}
+.chiudi:hover { background: var(--sfiorata); color: var(--inchiostro); }
+
+/*  L'ordine delle pagine, com'era: una riga di testo piccolo. */
+.ordine {
+  display: block;
+  width: 100%;
+  padding: calc(var(--u) * 0.375) var(--u);
+  border-radius: var(--raggio);
+  color: var(--tenue-testo);
+  font-size: var(--t-etichetta);
   text-align: left;
 }
 .ordine:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
 
-/* ── elenco ─────────────────────────────────────────────────── */
-.elencoMaterie { flex: 1; overflow-y: auto; }
+.cerca {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 3.75);
+  margin: calc(var(--u) * 0.5) 0 calc(var(--u) * 1.25);
+  padding: 0 var(--u);
+  border-radius: var(--raggio);
+  background: var(--carta-alt-2);
+  color: var(--tenue-testo);
+  font-size: var(--t-ui);
+  text-align: left;
+}
+.cerca:hover { color: var(--inchiostro-tenue); }
+.cercaTesto { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.tasto {
+  padding: calc(var(--u) * 0.375) calc(var(--u) * 0.625);
+  border-radius: calc(var(--u) * 0.5);
+  background: var(--carta);
+  color: var(--inchiostro-tenue);
+  font-family: var(--font-mono);
+  font-size: var(--t-etichetta);
+  font-weight: 500;
+  line-height: 1;
+}
 
-.vuoto { padding: calc(var(--u) * 1.5); color: var(--tenue); font-size: 11.5px; line-height: 1.7; }
+/*  Una riga di navigazione: «Le tue materie», «Nuova materia», «Archivio». */
+.voce {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  width: 100%;
+  height: calc(var(--u) * 3.75);
+  padding: 0 var(--u);
+  border-radius: var(--raggio);
+  color: var(--inchiostro-tenue);
+  font-size: calc(var(--t-ui) * 1.04);
+  text-align: left;
+}
+.voce:hover { background: var(--sfiorata); color: var(--inchiostro); }
+.spento { color: var(--tenue-testo); }
+.corrente, .corrente:hover { background: var(--carta-alt-2); color: var(--inchiostro); }
 
-.materia { margin-bottom: 1px; }
+.etichetta {
+  padding: calc(var(--u) * 1.75) var(--u) calc(var(--u) * 0.75);
+  color: var(--tenue-testo);
+  font-size: var(--t-etichetta);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── l'albero ───────────────────────────────────────────────── */
+.elencoMaterie { flex: 1; min-height: 0; overflow-y: auto; }
+
+.vuoto { padding: var(--u); color: var(--tenue-testo); font-size: var(--t-piccolo); line-height: 1.6; }
 
 .intestazione {
-  display: flex; align-items: center; gap: 3px;
-  height: 27px; padding: 0 4px 0 1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 3.75);
+  padding: 0 calc(var(--u) * 0.5) 0 var(--u);
   border-radius: var(--raggio);
 }
 .intestazione:hover { background: var(--sfiorata); }
 
-.piega { width: 15px; height: 20px; color: var(--tenue); display: inline-grid; place-items: center; }
+.piega {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 1.5);
+  height: calc(var(--u) * 2.5);
+  color: var(--tenue);
+}
 .freccia { display: grid; transition: transform var(--veloce) ease; }
 .chiusa { transform: rotate(-90deg); }
 
-.pallino { width: 6px; height: 6px; border-radius: 50%; flex: none; margin-right: 3px; }
+.pallino { flex: none; width: var(--u); height: var(--u); border-radius: 50%; }
 .pallino[data-colore="rosso"]   { background: var(--c-rosso); }
 .pallino[data-colore="arancio"] { background: var(--c-arancio); }
 .pallino[data-colore="verde"]   { background: var(--c-verde); }
 .pallino[data-colore="blu"]     { background: var(--c-blu); }
 .pallino[data-colore="viola"]   { background: var(--c-viola); }
 
-.nomeScheda { color: var(--inchiostro); }
-.esameVicino {
-  flex: none;
-  padding: 0 5px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--accento) 13%, transparent);
-  color: var(--accento);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 16px;
-  font-variant-numeric: tabular-nums;
-}
-.intestazione:hover .esameVicino { display: none; }   /* lascia posto alle azioni */
 .nome {
-  flex: 1; min-width: 0;
-  font-size: 12.5px; font-weight: 550; color: var(--inchiostro-tenue);
-  text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 1.04);
+  font-weight: 500;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/*  Le azioni compaiono solo passandoci sopra: una barra piena di
- *  icone sempre visibili è rumore, e nasconde ciò che conta. */
-.azioni { display: flex; gap: 1px; opacity: 0; transition: opacity 110ms ease; }
-.intestazione:hover .azioni { opacity: 1; }
+.esameVicino {
+  flex: none;
+  padding: 0 calc(var(--u) * 0.625);
+  border-radius: var(--u);
+  background: var(--accento-fondo);
+  color: var(--accento-testo);
+  font-size: var(--t-etichetta);
+  font-weight: 600;
+  line-height: calc(var(--u) * 2);
+  font-variant-numeric: tabular-nums;
+}
+/*  Le azioni compaiono passandoci sopra (o arrivandoci col tabulatore),
+ *  SOPRA la fine della riga: nascoste non tengono posto, così il nome
+ *  della materia usa tutta la larghezza, e passandoci niente si sposta.
+ *  Il fondo è quello della riga, e sfuma a sinistra sul nome. */
+.azioni {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(var(--u) * 0.5);
+  display: flex;
+  align-items: center;
+  padding-left: var(--u);
+  border-radius: var(--raggio);
+  background: linear-gradient(var(--sfiorata), var(--sfiorata)), var(--carta-alt);
+  mask-image: linear-gradient(to right, transparent, var(--inchiostro) var(--u));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--veloce) ease;
+}
+.intestazione:hover .azioni, .azioni:focus-within { opacity: 1; pointer-events: auto; }
+.corrente .azioni { background: var(--carta-alt-2); }
 .azioni button {
-  width: 19px; height: 19px; border-radius: 3px;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 2.75);
+  height: calc(var(--u) * 2.75);
+  border-radius: calc(var(--u) * 0.5);
   color: var(--tenue);
-  display: inline-grid; place-items: center;
 }
 .azioni button:hover { background: var(--premuta); color: var(--inchiostro); }
 
-/* ── pagine ─────────────────────────────────────────────────── */
-.pagine { list-style: none; margin: 0 0 calc(var(--u) * 0.75); padding: 0 0 0 19px; }
-.nessuna { padding: 3px 7px; color: var(--tenue); font-size: 11px; font-style: italic; }
+/* ── le pagine ──────────────────────────────────────────────── */
+.pagine { list-style: none; margin: 0 0 calc(var(--u) * 0.5); padding: 0 0 0 calc(var(--u) * 4.25); }
+.nessuna { padding: calc(var(--u) * 0.5) var(--u); color: var(--tenue-testo); font-size: var(--t-piccolo); font-style: italic; }
 
-.riga { display: flex; align-items: center; border-radius: var(--raggio); }
+.riga { position: relative; display: flex; align-items: center; border-radius: var(--raggio); }
 .riga:hover { background: var(--sfiorata); }
-
-.pagina {
-  display: flex; align-items: baseline; gap: var(--u);
-  flex: 1; min-width: 0;
-  padding: 5px 7px;
-  border-radius: var(--raggio);
-  text-align: left;
-}
-.corrente { background: var(--premuta); font-weight: 550; }
 .riga:has(.corrente) { background: transparent; }
 
-.titoloPagina { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12.5px; }
-.data { flex: none; color: var(--tenue); font-size: 10px; font-variant-numeric: tabular-nums; }
-
-.cestino {
-  flex: none; width: 20px; height: 20px; margin-right: 3px;
-  border-radius: 3px; color: var(--tenue);
-  display: inline-grid; place-items: center;
-  opacity: 0; transition: opacity 110ms ease;
-}
-.riga:hover .cestino { opacity: 1; }
-.cestino:hover { background: var(--premuta); color: var(--c-rosso); }
-
-/* ── nuova materia ──────────────────────────────────────────── */
-.nuovaMateria {
-  display: flex; align-items: center; gap: calc(var(--u) * 0.75); width: 100%;
-  padding: 6px 7px; margin-top: var(--u);
+.pagina {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  flex: 1;
+  min-width: 0;
+  height: var(--controllo);
+  padding: 0 var(--u);
   border-radius: var(--raggio);
-  color: var(--tenue); font-size: 12px; text-align: left;
+  color: var(--inchiostro-tenue);
+  font-size: calc(var(--t-ui) * 1.04);
+  text-align: left;
 }
-.nuovaMateria:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); }
+.pagina.corrente { font-weight: 500; }
+.titoloPagina { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.data { flex: none; color: var(--tenue-testo); font-size: var(--t-etichetta); font-variant-numeric: tabular-nums; }
+
+/*  Il cestino, come le azioni della materia: sopra la fine della riga,
+ *  al posto della data, solo passandoci. */
+.cestino {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--u) * 0.25);
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 2.75);
+  height: calc(var(--u) * 2.75);
+  border-radius: calc(var(--u) * 0.5);
+  background: linear-gradient(var(--sfiorata), var(--sfiorata)), var(--carta-alt);
+  color: var(--tenue);
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--veloce) ease;
+}
+.riga:hover .cestino, .cestino:focus-visible { opacity: 1; pointer-events: auto; }
+.riga:hover .data { visibility: hidden; }
+.cestino:hover { background: linear-gradient(var(--premuta), var(--premuta)), var(--carta-alt); color: var(--c-rosso); }
+.riga:has(.corrente) .cestino { background: var(--carta-alt-2); }
+.riga:has(.corrente) .cestino:hover { background: linear-gradient(var(--premuta), var(--premuta)), var(--carta-alt-2); }
+
+/* ── in fondo ───────────────────────────────────────────────── */
+.piede { padding-top: calc(var(--u) * 0.5); }

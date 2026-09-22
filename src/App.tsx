@@ -4,6 +4,8 @@ import { apriDocumento, eliminaDocumento, eliminaQuaderno, mappaDocumenti, soloP
 import type { Quaderno, Documento } from './documento/tipi'
 import { Guscio } from './layout/Guscio'
 import { BarraLaterale } from './layout/BarraLaterale'
+import { Rotaia } from './layout/Rotaia'
+import { useStretto } from './layout/useStretto'
 import { BarraSuperiore } from './layout/BarraSuperiore'
 import { Home } from './layout/Home'
 import { Conferma } from './layout/Conferma'
@@ -42,7 +44,14 @@ export function App() {
   const [schedaAperta, setSchedaAperta] = useState<string | null>(null)   // id della materia
   const [ripassoAperto, setRipassoAperto] = useState<string | null>(null) // id della materia
   const [archivioAperto, setArchivioAperto] = useState(false)
+  /*  La barra laterale: da larghi è aperta o chiusa (rotaia) come
+   *  scegli tu con ⌘\, e la scelta resta; da stretti c'è sempre la
+   *  rotaia, e ⌘\ apre la barra intera sopra il foglio. */
   const [latoAperto, setLatoAperto] = useState(true)
+  const [sopraAperto, setSopraAperto] = useState(false)
+  const stretto = useStretto()
+  const strettoRif = useRef(stretto)
+  strettoRif.current = stretto
   const [comandiAperti, setComandiAperti] = useState(false)
   const [mostraAccesso, setMostraAccesso] = useState(false)
   const [daEliminare, setDaEliminare] = useState<DaEliminare | null>(null)
@@ -71,6 +80,7 @@ export function App() {
   const apri = useCallback((id: string, dove: Fuoco = 'corpo') => {
     // la scheda di una materia si apre nella sua vista, non come pagina
     const d = mappaDocumenti.get(id)
+    setSopraAperto(false)
     if (d?.scheda) {
       setSchedaAperta(d.quadernoId)
       setInHome(false)
@@ -85,6 +95,7 @@ export function App() {
   }, [])
 
   const apriScheda = useCallback((quadernoId: string) => {
+    setSopraAperto(false)
     setSchedaAperta(quadernoId)
     setRipassoAperto(null)
     setArchivioAperto(false)
@@ -92,6 +103,7 @@ export function App() {
   }, [])
 
   const apriRipasso = useCallback((quadernoId: string) => {
+    setSopraAperto(false)
     setRipassoAperto(quadernoId)
     setSchedaAperta(null)
     setArchivioAperto(false)
@@ -99,6 +111,7 @@ export function App() {
   }, [])
 
   const apriArchivio = useCallback(() => {
+    setSopraAperto(false)
     setArchivioAperto(true)
     setRipassoAperto(null)
     setSchedaAperta(null)
@@ -106,6 +119,7 @@ export function App() {
   }, [])
 
   const vaiHome = useCallback(() => {
+    setSopraAperto(false)
     setInHome(true)
     setSchedaAperta(null)
     setRipassoAperto(null)
@@ -143,13 +157,25 @@ export function App() {
   useEffect(() => {
     const giu = (e: KeyboardEvent) => {
       if (!(e.metaKey || e.ctrlKey)) return
-      if (e.key === '\\') { e.preventDefault(); setLatoAperto((v) => !v) }
+      if (e.key === '\\') {
+        e.preventDefault()
+        if (strettoRif.current) setSopraAperto((v) => !v)
+        else setLatoAperto((v) => !v)
+      }
       else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); setComandiAperti((v) => !v) }
       else if (e.key === '/') { e.preventDefault(); apriPannello(!leggiPannello().aperto) }
     }
     window.addEventListener('keydown', giu)
     return () => window.removeEventListener('keydown', giu)
   }, [])
+
+  // allargando la finestra la barra torna al suo posto: niente resta sopra
+  useEffect(() => { if (!stretto) setSopraAperto(false) }, [stretto])
+
+  const apriBarra = () => (stretto ? setSopraAperto(true) : setLatoAperto(true))
+  const chiudiBarra = () => (stretto ? setSopraAperto(false) : setLatoAperto(false))
+  const chiudiSopra = useCallback(() => setSopraAperto(false), [])
+  const cerca = () => { setSopraAperto(false); setComandiAperti(true) }
 
   async function eliminaDavvero() {
     const cosa = daEliminare
@@ -164,6 +190,9 @@ export function App() {
   const materiaScheda = schedaAperta ? quaderni.find((q) => q.id === schedaAperta) ?? null : null
   const materiaRipasso = ripassoAperto ? quaderni.find((q) => q.id === ripassoAperto) ?? null : null
   const mostraHome = !archivioAperto && !materiaScheda && !materiaRipasso && (inHome || !aperto)
+  // quello che si sta guardando, per segnarlo nella barra e nella rotaia
+  const paginaInVista = !mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && aperto ? aperto.id : null
+  const materiaInVista = materiaRipasso?.id ?? materiaScheda?.id ?? (paginaInVista ? aperto!.quadernoId : null)
   const docAperto = useMemo(() => (aperto ? apriDocumento(aperto.id).doc : null), [aperto?.id])
 
   useEffect(() => {
@@ -175,21 +204,41 @@ export function App() {
   return (
     <>
       <Guscio
-        latoAperto={latoAperto}
+        modo={stretto || !latoAperto ? 'rotaia' : 'lato'}
+        sopra={sopraAperto}
+        onChiudiSopra={chiudiSopra}
         destra={!mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && pannello.aperto && docAperto
           ? <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
+        rotaia={
+          <Rotaia
+            quaderni={quaderni}
+            documenti={documenti}
+            materiaInVista={materiaInVista}
+            inHome={mostraHome}
+            archivioAperto={archivioAperto}
+            onBarra={apriBarra}
+            onCerca={cerca}
+            onHome={vaiHome}
+            onApri={apri}
+            onArchivio={apriArchivio}
+          />
+        }
         lato={
           <BarraLaterale
             quaderni={quaderni}
             documenti={documenti}
-            apertoId={apertoId}
+            paginaInVista={paginaInVista}
             inHome={mostraHome}
             schedaAperta={materiaScheda?.id ?? null}
+            archivioAperto={archivioAperto}
             onApri={apri}
             onScheda={apriScheda}
             onRipasso={apriRipasso}
             onHome={vaiHome}
+            onArchivio={apriArchivio}
+            onCerca={cerca}
+            onChiudi={chiudiBarra}
             onAccedi={() => setMostraAccesso(true)}
             onEliminaPagina={(d) => setDaEliminare({ tipo: 'pagina', documento: d })}
             onEliminaMateria={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}

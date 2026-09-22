@@ -2,14 +2,17 @@
   display: grid;
   grid-template-columns: var(--lato) minmax(0, 1fr);
   height: 100%;
-  transition: grid-template-columns 160ms ease;
+  transition: grid-template-columns var(--medio) var(--curva);
 }
+.conRotaia { grid-template-columns: var(--rotaia) minmax(0, 1fr); }
+/*  Il pannello delle immagini è ancora largo 280: diventerà
+ *  --pannello-destro, e un popover da stretti, col suo ridisegno. */
 .conDestra { grid-template-columns: var(--lato) minmax(0, 1fr) 280px; }
-.latoChiuso { grid-template-columns: 0 minmax(0, 1fr); }
-.latoChiuso.conDestra { grid-template-columns: 0 minmax(0, 1fr) 280px; }
+.conRotaia.conDestra { grid-template-columns: var(--rotaia) minmax(0, 1fr) 280px; }
 
 .lato {
-  overflow: hidden auto;
+  min-width: 0;
+  overflow: hidden;
   background: var(--carta-alt);
 }
 
@@ -19,4 +22,19 @@
   overflow: hidden auto;
   background: var(--carta-alt);
   border-left: 1px solid var(--linea);
+}
+
+/* ── la barra intera sopra il foglio, da stretti ────────────── */
+.velo { position: fixed; inset: 0; z-index: 50; }
+.sopra {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 51;
+  width: var(--lato);
+  overflow: hidden;
+  background: var(--carta-alt);
+  box-shadow: var(--ombra);
+  animation: var(--entra-velo);
 }
