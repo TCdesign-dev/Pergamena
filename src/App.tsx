@@ -277,7 +277,6 @@ export function App() {
               onApri={apri}
               onScheda={apriScheda}
               onRipasso={apriRipasso}
-              onArchivio={apriArchivio}
               onCopertina={setCopertinaDi}
               onElimina={(q) => setDaEliminare({ tipo: 'materia', quaderno: q })}
             />

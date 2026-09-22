@@ -6,7 +6,10 @@ import { daRipassare, useEsiti, type Esito } from './risultati'
 import { faiRiepilogo, fontiAttuali, useRiepilogo } from './riepilogo'
 import { apriQuiz } from './statoQuiz'
 import { vaiA } from '../layout/navigazione'
+import { useLargo } from '../layout/larghezza'
+import { prossimoEsame, comeDetto } from '../lib/esami'
 import { Barra, Rotella, Tessere } from '../layout/Attesa'
+import { Icona } from '../lib/Icona'
 import s from './Ripasso.module.css'
 
 /*  Il ripasso di una materia.
@@ -15,8 +18,11 @@ import s from './Ripasso.module.css'
  *  leggere prima di entrare in aula. Sotto, gli argomenti — un titolo 1
  *  negli appunti è un argomento — con quelli da ripassare in evidenza:
  *  mai fatto un quiz, andato male, o più di una settimana fa. Per
- *  ognuno un quiz; in alto uno su tutta la materia, che parte da quelli
- *  da ripassare. */
+ *  ognuno un quiz; in cima alla colonna degli argomenti uno su tutta la
+ *  materia, che parte da quelli da ripassare.
+ *
+ *  Da 1200 px in su sono due colonne: il punto a sinistra, gli
+ *  argomenti a destra. Sotto, gli argomenti vanno in cima. */
 
 function quandoFa(ms: number) {
   const giorni = Math.floor((Date.now() - ms) / 86_400_000)
@@ -32,6 +38,7 @@ function comeEAndato(e: Esito | undefined) {
 }
 
 export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHome: () => void }) {
+  const largo = useLargo()
   const { documenti } = useIndice()
   const esiti = useEsiti()
   const riepilogo = useRiepilogo(quaderno.id)
@@ -79,67 +86,75 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
     })
   }
 
+  const esame = prossimoEsame(quaderno)
+
   return (
     <div className={s.vista}>
-      <nav className={s.percorso}>
+      <nav className={s.percorso} aria-label="Percorso">
         <button className={s.passo} onClick={onHome}>Materie</button>
         <span className={s.sbarra}>/</span>
         <span className={s.qui}>{quaderno.nome || 'Senza nome'} · ripasso</span>
       </nav>
 
       <div className={s.scorre}>
-        <div className={s.colonna}>
-          <header className={s.testa}>
-            <div>
-              <h1 className={s.titolo}>Ripasso</h1>
-              <p className={s.sotto}>
-                {argomenti === null ? 'leggo gli appunti…'
-                  : `${argomenti.length} ${argomenti.length === 1 ? 'argomento' : 'argomenti'}` +
-                    (quantiDaRipassare ? ` · ${quantiDaRipassare} da ripassare` : ' · tutti ripassati di recente')}
-              </p>
-            </div>
-            <button className={s.principale} onClick={quizMateria} disabled={!ordinati?.length}>
+        <div className={s.impianto} data-largo={largo || undefined}>
+          <div className={s.principale}>
+            <h1 className={s.titolo}>Ripasso</h1>
+            <p className={s.sotto}>
+              {quaderno.nome || 'Senza nome'}
+              {esame && <> · {esame.nome || 'Esame'} {comeDetto(esame.data)}</>}
+            </p>
+
+            {/* ── dove eravamo rimasti ── */}
+            <section className={s.sezione}>
+              <div className={s.intestazione}>
+                <h2 className={s.etichetta}>Dove eravamo rimasti</h2>
+                {riepilogo && lavoro !== 'riassumo' && (
+                  <button className={s.azione} onClick={() => void riassumi()}>
+                    {vecchio ? 'Ci sono lezioni nuove · aggiorna' : 'Aggiorna'}
+                  </button>
+                )}
+              </div>
+
+              {lavoro === 'riassumo' && (
+                <div className={s.attesa}><Barra /><span><Rotella /> Rileggo le ultime lezioni…</span></div>
+              )}
+              {lavoro !== 'fermo' && lavoro !== 'riassumo' && <p className={s.nota}>{lavoro}</p>}
+
+              {!riepilogo && lavoro === 'fermo' && (
+                <div className={s.vuoto}>
+                  <p>Il punto sulle ultime due lezioni, da rileggere prima di entrare in aula.</p>
+                  <button className={s.secondario} onClick={() => void riassumi()}>Fammi il punto</button>
+                </div>
+              )}
+
+              {riepilogo && lavoro !== 'riassumo' && riepilogo.lezioni.map((l) => (
+                <article key={l.chiave} className={s.lezione}>
+                  <h3>
+                    {new Date(l.quando).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    <span className={s.pagine}>{l.pagine.join(' · ')}</span>
+                  </h3>
+                  <ul>{l.punti.map((p, k) => <li key={k}>{p}</li>)}</ul>
+                </article>
+              ))}
+            </section>
+          </div>
+
+          {/* ── la colonna dei quiz ── */}
+          <aside className={s.lato} aria-label="Argomenti e quiz">
+            <button className={s.quizMateria} onClick={quizMateria} disabled={!ordinati?.length}>
+              <Icona nome="ripasso" dimensione={14} />
               Quiz su tutta la materia
             </button>
-          </header>
 
-          {/* ── dove eravamo rimasti ── */}
-          <section className={s.sezione}>
             <div className={s.intestazione}>
-              <h2>Dove eravamo rimasti</h2>
-              {riepilogo && lavoro !== 'riassumo' && (
-                <button className={s.azione} onClick={() => void riassumi()}>
-                  {vecchio ? 'Ci sono lezioni nuove · aggiorna' : 'Aggiorna'}
-                </button>
-              )}
+              <h2 className={s.etichetta}>Argomenti</h2>
+              <span className={s.quanti}>
+                {argomenti === null ? 'leggo gli appunti…'
+                  : quantiDaRipassare ? `${quantiDaRipassare} da ripassare`
+                  : argomenti.length ? 'tutti ripassati' : ''}
+              </span>
             </div>
-
-            {lavoro === 'riassumo' && (
-              <div className={s.attesa}><Barra /><span><Rotella /> Rileggo le ultime lezioni…</span></div>
-            )}
-            {lavoro !== 'fermo' && lavoro !== 'riassumo' && <p className={s.nota}>{lavoro}</p>}
-
-            {!riepilogo && lavoro === 'fermo' && (
-              <div className={s.vuoto}>
-                <p>Il punto sulle ultime due lezioni, da rileggere prima di entrare in aula.</p>
-                <button className={s.secondario} onClick={() => void riassumi()}>Fammi il punto</button>
-              </div>
-            )}
-
-            {riepilogo && lavoro !== 'riassumo' && riepilogo.lezioni.map((l) => (
-              <article key={l.chiave} className={s.lezione}>
-                <h3>
-                  {new Date(l.quando).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
-                  <span className={s.pagine}>{l.pagine.join(' · ')}</span>
-                </h3>
-                <ul>{l.punti.map((p, k) => <li key={k}>{p}</li>)}</ul>
-              </article>
-            ))}
-          </section>
-
-          {/* ── gli argomenti ── */}
-          <section className={s.sezione}>
-            <div className={s.intestazione}><h2>Argomenti</h2></div>
 
             {ordinati === null && <div className={s.righeAttesa}><Tessere quante={4} classe={s.rigaAttesa} /></div>}
             {ordinati?.length === 0 && (
@@ -159,19 +174,18 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
                     <button className={s.nomeArgomento} onClick={() => vaiA(a.documentoId, a.idTitolo ?? a.blocchi[0]?.id)} title="Apri negli appunti">
                       {a.titolo}
                     </button>
-                    <span className={s.dove}>{a.pagina !== a.titolo ? a.pagina : ''}</span>
-                    <span className={`${s.esito} ${esito && esito.giuste / esito.totale < 0.7 ? s.maluccio : ''}`}>{comeEAndato(esito)}</span>
                     <button
                       className={s.quiz}
                       onClick={() => apriQuiz({ tipo: 'argomenti', titolo: a.titolo, materia: quaderno.nome, argomenti: [a], chiaveEsito: a.chiave })}
                     >
                       Quiz
                     </button>
+                    <span className={`${s.esito} ${esito && esito.giuste / esito.totale < 0.7 ? s.maluccio : ''}`}>{comeEAndato(esito)}</span>
                   </li>
                 )
               })}
             </ol>
-          </section>
+          </aside>
         </div>
       </div>
     </div>

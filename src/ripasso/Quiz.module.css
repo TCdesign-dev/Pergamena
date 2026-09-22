@@ -12,7 +12,7 @@
 
 .finestra {
   composes: superficie from '../layout/Superficie.module.css';
-  width: min(calc(var(--u) * 70), calc(100vw - var(--u) * 4));
+  width: min(calc(var(--u) * 80), calc(100vw - var(--u) * 4));
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -25,7 +25,10 @@
   composes: testa from '../layout/Superficie.module.css';
   border-bottom: calc(var(--u) / 8) solid var(--linea);
 }
+/* l'etichetta del quiz è azzurra: è la sua identità */
 .etichetta { composes: etichetta from '../layout/Superficie.module.css'; flex: none; }
+.testa .etichetta { color: var(--accento-testo); }
+.conto { flex: none; color: var(--tenue-testo); font-size: var(--t-piccolo); font-variant-numeric: tabular-nums; }
 .titolo { composes: titolo from '../layout/Superficie.module.css'; }
 .chiudi { composes: icona from '../layout/Superficie.module.css'; }
 
@@ -43,65 +46,75 @@
 
 .corpo {
   overflow-y: auto;
-  padding: calc(var(--u) * 1.75) calc(var(--u) * 2) calc(var(--u) * 2);
+  padding: calc(var(--u) * 2.25) calc(var(--u) * 2.5) calc(var(--u) * 2);
   animation: var(--entra);
 }
 
-/* un puntino per domanda: com'è andata finora */
-.puntini { display: flex; gap: calc(var(--u) * 0.625); margin: 0 0 calc(var(--u) * 1.5); padding: 0; list-style: none; }
-.puntini li { width: var(--u); height: var(--u); border-radius: 50%; background: var(--linea-forte); }
-.puntini li.qui { background: var(--inchiostro); }
-.puntini li.bene { background: var(--c-verde); }
-.puntini li.male { background: var(--c-rosso); }
+/*  Un segmento per domanda: fatte verde o rosso, quella di adesso
+ *  inchiostro, le prossime una linea. */
+.avanzamento { display: flex; gap: calc(var(--u) / 2); margin: 0; padding: 0; list-style: none; }
+.avanzamento li { flex: 1; height: calc(var(--u) / 2); border-radius: calc(var(--u) / 4); background: var(--linea); }
+.avanzamento li.qui { background: var(--inchiostro); }
+.avanzamento li.bene { background: var(--fatto); }
+.avanzamento li.male { background: var(--registra); }
 
 .domanda {
-  margin: 0 0 calc(var(--u) * 1.75);
+  margin: calc(var(--u) * 2.25) 0 calc(var(--u) * 2);
   font-family: var(--font-testo);
-  font-size: var(--t-h3);
-  font-weight: 550;
-  line-height: 1.45;
+  font-size: calc(var(--t-ui) * 20 / 13);
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
-.opzioni { display: flex; flex-direction: column; gap: calc(var(--u) * 0.75); margin: 0; padding: 0; list-style: none; }
+/*  Le risposte: alte almeno 48, la lettera in un quadratino. Giusta
+ *  verde, quella sbagliata che hai scelto rossa, le altre si spengono. */
+.opzioni { display: flex; flex-direction: column; gap: var(--u); margin: 0; padding: 0; list-style: none; }
 .opzione {
   display: flex;
-  align-items: flex-start;
-  gap: calc(var(--u) * 1.25);
+  align-items: center;
+  gap: calc(var(--u) * 1.5);
   width: 100%;
-  padding: calc(var(--u) * 1.125) calc(var(--u) * 1.375);
-  border: calc(var(--u) / 8) solid var(--linea);
-  border-radius: var(--raggio);
+  min-height: calc(var(--u) * 6);
+  padding: calc(var(--u) * 1.5) calc(var(--u) * 1.75);
+  border-radius: var(--raggio-g);
+  box-shadow: inset 0 0 0 calc(var(--u) / 8) var(--linea);
+  color: var(--inchiostro);
   text-align: left;
-  font-size: calc(var(--t-ui) * 1.04);
+  font-size: calc(var(--t-ui) * 15 / 13);
   line-height: 1.45;
 }
-.opzione:hover:not(:disabled) { background: var(--sfiorata); border-color: var(--linea-forte); }
+.opzione:hover:not(:disabled) { background: var(--sfiorata); box-shadow: inset 0 0 0 calc(var(--u) / 8) var(--linea-forte); }
 .opzione:disabled { cursor: default; }
 .lettera {
   flex: none;
   display: grid;
   place-items: center;
-  width: calc(var(--u) * 2.5);
-  height: calc(var(--u) * 2.5);
-  border-radius: calc(var(--u) / 2);
-  background: var(--sfiorata);
+  width: calc(var(--u) * 3);
+  height: calc(var(--u) * 3);
+  border-radius: var(--raggio);
+  background: var(--carta-alt-2);
   color: var(--inchiostro-tenue);
-  font-size: var(--t-etichetta);
-  font-weight: 650;
+  font-size: var(--t-piccolo);
+  font-weight: 600;
 }
-.giusta { border-color: var(--c-verde); background: color-mix(in srgb, var(--c-verde) 12%, var(--carta)); animation: var(--entra-conferma); }
-.giusta .lettera { background: var(--c-verde); color: var(--carta); }
-.sbagliata { border-color: var(--c-rosso); background: color-mix(in srgb, var(--c-rosso) 10%, var(--carta)); }
-.sbagliata .lettera { background: var(--c-rosso); color: var(--carta); }
-.spenta { opacity: 0.5; }
+.giusta {
+  background: var(--fatto-fondo);
+  box-shadow: inset 0 0 0 calc(var(--u) * 0.1875) var(--fatto);
+  animation: var(--entra-conferma);
+}
+.giusta .lettera { background: var(--fatto); color: var(--carta); }
+.sbagliata { background: var(--registra-fondo); box-shadow: inset 0 0 0 calc(var(--u) * 0.1875) var(--registra); }
+.sbagliata .lettera { background: var(--registra); color: var(--carta); }
+.spenta { color: var(--inchiostro-tenue); opacity: 0.6; }
 
 .spiegazione {
-  margin: calc(var(--u) * 1.5) 0 0;
-  padding: calc(var(--u) * 1.25) calc(var(--u) * 1.5);
-  border-radius: var(--raggio);
+  margin: calc(var(--u) * 1.75) 0 0;
+  padding: calc(var(--u) * 1.5) calc(var(--u) * 1.75);
+  border-radius: var(--raggio-g);
   background: var(--carta-alt);
   color: var(--inchiostro-tenue);
-  font-size: var(--t-ui);
+  font-size: calc(var(--t-ui) * 14 / 13);
   line-height: 1.55;
   animation: var(--entra);
 }
@@ -129,7 +142,7 @@
 .valuta { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 0.75); }
 
 /* il piede della superficie: i tasti a sinistra, le azioni a destra */
-.piede { composes: piede from '../layout/Superficie.module.css'; margin-top: calc(var(--u) * 2); }
+.piede { composes: piede from '../layout/Superficie.module.css'; margin-top: calc(var(--u) * 2.25); }
 .aiuto { composes: suggerimento from '../layout/Superficie.module.css'; }
 .azioni { composes: azioni from '../layout/Superficie.module.css'; }
 .tasto { composes: tasto from '../layout/Superficie.module.css'; }

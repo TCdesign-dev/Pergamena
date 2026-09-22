@@ -1,142 +1,158 @@
-.pagina {
-  height: 100%;
-  overflow-y: auto;
-  padding: calc(var(--u) * 8) calc(var(--u) * 6) calc(var(--u) * 10);
+.pagina { height: 100%; overflow-y: auto; }
+
+/*  A 716 il contenuto riempie la finestra; da 1200 px in su si ferma a
+ *  896 e si centra, come la colonna di scrittura. */
+.contenuto { padding: calc(var(--u) * 7) calc(var(--u) * 5) calc(var(--u) * 5); }
+.contenuto[data-largo] {
+  max-width: calc(var(--u) * 112);
+  margin: 0 auto;
+  padding: calc(var(--u) * 8) calc(var(--u) * 3) calc(var(--u) * 6);
 }
 
-.testa { max-width: 62rem; margin: 0 auto calc(var(--u) * 5); }
 .titolo {
   margin: 0;
-  font-size: 30px;
-  font-weight: 640;
-  letter-spacing: -0.024em;
-}
-.sottotitolo {
-  margin: calc(var(--u) * 0.75) 0 0;
-  color: var(--tenue);
-  font-size: 13px;
+  font-size: var(--t-pagina);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.022em;
 }
 
+.riga { display: flex; align-items: center; gap: var(--u); margin-top: var(--u); }
+.conto { flex: 1; min-width: 0; color: var(--inchiostro-tenue); font-size: var(--t-ui); }
+.nuova { composes: secondario from './Superficie.module.css'; flex: none; }
+
+/* ── la griglia delle materie ───────────────────────────────── */
 .griglia {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
-  gap: calc(var(--u) * 3);
-  max-width: 62rem;
-  margin: 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--u) * 3.5) calc(var(--u) * 2.5);
+  margin-top: calc(var(--u) * 3.5);
 }
+.contenuto[data-largo] .griglia { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
-/* ── scheda ─────────────────────────────────────────────────── */
-.scheda { position: relative; animation: var(--entra); }
+.scheda { display: flex; flex-direction: column; gap: calc(var(--u) * 1.25); animation: var(--entra); }
 .scheda:nth-child(2) { animation-delay: 30ms; }
 .scheda:nth-child(3) { animation-delay: 60ms; }
 .scheda:nth-child(4) { animation-delay: 90ms; }
-.scheda:nth-child(5) { animation-delay: 120ms; }
-.scheda:nth-child(n + 6) { animation-delay: 150ms; }
+.scheda:nth-child(n + 5) { animation-delay: 120ms; }
 
 .copertina {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
+  position: relative;
+  height: calc(var(--u) * 18.75);
   overflow: hidden;
   border-radius: var(--raggio-g);
   background: var(--carta-alt);
-  box-shadow: var(--ombra-bassa);
-  transition: transform 140ms ease, box-shadow 140ms ease;
 }
-.copertina img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.scheda:hover .copertina { transform: translateY(-2px); box-shadow: var(--ombra); }
-
 /* senza copertina: l'iniziale su un fondo tinto col colore della materia */
-.copertina[data-colore="rosso"]   { background: color-mix(in srgb, var(--c-rosso) 16%, var(--carta-alt)); }
-.copertina[data-colore="arancio"] { background: color-mix(in srgb, var(--c-arancio) 16%, var(--carta-alt)); }
-.copertina[data-colore="verde"]   { background: color-mix(in srgb, var(--c-verde) 16%, var(--carta-alt)); }
-.copertina[data-colore="blu"]     { background: color-mix(in srgb, var(--c-blu) 16%, var(--carta-alt)); }
-.copertina[data-colore="viola"]   { background: color-mix(in srgb, var(--c-viola) 16%, var(--carta-alt)); }
+.copertina[data-colore="rosso"]   { background: color-mix(in srgb, var(--c-rosso) 16%, var(--carta)); }
+.copertina[data-colore="arancio"] { background: color-mix(in srgb, var(--c-arancio) 16%, var(--carta)); }
+.copertina[data-colore="verde"]   { background: color-mix(in srgb, var(--c-verde) 16%, var(--carta)); }
+.copertina[data-colore="blu"]     { background: color-mix(in srgb, var(--c-blu) 16%, var(--carta)); }
+.copertina[data-colore="viola"]   { background: color-mix(in srgb, var(--c-viola) 16%, var(--carta)); }
 
+.apri { display: block; width: 100%; height: 100%; }
+.apri img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .iniziale {
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
   color: var(--inchiostro-tenue);
-  font-size: 34px;
+  font-size: calc(var(--u) * 4.25);
   font-weight: 300;
   opacity: 0.5;
 }
 
-/* ── comandi che compaiono solo passandoci sopra ────────────── */
+/* ── i comandi sulla copertina: sempre visibili ─────────────── */
 .comandi {
   position: absolute;
-  top: 7px;
-  right: 7px;
+  top: var(--u);
+  right: var(--u);
   display: flex;
-  gap: 2px;
-  padding: 2px;
+  align-items: center;
+  gap: calc(var(--u) / 4);
+  padding: calc(var(--u) / 4);
+  border-radius: var(--u);
+  background: color-mix(in srgb, var(--carta) 86%, transparent);
+}
+.comando {
+  display: grid;
+  place-items: center;
+  width: var(--controllo);
+  height: var(--controllo);
   border-radius: var(--raggio);
-  background: #16161ab8;
-  backdrop-filter: blur(8px);
-  opacity: 0;
-  transition: opacity 120ms ease;
+  color: var(--inchiostro-tenue);
 }
-.scheda:hover .comandi { opacity: 1; }
-.comandi button {
-  width: 22px; height: 21px;
-  border-radius: 3px;
-  color: #ffffffb8;
-  display: inline-grid; place-items: center;
-}
-.comandi button:hover { background: #ffffff29; color: #fff; }
+.comando:hover { background: var(--sfiorata); color: var(--inchiostro); }
 
 /* ── didascalia ─────────────────────────────────────────────── */
-.didascalia { margin-top: calc(var(--u) * 1.25); padding: 0 2px; }
+.didascalia { display: flex; flex-direction: column; align-items: flex-start; }
 
 .nome, .campoNome {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--u);
   width: 100%;
-  font-family: var(--font-ui);
-  font-size: 13.5px;
-  font-weight: 550;
   color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: calc(var(--t-ui) * 15 / 13);
+  font-weight: 600;
   text-align: left;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
-.campoNome { border: none; background: none; padding: 0; outline: none; }
-.campoNome::placeholder { color: var(--tenue); font-weight: 400; }
+.nomeTesto { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.campoNome { padding: 0; border: none; background: none; outline: none; }
+.campoNome::placeholder { color: var(--tenue-testo); font-weight: 400; }
 
-.esame {
-  display: block;
-  margin-top: 3px;
-  padding: 0;
-  color: var(--inchiostro-tenue);
-  font-size: 11.5px;
-  text-align: left;
-}
-.esame:hover { color: var(--inchiostro); }
-.esameVicino { color: var(--accento); font-weight: 550; }
-.esameVicino:hover { color: var(--accento); }
+.pallino { flex: none; width: var(--u); height: var(--u); border-radius: 50%; }
+.pallino[data-colore="rosso"]   { background: var(--c-rosso); }
+.pallino[data-colore="arancio"] { background: var(--c-arancio); }
+.pallino[data-colore="verde"]   { background: var(--c-verde); }
+.pallino[data-colore="blu"]     { background: var(--c-blu); }
+.pallino[data-colore="viola"]   { background: var(--c-viola); }
 
 .conteggio {
-  display: block;
-  margin-top: 2px;
-  color: var(--tenue);
-  font-size: 11.5px;
+  margin: calc(var(--u) / 2) 0 var(--u) calc(var(--u) * 2);
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-ui);
 }
 
-/* ── nuova materia ──────────────────────────────────────────── */
-.nuova {
-  display: flex;
-  flex-direction: column;
+/*  L'esame vicino diventa un'etichetta: è la cosa che cambia le
+ *  giornate, e si deve vedere da lontano. */
+.esame {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--u);
-  aspect-ratio: 4 / 3;
-  border-radius: var(--raggio-g);
-  border: 1px dashed var(--linea-forte);
-  color: var(--tenue);
-  font-size: 12.5px;
+  gap: calc(var(--u) * 0.75);
+  margin-left: calc(var(--u) * 2);
+  color: var(--inchiostro-tenue);
+  font-size: calc(var(--t-piccolo) * 1.04);
 }
-.nuova:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); border-color: var(--tenue); }
-.archivio { color: var(--tenue); text-decoration: underline; text-underline-offset: 2px; }
-.archivio:hover { color: var(--inchiostro-tenue); }
+.esame:hover { color: var(--inchiostro); }
+.vicino {
+  height: calc(var(--u) * 2.75);
+  padding: 0 var(--u);
+  border-radius: calc(var(--u) * 1.375);
+  background: var(--accento-fondo);
+  color: var(--accento-testo);
+  font-weight: 500;
+}
+.vicino:hover { color: var(--accento-testo); }
+
+/* ── ultime pagine (da 1200 px) ─────────────────────────────── */
+.etichetta { composes: etichetta from './Superficie.module.css'; margin: calc(var(--u) * 5.5) 0 var(--u); }
+.ultime { border-bottom: calc(var(--u) / 8) solid var(--linea); }
+.ultima {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.25);
+  width: 100%;
+  height: calc(var(--u) * 5);
+  padding: 0 calc(var(--u) * 1.5);
+  border-top: calc(var(--u) / 8) solid var(--linea);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  text-align: left;
+}
+.ultima:hover { background: var(--sfiorata); }
+.titoloPagina { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+.materia { flex: none; color: var(--inchiostro-tenue); font-size: var(--t-ui); }
+.spazio { flex: 1; }
+.quando { flex: none; width: calc(var(--u) * 11.25); color: var(--tenue-testo); font-size: var(--t-piccolo); text-align: right; }

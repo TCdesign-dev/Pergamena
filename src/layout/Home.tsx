@@ -3,69 +3,99 @@ import { creaQuaderno, creaDocumento, rinominaQuaderno, soloPagine } from '../do
 import { prossimoEsame, comeDetto, mancano } from '../lib/esami'
 import type { Quaderno, Documento } from '../documento/tipi'
 import { useImmagine } from '../immagini/useImmagine'
+import { useLargo } from './larghezza'
+import { MenuPagina } from './MenuPagina'
 import { Miniatura } from './Miniatura'
 import { Icona } from '../lib/Icona'
 import s from './Home.module.css'
 
 /*  La prima cosa che vedi quando non stai scrivendo: le materie, con
  *  la loro copertina. Non è una dashboard — non ci sono numeri da
- *  guardare — è uno scaffale. */
+ *  guardare — è uno scaffale. Due colonne, quattro da 1200 px in su,
+ *  e lì sotto anche le ultime pagine aperte. */
+
+/** «oggi, 09:05», «ven 19 set». */
+function quando(t: number) {
+  const d = new Date(t)
+  if (d.toDateString() === new Date().toDateString()) {
+    return `oggi, ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`
+  }
+  return d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })
+}
 
 export function Home({
-  quaderni, documenti, onApri, onScheda, onRipasso, onArchivio, onCopertina, onElimina,
+  quaderni, documenti, onApri, onScheda, onRipasso, onCopertina, onElimina,
 }: {
   quaderni: Quaderno[]
   documenti: Documento[]
   onApri: (idDocumento: string) => void
   onScheda: (quadernoId: string) => void
   onRipasso: (quadernoId: string) => void
-  onArchivio: () => void
   onCopertina: (quaderno: Quaderno) => void
   onElimina: (quaderno: Quaderno) => void
 }) {
   const [inRinomina, setInRinomina] = useState<string | null>(null)
-  const pagineTutte = documenti.filter(soloPagine)
+  const largo = useLargo()
+  const pagine = documenti.filter(soloPagine)
+  const ultime = [...pagine].sort((a, b) => b.modificato - a.modificato).slice(0, 6)
+  const materie = new Map(quaderni.map((q) => [q.id, q]))
+
+  function nuovaMateria() {
+    const q = creaQuaderno('')
+    setInRinomina(q.id)
+    creaDocumento(q.id)
+  }
 
   return (
     <div className={s.pagina}>
-      <header className={s.testa}>
+      <div className={s.contenuto} data-largo={largo || undefined}>
         <h1 className={s.titolo}>Le tue materie</h1>
-        <p className={s.sottotitolo}>
-          {quaderni.length === 0
-            ? 'Non ce n’è ancora nessuna.'
-            : `${quaderni.length} materie · ${pagineTutte.length} pagine`}
-          {quaderni.length > 0 && <> · <button className={s.archivio} onClick={onArchivio}>archivio</button></>}
-        </p>
-      </header>
+        <div className={s.riga}>
+          <span className={s.conto}>
+            {quaderni.length === 0
+              ? 'Non ce n’è ancora nessuna.'
+              : `${quaderni.length} ${quaderni.length === 1 ? 'materia' : 'materie'} · ${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
+          </span>
+          <button className={s.nuova} onClick={nuovaMateria}>
+            <Icona nome="nuovo" dimensione={14} />
+            Nuova materia
+          </button>
+        </div>
 
-      <div className={s.griglia}>
-        {quaderni.map((q) => (
-          <Scheda
-            key={q.id}
-            quaderno={q}
-            pagine={pagineTutte.filter((d) => d.quadernoId === q.id)}
-            inRinomina={inRinomina === q.id}
-            onScheda={() => onScheda(q.id)}
-            onRipasso={() => onRipasso(q.id)}
-            onRinomina={() => setInRinomina(q.id)}
-            onFineRinomina={() => setInRinomina(null)}
-            onApri={onApri}
-            onCopertina={() => onCopertina(q)}
-            onElimina={() => onElimina(q)}
-          />
-        ))}
+        <div className={s.griglia}>
+          {quaderni.map((q) => (
+            <Scheda
+              key={q.id}
+              quaderno={q}
+              pagine={pagine.filter((d) => d.quadernoId === q.id)}
+              inRinomina={inRinomina === q.id}
+              onScheda={() => onScheda(q.id)}
+              onRipasso={() => onRipasso(q.id)}
+              onRinomina={() => setInRinomina(q.id)}
+              onFineRinomina={() => setInRinomina(null)}
+              onApri={onApri}
+              onCopertina={() => onCopertina(q)}
+              onElimina={() => onElimina(q)}
+            />
+          ))}
+        </div>
 
-        <button
-          className={s.nuova}
-          onClick={() => {
-            const q = creaQuaderno('')
-            setInRinomina(q.id)
-            creaDocumento(q.id)
-          }}
-        >
-          <Icona nome="nuovo" dimensione={24} />
-          <span>Nuova materia</span>
-        </button>
+        {largo && ultime.length > 0 && (
+          <>
+            <h2 className={s.etichetta}>Ultime pagine</h2>
+            <div className={s.ultime}>
+              {ultime.map((d) => (
+                <button key={d.id} className={s.ultima} onClick={() => onApri(d.id)}>
+                  <span className={s.pallino} data-colore={materie.get(d.quadernoId)?.colore} />
+                  <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                  <span className={s.materia}>{materie.get(d.quadernoId)?.nome}</span>
+                  <span className={s.spazio} />
+                  <span className={s.quando}>{quando(d.modificato)}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -89,29 +119,33 @@ function Scheda({
   const recente = [...pagine].sort((a, b) => b.modificato - a.modificato)[0]
   const esame = prossimoEsame(quaderno)
   const vicino = esame ? mancano(esame.data) <= 14 : false
+  const nome = quaderno.nome || 'Senza nome'
+  const apri = () => onApri(recente ? recente.id : creaDocumento(quaderno.id, '').id)
 
   return (
     <article className={s.scheda}>
-      <button
-        className={s.copertina}
-        data-colore={quaderno.colore}
-        onClick={() => {
-          if (recente) onApri(recente.id)
-          else onApri(creaDocumento(quaderno.id, '').id)
-        }}
-      >
-        {copertina ? (
-          <Miniatura src={copertina} alt="" draggable={false} />
-        ) : (
-          <span className={s.iniziale}>{(quaderno.nome || '?').trim().charAt(0).toUpperCase()}</span>
-        )}
-      </button>
-
-      <div className={s.comandi}>
-        <button title="Scheda della materia" aria-label="Scheda della materia" onClick={onScheda}><Icona nome="materia" dimensione={14} /></button>
-        <button title="Ripasso e quiz" aria-label="Ripasso e quiz" onClick={onRipasso}><Icona nome="ripasso" dimensione={14} /></button>
-        <button title="Cambia copertina" aria-label="Cambia copertina" onClick={onCopertina}><Icona nome="immagini" dimensione={14} /></button>
-        <button title="Elimina la materia" aria-label="Elimina la materia" onClick={onElimina}><Icona nome="elimina" dimensione={14} /></button>
+      <div className={s.copertina} data-colore={quaderno.colore}>
+        <button className={s.apri} aria-label={`Apri ${nome}`} onClick={apri}>
+          {copertina
+            ? <Miniatura src={copertina} alt="" draggable={false} />
+            : <span className={s.iniziale}>{nome.trim().charAt(0).toUpperCase()}</span>}
+        </button>
+        {/*  Sempre visibili, non solo al passaggio del mouse: su un
+         *  portatile senza mouse le azioni nascoste non esistono. */}
+        <div className={s.comandi}>
+          <button className={s.comando} title="Ripasso e quiz" aria-label={`Ripasso di ${nome}`} onClick={onRipasso}>
+            <Icona nome="ripasso" />
+          </button>
+          <MenuPagina
+            etichetta={`Altre azioni su ${nome}`}
+            voci={[
+              { etichetta: 'Scheda della materia', icona: 'materia', azione: onScheda },
+              { etichetta: 'Cambia copertina', icona: 'immagini', azione: onCopertina },
+              { etichetta: 'Cambia nome', icona: 'testo', azione: onRinomina },
+              { etichetta: 'Elimina la materia…', icona: 'elimina', pericolo: true, staccata: true, azione: onElimina },
+            ]}
+          />
+        </div>
       </div>
 
       <div className={s.didascalia}>
@@ -126,16 +160,18 @@ function Scheda({
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur() }}
           />
         ) : (
-          <button className={s.nome} onDoubleClick={onRinomina} onClick={() => recente && onApri(recente.id)}>
-            {quaderno.nome || 'Senza nome'}
+          <button className={s.nome} onDoubleClick={onRinomina} onClick={apri}>
+            <span className={s.pallino} data-colore={quaderno.colore} />
+            <span className={s.nomeTesto}>{nome}</span>
           </button>
         )}
-        <span className={s.conteggio}>
+        <div className={s.conteggio}>
           {pagine.length === 0 ? 'vuota' : `${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
-        </span>
+        </div>
         {/* il prossimo esame: è il motivo per cui la data è un campo e non testo */}
         {esame && (
-          <button className={`${s.esame} ${vicino ? s.esameVicino : ''}`} onClick={onScheda} title="Apri la scheda">
+          <button className={`${s.esame} ${vicino ? s.vicino : ''}`} onClick={onScheda} title="Apri la scheda della materia">
+            <Icona nome="esame" dimensione={12} />
             {esame.nome || 'Esame'} {comeDetto(esame.data)}
           </button>
         )}

@@ -129,6 +129,9 @@ function Quiz({ ambito }: { ambito: Ambito }) {
         <header className={s.testa}>
           <span className={s.etichetta}>Quiz</span>
           <span className={s.titolo}>{ambito.titolo}</span>
+          {fase === 'domande' && domande.length > 0 && (
+            <span className={s.conto}>{i + 1} di {domande.length}</span>
+          )}
           <button className={s.chiudi} onClick={chiudi} title="Chiudi  esc" aria-label="Chiudi"><Icona nome="chiudi" /></button>
         </header>
 
@@ -148,11 +151,11 @@ function Quiz({ ambito }: { ambito: Ambito }) {
 
         {fase === 'domande' && d && (
           <div className={s.corpo} key={i}>
-            <ol className={s.puntini} aria-label={`Domanda ${i + 1} di ${domande.length}`}>
+            <ol className={s.avanzamento} aria-label={`Domanda ${i + 1} di ${domande.length}`}>
               {domande.map((_, k) => (
                 <li
                   key={k}
-                  className={k === i ? s.qui : risposte[k] === null ? undefined : eGiusta(k) ? s.bene : s.male}
+                  className={k === i ? s.qui : risposte[k] === null || risposte[k] === undefined ? undefined : eGiusta(k) ? s.bene : s.male}
                 />
               ))}
             </ol>
@@ -206,6 +209,12 @@ function Quiz({ ambito }: { ambito: Ambito }) {
               </span>
               {risposto && (
                 <span className={s.azioni}>
+                  {d.fonte && (
+                    <button className={s.secondario} onClick={() => rileggi(d)}>
+                      <Icona nome="apri-fuori" dimensione={14} />
+                      Rileggi negli appunti
+                    </button>
+                  )}
                   <button className={s.principale} onClick={avanti} autoFocus>
                     {i + 1 < domande.length ? 'Avanti' : 'Com’è andata'} <kbd className={s.tasto}>↵</kbd>
                   </button>
