@@ -8,6 +8,9 @@ import { PannelloLezioni } from '../registrazione/PannelloLezioni'
 import { useRegistrazioni } from '../registrazione/useRegistrazioni'
 import { apriLezioni, iscrivitiLezioni, leggiLezioni } from '../registrazione/statoLezioni'
 import { apriPannello, iscrivitiPannello, leggiPannello } from '../immagini/statoPannello'
+import { apriCommenti, iscrivitiCommenti, leggiCommenti } from '../commenti/statoPannello'
+import { PannelloCommenti } from '../commenti/PannelloCommenti'
+import { useCommenti } from '../commenti/deposito'
 import { PannelloImmagini } from './PannelloImmagini'
 import { apriImpostazioni } from './statoImpostazioni'
 import { MenuPagina, type VoceMenu } from './MenuPagina'
@@ -22,9 +25,13 @@ import s from './BarraSuperiore.module.css'
  *  Lezioni. Sotto la barra, sopra il margine del foglio, gli avvisi
  *  della registrazione.
  *
- *  Lezioni e Immagini sotto i 1200 px si aprono qui, in una tendina
- *  sotto la barra; da 1200 in su stanno nella colonna di destra, e le
- *  mette lì App. */
+ *  Lezioni, Commenti e Immagini sotto i 1200 px si aprono qui, in una
+ *  tendina sotto la barra; da 1200 in su stanno nella colonna di
+ *  destra, e le mette lì App.
+ *
+ *  Il pulsante dei commenti compare solo se ce n'è almeno uno: una
+ *  pagina senza commenti non ha niente da mostrare, e la barra è già
+ *  piena. */
 
 export function BarraSuperiore({
   quaderno, documento, pannelloAperto, rifEditore, onHome, onScheda, onPannello, onElimina,
@@ -42,9 +49,12 @@ export function BarraSuperiore({
   const lezioni = useRegistrazioni(doc)
   const lezioniAperte = useSyncExternalStore(iscrivitiLezioni, leggiLezioni)
   const immagini = useSyncExternalStore(iscrivitiPannello, leggiPannello).aperto
+  const commentiAperti = useSyncExternalStore(iscrivitiCommenti, leggiCommenti)
+  const commenti = useCommenti(doc)
   const largo = useLargo()
   const materia = quaderno?.nome ?? ''
   const rifLezioni = useRef<HTMLButtonElement>(null)
+  const rifCommenti = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
     ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: '⌘/', azione: onPannello } satisfies VoceMenu]),
@@ -85,6 +95,19 @@ export function BarraSuperiore({
           <Icona nome="lezioni" />
           <span>{lezioni.length}</span>
         </button>
+        {commenti.length > 0 && (
+          <button
+            ref={rifCommenti}
+            className={`${s.lezioni} ${commentiAperti ? s.attivo : ''}`}
+            title="Commenti di questa pagina"
+            aria-label={`Commenti di questa pagina: ${commenti.length}`}
+            aria-expanded={commentiAperti}
+            onClick={() => apriCommenti(!commentiAperti)}
+          >
+            <Icona nome="commento" />
+            <span>{commenti.length}</span>
+          </button>
+        )}
         {largo && (
           <button
             className={`${s.icona} ${pannelloAperto ? s.attivo : ''}`}
@@ -108,6 +131,11 @@ export function BarraSuperiore({
       {!largo && lezioniAperte && (
         <Tendina escludi={rifLezioni} onChiudi={() => apriLezioni(false)}>
           <PannelloLezioni doc={doc} materia={materia} rifEditore={rifEditore} modo="tendina" onChiudi={() => apriLezioni(false)} />
+        </Tendina>
+      )}
+      {!largo && commentiAperti && (
+        <Tendina escludi={rifCommenti} onChiudi={() => apriCommenti(false)}>
+          <PannelloCommenti doc={doc} rifEditore={rifEditore} modo="tendina" onChiudi={() => apriCommenti(false)} />
         </Tendina>
       )}
       {!largo && immagini && (

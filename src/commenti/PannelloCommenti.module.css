@@ -1,0 +1,93 @@
+/*  Il pannello Commenti: stessa struttura di Lezioni — intestazione,
+ *  corpo che scorre — e stesso contenitore, deciso da chi lo mostra. */
+
+.pannello {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; }
+.pannello .testa { gap: calc(var(--u) / 4); padding-right: var(--u); }
+[data-modo="tendina"] .testa { border-bottom: calc(var(--u) / 8) solid var(--linea); }
+.titolo { composes: titolo from '../layout/Superficie.module.css'; }
+.testa .titolo { flex: 0 1 auto; }
+.numero {
+  flex: none;
+  margin-left: calc(var(--u) / 2);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+.chiudi { composes: icona from '../layout/Superficie.module.css'; margin-left: auto; }
+
+.corpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: calc(var(--u) * 1.25);
+}
+[data-modo="lato"] .corpo { padding-top: calc(var(--u) / 2); }
+
+.vuoto {
+  margin: 0;
+  padding: var(--u) calc(var(--u) * 2) calc(var(--u) * 2);
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-ui);
+  line-height: 1.6;
+}
+.vuoto b { font-family: var(--font-mono); font-weight: 500; }
+
+.elenco { list-style: none; margin: 0; padding: 0; }
+
+.commento { padding: calc(var(--u) * 1.5) calc(var(--u) * 2) calc(var(--u) * 1.25); animation: var(--entra); }
+.commento + .commento { border-top: calc(var(--u) / 8) solid var(--linea); }
+[data-modo="lato"] .commento { margin: var(--u) var(--u) 0; padding: calc(var(--u) * 1.5); border-radius: var(--raggio-g); }
+[data-modo="lato"] .commento + .commento { border-top: none; }
+[data-modo="lato"] .commento:hover { background: var(--carta); }
+
+/* il corpo del commento è un pulsante: ci si clicca per andarci */
+.vai {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--raggio);
+}
+
+.citazione {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  padding-left: calc(var(--u) * 0.875);
+  border-left: calc(var(--u) / 4) solid var(--commento);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  line-height: 1.5;
+}
+/* la frase commentata non c'è più: la stanghetta si spegne */
+.persa { border-left-color: var(--tenue); font-style: italic; }
+
+.testo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin-top: calc(var(--u) * 0.75);
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.riga {
+  display: flex;
+  align-items: center;
+  gap: var(--u);
+  margin-top: var(--u);
+}
+.data { flex: 1; min-width: 0; color: var(--tenue-testo); font-size: var(--t-piccolo); }
+.risolvi { composes: trasparente from '../layout/Superficie.module.css'; flex: none; }
+.riga .risolvi { height: calc(var(--u) * 3); color: var(--fatto); }

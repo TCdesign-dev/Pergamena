@@ -89,8 +89,9 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
 
   const pronta = dove !== null
   useEffect(() => {
-    const el = pronta && scrivo ? campo.current : null
-    if (!el) return
+    if (!pronta) return
+    const el = scrivo ? campo.current : null
+    if (!el) { rif.current?.focus({ preventScroll: true }); return }
     el.focus({ preventScroll: true })
     // modificando, il cursore va in fondo: si aggiunge, non si prepone
     el.setSelectionRange(el.value.length, el.value.length)
@@ -100,6 +101,19 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
     chiudiSchedaCommento()
     editor.commands.focus(undefined, { scrollIntoView: false })
   }, [editor])
+
+  /*  Esc chiude sempre, anche se il fuoco è rimasto altrove: la scheda
+   *  si apre anche dal pannello, e lì il fuoco resta sulla voce che hai
+   *  cliccato. In cattura, perché sopra la scheda non c'è nient'altro. */
+  useEffect(() => {
+    const giu = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      chiudi()
+    }
+    window.addEventListener('keydown', giu, true)
+    return () => window.removeEventListener('keydown', giu, true)
+  }, [chiudi])
 
   // risolto da un'altra finestra, o il pezzo non c'è più
   useEffect(() => {
@@ -151,6 +165,7 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
         style={dove ?? { visibility: 'hidden', width: LARGA }}
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={tasti}
+        tabIndex={-1}
         role="dialog"
         aria-label={aperta.tipo === 'nuovo' ? 'Nuovo commento' : 'Commento'}
       >
