@@ -9,6 +9,7 @@ import { MenuSelezione } from './menu/MenuSelezione'
 import { MenuSlash } from './menu/MenuSlash'
 import { EditorFormula } from './formula/EditorFormula'
 import { SchedaCorrezione } from '../correzioni/SchedaCorrezione'
+import { SchedaCommento } from '../commenti/SchedaCommento'
 import { RigaDati } from './RigaDati'
 import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
@@ -141,6 +142,7 @@ function Tela({ documento, quaderno, doc, fuoco, rifEditore, intestazione, segna
         {editor && <Maniglia editor={editor} />}
         {editor && <EditorFormula editor={editor} />}
         {editor && <SchedaCorrezione editor={editor} doc={doc} />}
+        {editor && <SchedaCommento editor={editor} doc={doc} />}
         <EditorContent editor={editor} />
         <MenuSlash />
       </div>

@@ -139,6 +139,19 @@
   border-radius: 2px;
 }
 
+/* ── Commenti ───────────────────────────────────────────────── */
+/*  Il pezzo che hai commentato: fondo viola tenue e una riga sotto,
+ *  come un post-it attaccato alle parole. Non è l'evidenziatore
+ *  (giallo, tuo) e non è il testo dell'AI (punteggiato azzurro): si
+ *  clicca, e si apre la nota. */
+.ProseMirror [data-commento] {
+  border-bottom: 1.5px solid var(--commento);
+  background: var(--commento-fondo);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.ProseMirror [data-commento]:hover { background: var(--commento-sfiorato); }
+
 /* ── Correzioni in diretta ──────────────────────────────────── */
 /*  Il pezzo che non torna con quello che ha detto il professore:
  *  sottolineato e non colorato, come il testo dell'AI, perché i colori

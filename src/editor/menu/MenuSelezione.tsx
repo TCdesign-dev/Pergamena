@@ -6,6 +6,7 @@ import { COLORI, ETICHETTE, type Colore } from '../../stili/colori'
 import { ultimoColore } from '../estensioni/coloreTesto'
 import { mappaDocumenti, mappaQuaderni } from '../../documento/archivio'
 import { apriQuiz } from '../../ripasso/statoQuiz'
+import { apriNuovoCommento } from '../../commenti/statoScheda'
 import type { BloccoTesto } from '../../ripasso/argomenti'
 import { Icona } from '../../lib/Icona'
 import s from './MenuSelezione.module.css'
@@ -153,6 +154,18 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
               A
             </span>
             <Icona nome="giu" dimensione={12} className={s.freccetta} />
+          </button>
+          <span className={s.separatore} />
+          <button
+            title="Commenta  ⌘⇧M"
+            aria-label="Commenta"
+            className={s.bottone}
+            onClick={() => {
+              const { from, to } = editor.state.selection
+              apriNuovoCommento(from, to)
+            }}
+          >
+            <Icona nome="commento" />
           </button>
           <span className={s.separatore} />
           <button

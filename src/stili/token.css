@@ -85,6 +85,12 @@
   --fatto: #147a40;
   --fatto-fondo: #e5f4ea;
 
+  /*  I commenti. Viola: il giallo è dell'evidenziatore, l'azzurro
+   *  dell'AI, l'arancio delle correzioni. Segue il tema da solo. */
+  --commento: var(--c-viola);
+  --commento-fondo: color-mix(in srgb, var(--c-viola) 13%, transparent);
+  --commento-sfiorato: color-mix(in srgb, var(--c-viola) 22%, transparent);
+
   /* ── Rilievo ──────────────────────────────────────────────── */
   --ombra-bassa: 0 1px 2px #0000000d, 0 1px 1px #00000008;
   --ombra: 0 1px 2px #0000000d, 0 8px 28px #00000014;

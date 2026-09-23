@@ -1,0 +1,70 @@
+/*  La scheda di un commento: stretta, attaccata sotto al pezzo
+ *  commentato. La stessa superficie fluttuante di tutta l'app. */
+
+.velo { position: fixed; inset: 0; z-index: 70; }
+
+.scheda {
+  composes: superficie from '../layout/Superficie.module.css';
+  position: fixed;
+  max-width: calc(100vw - var(--u) * 3);
+  padding: calc(var(--u) * 1.5) calc(var(--u) * 1.75) calc(var(--u) * 1.25);
+  animation: var(--entra-tendina);
+}
+
+/*  Il pezzo di cui si parla: due righe al massimo, in piccolo, con la
+ *  stanghetta a sinistra come una citazione. */
+.citazione {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  padding-left: calc(var(--u) * 0.875);
+  border-left: calc(var(--u) / 4) solid var(--commento);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  line-height: 1.5;
+}
+
+.campo {
+  display: block;
+  width: 100%;
+  min-height: calc(var(--u) * 5.5);
+  resize: vertical;
+  margin-top: calc(var(--u) * 1.25);
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.125);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.5;
+  outline: none;
+}
+.campo:focus { border-color: var(--accento); }
+.campo::placeholder { color: var(--tenue-testo); }
+
+/* il commento già scritto */
+.testo {
+  margin: calc(var(--u) * 1.25) 0 0;
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.piede { composes: piede from '../layout/Superficie.module.css'; margin-top: var(--u); }
+.suggerimento { composes: suggerimento from '../layout/Superficie.module.css'; }
+.data {
+  composes: suggerimento from '../layout/Superficie.module.css';
+  font-variant-numeric: tabular-nums;
+}
+.azioni { composes: azioni from '../layout/Superficie.module.css'; }
+.tasto { composes: tasto from '../layout/Superficie.module.css'; }
+.annulla { composes: trasparente from '../layout/Superficie.module.css'; }
+.principale { composes: primario from '../layout/Superficie.module.css'; }
+
+/* risolvere un commento lo toglie: verde di «fatto», non rosso di «elimina» */
+.risolvi { composes: secondario from '../layout/Superficie.module.css'; }
+.azioni .risolvi { color: var(--fatto); }
