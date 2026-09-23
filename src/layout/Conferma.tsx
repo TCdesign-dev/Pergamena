@@ -1,9 +1,17 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import s from './Conferma.module.css'
 
 /*  Il `confirm()` del browser è brutto, non si può vestire e blocca
  *  tutto. Per un'azione che cancella davvero dei dati vale la pena
- *  di una finestra che dica con precisione cosa sta per sparire. */
+ *  di una finestra che dica con precisione cosa sta per sparire.
+ *
+ *  Si disegna in fondo al documento, non dov'è scritta: chiesta da
+ *  dentro il pannello Lezioni finiva dentro al pannello — il velo
+ *  copriva 438 px invece della finestra, e la finestrella spuntava
+ *  in alto a destra. Colpa dell'animazione d'entrata della tendina,
+ *  che le lascia un transform: da lì in giù «fisso» vuol dire fisso
+ *  rispetto a lei, non allo schermo. */
 
 export function Conferma({
   titolo, dettaglio, azione = 'Elimina', onConferma, onAnnulla,
@@ -27,7 +35,7 @@ export function Conferma({
     return () => window.removeEventListener('keydown', giu, true)
   }, [onAnnulla, onConferma])
 
-  return (
+  return createPortal(
     <div className={s.velo} onMouseDown={onAnnulla}>
       <div className={s.pannello} onMouseDown={(e) => e.stopPropagation()}>
         <h2 className={s.titolo}>{titolo}</h2>
@@ -39,6 +47,7 @@ export function Conferma({
           </span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
