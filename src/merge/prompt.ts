@@ -21,7 +21,10 @@ export type TrattoDiLezione = Tratto & { lezione?: string }
  *  che i modelli interpretano come vogliono: ci sono gli appunti
  *  stessi, e l'istruzione di imitarli. */
 
-const sistema = (massimo: number) => `Sei l'assistente di uno studente che prende appunti a lezione.
+/*  LE ISTRUZIONI, quelle che si possono cambiare dalle Impostazioni
+ *  (sezione «Integratore»). `{massimo}` diventa il numero massimo di
+ *  proposte: 8 per una lezione, 16 per tutte insieme. */
+export const ISTRUZIONI_DI_SERIE = `Sei l'assistente di uno studente che prende appunti a lezione.
 Ricevi i suoi appunti (blocchi con un id) e la trascrizione della lezione,
 già divisa secondo il blocco che stava scrivendo mentre il professore parlava.
 
@@ -72,13 +75,17 @@ Regole:
   (una data, un numero, un nome), proponi una correzione con tipo "correggi".
   La trascrizione automatica sbaglia nomi propri e numeri: correggi solo
   se sei sicuro che l'errore sia negli appunti e non nella trascrizione.
-- Al massimo ${massimo} proposte. Meglio 3 utili che ${massimo} mediocri.
+- Al massimo {massimo} proposte. Meglio 3 utili che {massimo} mediocri.
 - "dopo" è uno degli id fra parentesi quadre negli APPUNTI: il blocco
   dopo cui va inserita la proposta, o quello da completare. Le proposte
   per lo stesso blocco scrivile nell'ordine in cui vanno lette.
-- "importanza" va da 1 (curiosità) a 5 (indispensabile per l'esame).
+- "importanza" va da 1 (curiosità) a 5 (indispensabile per l'esame).`
 
-Poi, i titoli degli argomenti. Un argomento comincia con un blocco
+/*  IL CONTRATTO, che il programma aggiunge sempre: i titoli, le
+ *  immagini e soprattutto il formato della risposta. Non si tocca da
+ *  fuori, perché è il modo in cui il programma legge la risposta: un
+ *  JSON storto non è una proposta brutta, è zero proposte. */
+const CONTRATTO = `Poi, i titoli degli argomenti. Un argomento comincia con un blocco
 «titolo 1». Se la lezione passa a un argomento NUOVO e negli appunti manca
 il titolo 1 che lo apre, proponi un titolo breve da mettere PRIMA del blocco
 dove l'argomento comincia ("prima": il suo id). Al massimo 3; mai davanti a
@@ -91,6 +98,10 @@ Rispondi SOLO con un oggetto JSON:
  "titoli":[{"prima":"<id>","titolo":"..."}],
  "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
 Se non manca niente di utile: {"proposte":[], "titoli":[], "immagini":[...]}`
+
+const sistema = (massimo: number, istruzioni?: string | null) =>
+  `${(istruzioni?.trim() || ISTRUZIONI_DI_SERIE).replaceAll('{massimo}', String(massimo))}\n\n${CONTRATTO}`
+
 
 /*  Quando le lezioni sono più d'una, il vantaggio è vederle insieme:
  *  va detto, altrimenti il modello le tratta come un discorso solo e
@@ -109,7 +120,7 @@ export function costruisciPrompt(
   blocchi: BloccoAppunti[],
   tratti: TrattoDiLezione[],
   stile = '',
-  { lezioni = 1, massimo = 8 }: { lezioni?: number; massimo?: number } = {},
+  { lezioni = 1, massimo = 8, istruzioni = null }: { lezioni?: number; massimo?: number; istruzioni?: string | null } = {},
 ) {
   const appunti = blocchi
     .map((b) => `[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`)
@@ -126,7 +137,7 @@ export function costruisciPrompt(
     .join('\n')
 
   return [
-    { role: 'system' as const, content: sistema(massimo) },
+    { role: 'system' as const, content: sistema(massimo, istruzioni) },
     {
       role: 'user' as const,
       content: `MATERIA: ${materia || 'non indicata'}\n\n` +

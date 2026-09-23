@@ -2,7 +2,7 @@
  *  laterale, il piede del pannello Lezioni e «Cambia microfono». Uno
  *  store e non uno stato di App, perché chi la apre sta dappertutto. */
 
-export type Sezione = 'aspetto' | 'registrazione' | 'immagini' | 'tastiera' | 'archivio'
+export type Sezione = 'aspetto' | 'registrazione' | 'integratore' | 'immagini' | 'tastiera' | 'archivio'
 
 type Stato = { aperta: boolean; sezione: Sezione; microfono: boolean }
 

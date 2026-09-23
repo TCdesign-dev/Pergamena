@@ -8,6 +8,7 @@ import { togliDoppioni } from './doppioni'
 import { leggiRegistrazioni, mappaRegistrazioni } from '../registrazione/registrazione'
 import type { Registrazione } from '../registrazione/tipi'
 import { chiediJson } from '../lib/modello'
+import { leggiImpostazioni } from '../impostazioni'
 import { esponi } from '../lib/dev'
 import { aggiungiConsigli, type Richiesta } from '../immagini/consigliate'
 
@@ -97,7 +98,9 @@ async function integra(
 
   avanza('chiedo')
   const stile = istruzioniDiStile(stileDellaPagina(editor.state.doc))
-  const { json, costo } = await chiediJson('merge', costruisciPrompt(materia, blocchi, tratti, stile, { lezioni, massimo }), {
+  // le istruzioni possono essere le tue: Impostazioni › Integratore
+  const istruzioni = leggiImpostazioni().promptMerge
+  const { json, costo } = await chiediJson('merge', costruisciPrompt(materia, blocchi, tratti, stile, { lezioni, massimo, istruzioni }), {
     maxToken: lezioni > 1 ? 12000 : 8000,
     riprovo: () => avanza('riprovo'),
   })

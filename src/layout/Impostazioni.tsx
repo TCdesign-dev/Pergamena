@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
+import { ISTRUZIONI_DI_SERIE } from '../merge/prompt'
 import { applicaTema, leggiTema, type Tema } from '../stili/tema'
 import {
   chiudiImpostazioni, iscrivitiImpostazioniAperte, leggiImpostazioniAperte, scegliSezione, type Sezione,
@@ -19,6 +20,7 @@ import s from './Impostazioni.module.css'
 const SEZIONI: { id: Sezione; nome: string; icona: NomeIcona }[] = [
   { id: 'aspetto', nome: 'Aspetto', icona: 'chiaro' },
   { id: 'registrazione', nome: 'Registrazione', icona: 'microfono' },
+  { id: 'integratore', nome: 'Integratore', icona: 'ai' },
   { id: 'immagini', nome: 'Immagini', icona: 'immagini' },
   { id: 'tastiera', nome: 'Tastiera', icona: 'tastiera' },
   { id: 'archivio', nome: 'Archivio', icona: 'archivio' },
@@ -126,6 +128,7 @@ function Contenuto({ sezione, stretta, microfono, onArchivio }: {
   switch (sezione) {
     case 'aspetto': return <Aspetto />
     case 'registrazione': return <Registrazione suMicrofono={microfono} />
+    case 'integratore': return <Integratore />
     case 'immagini': return <Immagini />
     case 'tastiera': return <Tastiera stretta={stretta} />
     case 'archivio':
@@ -137,15 +140,17 @@ function Contenuto({ sezione, stretta, microfono, onArchivio }: {
   }
 }
 
-/** Una riga: titolo, spiegazione, e il controllo a destra. */
-function Riga({ titolo, spiega, children }: { titolo: string; spiega?: ReactNode; children: ReactNode }) {
+/** Una riga: titolo, spiegazione, e il controllo a destra. Il
+ *  controllo può mancare: certe righe sono solo l'intestazione di
+ *  quello che viene sotto. */
+function Riga({ titolo, spiega, children }: { titolo: string; spiega?: ReactNode; children?: ReactNode }) {
   return (
     <div className={s.riga}>
       <div className={s.testo}>
         <div className={s.titoloRiga}>{titolo}</div>
         {spiega && <div className={s.spiega}>{spiega}</div>}
       </div>
-      <div className={s.controllo}>{children}</div>
+      {children && <div className={s.controllo}>{children}</div>}
     </div>
   )
 }
@@ -189,6 +194,53 @@ function Aspetto() {
         ))}
       </div>
     </Riga>
+  )
+}
+
+/*  Le istruzioni che l'integratore riceve prima dei tuoi appunti.
+ *
+ *  Si possono riscrivere: è il modo più diretto di dirgli come vuoi
+ *  che lavori («niente definizioni», «solo numeri e date», «scrivi in
+ *  inglese»). Quello che il programma aggiunge sempre — titoli,
+ *  immagini, formato della risposta — resta fuori da qui: se lo
+ *  rompessi, il merge non tornerebbe con proposte brutte, tornerebbe
+ *  con zero proposte. */
+function Integratore() {
+  const impostazioni = useSyncExternalStore(iscrivitiImpostazioni, leggiImpostazioni)
+  const suo = impostazioni.promptMerge
+  const [bozza, setBozza] = useState(suo ?? ISTRUZIONI_DI_SERIE)
+  const cambiato = bozza.trim() !== (suo ?? ISTRUZIONI_DI_SERIE).trim()
+  const diSerie = bozza.trim() === ISTRUZIONI_DI_SERIE.trim()
+
+  const salva = () => imposta('promptMerge', bozza.trim() && !diSerie ? bozza.trim() : null)
+
+  return (
+    <>
+      <Riga
+        titolo="Le istruzioni per l’integratore"
+        spiega={<>Sono la prima cosa che il modello legge, prima dei tuoi appunti e della trascrizione. <code>{'{massimo}'}</code> diventa il numero massimo di proposte: 8 per una lezione, 16 per tutte insieme.</>}
+      />
+      <textarea
+        className={s.prompt}
+        value={bozza}
+        spellCheck={false}
+        onChange={(e) => setBozza(e.target.value)}
+        onBlur={salva}
+        aria-label="Le istruzioni per l’integratore"
+      />
+      <div className={s.sottoPrompt}>
+        <span className={s.nota}>
+          {suo ? 'Stai usando istruzioni tue.' : 'Stai usando le istruzioni di serie.'}
+          {' '}Dopo, il programma aggiunge sempre titoli, immagini e formato della risposta.
+        </span>
+        <span className={s.tastiPrompt}>
+          <button className={s.secondario} disabled={diSerie} onClick={() => { setBozza(ISTRUZIONI_DI_SERIE); imposta('promptMerge', null) }}>
+            Ripristina
+          </button>
+          <button className={s.principale} disabled={!cambiato} onClick={salva}>Salva</button>
+        </span>
+      </div>
+    </>
   )
 }
 

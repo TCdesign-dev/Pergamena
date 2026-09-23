@@ -100,6 +100,37 @@ section:first-child > .etichetta { padding-top: calc(var(--u) * 2); }
 .controllo { flex: none; padding-top: calc(var(--u) / 8); }
 
 .secondario { composes: secondario from './Superficie.module.css'; }
+.principale { composes: primario from './Superficie.module.css'; }
+
+/*  Le istruzioni dell'integratore: un campo alto, a caratteri fissi,
+ *  perché è un testo che si legge a righe e non a paragrafi. */
+.prompt {
+  display: block;
+  width: 100%;
+  height: calc(var(--u) * 34);
+  resize: vertical;
+  padding: calc(var(--u) * 1.25) calc(var(--u) * 1.5);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro);
+  font-family: var(--font-mono);
+  font-size: var(--t-piccolo);
+  line-height: 1.6;
+  outline: none;
+  tab-size: 2;
+}
+.prompt:focus { border-color: var(--accento); }
+
+.sottoPrompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u);
+  margin-top: var(--u);
+}
+.nota { flex: 1; min-width: calc(var(--u) * 20); color: var(--tenue-testo); font-size: var(--t-piccolo); line-height: 1.45; }
+.tastiPrompt { flex: none; display: flex; align-items: center; gap: calc(var(--u) * 0.75); }
 .tastoGrande { composes: tasto from './Superficie.module.css'; }
 .controllo .tastoGrande { padding: calc(var(--u) * 0.625) var(--u); font-size: var(--t-piccolo); }
 
