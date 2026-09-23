@@ -116,6 +116,18 @@
   font-size: var(--t-ui);
 }
 
+/*  Una pagina di questa materia sta registrando: al posto del conto
+ *  delle pagine, che in quel momento interessa a nessuno. */
+.registra { display: inline-flex; align-items: center; gap: calc(var(--u) * 0.75); color: var(--registra); }
+.pallinoRosso {
+  flex: none;
+  width: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 0.75);
+  border-radius: 50%;
+  background: var(--registra);
+  animation: var(--pulsa);
+}
+
 /*  L'esame vicino diventa un'etichetta: è la cosa che cambia le
  *  giornate, e si deve vedere da lontano. */
 .esame {

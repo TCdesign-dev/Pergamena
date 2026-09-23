@@ -1,0 +1,28 @@
+/*  Il rosso della registrazione, piccolo: un pallino che pulsa accanto
+ *  al nome della pagina, e una pastiglia dove serve dirlo a parole. */
+
+.pallino {
+  flex: none;
+  display: inline-block;
+  width: calc(var(--u) * 0.75);
+  height: calc(var(--u) * 0.75);
+  border-radius: 50%;
+  background: var(--registra);
+  animation: var(--pulsa);
+}
+
+.avviso {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  flex: none;
+  height: var(--controllo);
+  padding: 0 calc(var(--u) * 1.25);
+  border-radius: calc(var(--controllo) / 2);
+  background: var(--registra-fondo);
+  color: var(--registra);
+  font-size: var(--t-ui);
+  font-weight: 500;
+  animation: var(--entra);
+}
+.avviso:hover { background: color-mix(in srgb, var(--registra) 18%, transparent); }

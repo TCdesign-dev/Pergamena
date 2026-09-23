@@ -5,6 +5,7 @@ import type { Quaderno, Documento } from '../documento/tipi'
 import { useImmagine } from '../immagini/useImmagine'
 import { useLargo } from './larghezza'
 import { MenuPagina } from './MenuPagina'
+import { AvvisoInCorso, PallinoInCorso, usePaginaRegistrata } from '../registrazione/InCorso'
 import { Miniatura } from './Miniatura'
 import { Icona } from '../lib/Icona'
 import s from './Home.module.css'
@@ -39,6 +40,9 @@ export function Home({
   const pagine = documenti.filter(soloPagine)
   const ultime = [...pagine].sort((a, b) => b.modificato - a.modificato).slice(0, 6)
   const materie = new Map(quaderni.map((q) => [q.id, q]))
+  // la pagina che sta registrando: da qui non si vedrebbe altrimenti
+  const registrata = usePaginaRegistrata()
+  const inRegistrazione = pagine.find((d) => d.id === registrata) ?? null
 
   function nuovaMateria() {
     const q = creaQuaderno('')
@@ -56,6 +60,9 @@ export function Home({
               ? 'Non ce n’è ancora nessuna.'
               : `${quaderni.length} ${quaderni.length === 1 ? 'materia' : 'materie'} · ${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
           </span>
+          {inRegistrazione && (
+            <AvvisoInCorso titolo={inRegistrazione.titolo} onVai={() => onApri(inRegistrazione.id)} />
+          )}
           <button className={s.nuova} onClick={nuovaMateria}>
             <Icona nome="nuovo" dimensione={14} />
             Nuova materia
@@ -88,6 +95,7 @@ export function Home({
                 <button key={d.id} className={s.ultima} onClick={() => onApri(d.id)}>
                   <span className={s.pallino} data-colore={materie.get(d.quadernoId)?.colore} />
                   <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                  <PallinoInCorso documentoId={d.id} />
                   <span className={s.materia}>{materie.get(d.quadernoId)?.nome}</span>
                   <span className={s.spazio} />
                   <span className={s.quando}>{quando(d.modificato)}</span>
@@ -117,6 +125,9 @@ function Scheda({
 }) {
   const copertina = useImmagine(quaderno.copertinaId)
   const recente = [...pagine].sort((a, b) => b.modificato - a.modificato)[0]
+  // una pagina di questa materia sta registrando: lo dice la scheda
+  const registrata = usePaginaRegistrata()
+  const quiSiRegistra = !!registrata && pagine.some((d) => d.id === registrata)
   const esame = prossimoEsame(quaderno)
   const vicino = esame ? mancano(esame.data) <= 14 : false
   const nome = quaderno.nome || 'Senza nome'
@@ -166,7 +177,9 @@ function Scheda({
           </button>
         )}
         <div className={s.conteggio}>
-          {pagine.length === 0 ? 'vuota' : `${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
+          {quiSiRegistra
+            ? <span className={s.registra}><span className={s.pallinoRosso} />si sta registrando</span>
+            : pagine.length === 0 ? 'vuota' : `${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
         </div>
         {/* il prossimo esame: è il motivo per cui la data è un campo e non testo */}
         {esame && (

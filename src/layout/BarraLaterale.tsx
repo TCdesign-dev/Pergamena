@@ -7,6 +7,7 @@ import {
   ORDINI, ETICHETTE_ORDINE, leggiOrdine, salvaOrdine, ordina, type Ordine,
 } from '../documento/ordinamento'
 import { StatoSincronia } from './StatoSincronia'
+import { PallinoInCorso } from '../registrazione/InCorso'
 import { Icona } from '../lib/Icona'
 import s from './BarraLaterale.module.css'
 
@@ -133,6 +134,7 @@ export function BarraLaterale({
                         onClick={() => onApri(d.id, 'corpo')}
                       >
                         <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                        <PallinoInCorso documentoId={d.id} />
                         {ordine !== 'titolo' && (
                           <span className={s.data}>
                             {quando(ordine === 'creazione' ? d.creato : d.modificato)}
