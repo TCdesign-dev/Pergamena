@@ -71,6 +71,10 @@ Regole:
   i titoletti o i termini chiave, fallo anche tu; se colora le parole
   importanti, colora anche tu le parole importanti, con il SUO colore.
   Mai una proposta intera in grassetto o colorata, se lui non lo fa.
+- Formule: scrivile in LaTeX fra dollari — $P_{95} = \\mu + 1{,}645\\,\\sigma$ —
+  e diventano formule vere, come quelle che scrive lui (negli APPUNTI le
+  vedi già così). Solo se il professore l'ha davvero dettata: non
+  inventarne, e non trasformare in formula una frase che formula non è.
 - Se negli appunti c'è un dato che contraddice chiaramente la lezione
   (una data, un numero, un nome), proponi una correzione con tipo "correggi".
   La trascrizione automatica sbaglia nomi propri e numeri: correggi solo

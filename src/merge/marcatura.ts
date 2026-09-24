@@ -10,12 +10,16 @@ import { COLORI, type Colore } from '../stili/colori'
  *  arrivano così:
  *
  *      **grassetto**    <rosso>colorato</rosso>    ==evidenziato==
+ *      $E = mc^2$       (una formula, in LaTeX)
  *
  *  e le proposte che tornano indietro, scritte allo stesso modo,
- *  diventano grassetto, colore ed evidenziatore veri. */
+ *  diventano grassetto, colore, evidenziatore e formule vere. */
 
 type Segno = { type: string; attrs?: Record<string, unknown> }
 export type PezzoDiTesto = { type: 'text'; text: string; marks: Segno[] }
+/** una formula dentro a una proposta: `$P_{95}=\mu+1{,}645\sigma$` */
+export type PezzoFormula = { type: 'inlineMath'; attrs: { latex: string }; marks: Segno[] }
+export type Pezzo = PezzoDiTesto | PezzoFormula
 
 const eColore = (x: string): x is Colore => (COLORI as readonly string[]).includes(x)
 
@@ -47,38 +51,50 @@ export function inMarcatura(blocco: NodoPM): string {
  *  e una riga tutta rossa non evidenzia più niente. */
 const MASSIMO_COLORI = 2
 
-export function daMarcatura(testo: string, sempre: Segno[]): PezzoDiTesto[] {
-  const pezzi: PezzoDiTesto[] = []
+export function daMarcatura(testo: string, sempre: Segno[]): Pezzo[] {
+  const pezzi: Pezzo[] = []
   let grassetto = false
   let evidenziato = false
   const colori: Colore[] = []
   let aperti = 0
   let ignorati = 0
 
-  const aggiungi = (t: string) => {
-    if (!t) return
+  const marche = () => {
     const marks: Segno[] = [...sempre]
     if (grassetto) marks.push({ type: 'bold' })
     if (evidenziato) marks.push({ type: 'highlight' })
     const colore = colori[colori.length - 1]
     if (colore) marks.push({ type: 'coloreTesto', attrs: { nome: colore } })
-    pezzi.push({ type: 'text', text: t, marks })
+    return marks
   }
 
-  const segni = /\*\*|==|<(\/?)(rosso|arancio|verde|blu|viola)>/g
+  const aggiungi = (t: string) => {
+    if (t) pezzi.push({ type: 'text', text: t, marks: marche() })
+  }
+
+  /*  Le formule si riconoscono per prime: dentro al LaTeX ci sono
+   *  graffe e underscore, non i segni di qui, e un `$…$` mangiato a
+   *  metà diventerebbe testo coi dollari in mezzo.
+   *
+   *  Dopo il dollaro ci vuole subito un carattere non bianco, e la
+   *  formula sta in 200 caratteri: senza, «costa 5$ e poi 10$»
+   *  diventava la formula « e poi 10». */
+  const segni = /\$\$?(?<latex>[^\s$][^$]{0,199}?)\$\$?|\*\*|==|<(?<chiusura>\/?)(?<colore>rosso|arancio|verde|blu|viola)>/g
   let ultimo = 0
   for (const m of testo.matchAll(segni)) {
     aggiungi(testo.slice(ultimo, m.index))
-    ultimo = m.index! + m[0].length
-    if (m[0] === '**') grassetto = !grassetto
+    ultimo = m.index + m[0].length
+    const { latex, chiusura, colore } = m.groups ?? {}
+    if (latex) pezzi.push({ type: 'inlineMath', attrs: { latex: latex.trim() }, marks: marche() })
+    else if (m[0] === '**') grassetto = !grassetto
     else if (m[0] === '==') evidenziato = !evidenziato
-    else if (m[1]) {
+    else if (chiusura) {
       if (ignorati) { ignorati--; continue }
-      const i = colori.lastIndexOf(m[2] as Colore)
+      const i = colori.lastIndexOf(colore as Colore)
       if (i >= 0) colori.splice(i, 1)
     }
     else if (++aperti > MASSIMO_COLORI) ignorati++
-    else colori.push(m[2] as Colore)
+    else colori.push(colore as Colore)
   }
   aggiungi(testo.slice(ultimo))
   return pezzi

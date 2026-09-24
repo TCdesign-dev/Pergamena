@@ -17,17 +17,22 @@ import s from './Revisione.module.css'
 
 type Proposta = { da: number; a: number }
 
-/** Tutti i tratti di testo proposti dall'AI, un tratto per blocco. */
+/*  Tutti i tratti proposti dall'AI, un tratto per blocco.
+ *
+ *  Non solo testo: una proposta può contenere una formula, che è un
+ *  nodo a sé. Se la si saltasse, la proposta si spezzerebbe in due —
+ *  e «Rifiuta» ne toglierebbe metà, lasciando la formula orfana. */
 function trovaProposte(editor: Editor): Proposta[] {
   const elenco: Proposta[] = []
   editor.state.doc.descendants((nodo, pos) => {
-    if (!nodo.isText) return
+    if (!nodo.isInline) return true
     const segno = nodo.marks.find((m) => m.type.name === 'segnoAi' && m.attrs.stato === 'proposto')
-    if (!segno) return
+    if (!segno) return false
     const ultimo = elenco[elenco.length - 1]
     // attaccato al precedente: stesso blocco, stessa proposta
     if (ultimo && ultimo.a === pos) ultimo.a = pos + nodo.nodeSize
     else elenco.push({ da: pos, a: pos + nodo.nodeSize })
+    return false
   })
   return elenco
 }
