@@ -7,19 +7,84 @@ professore.
 
 ---
 
-## Avvio
+## Cosa fa
+
+- **Scrivi a lezione** come su un foglio: niente barre degli strumenti,
+  il menu compare solo quando selezioni. Titoli, elenchi, colori,
+  evidenziatore, formule LaTeX, immagini.
+- **Registra la lezione** e la trascrive sul Mac, mentre parla il
+  professore. L'audio non esce dal computer.
+- **Completa gli appunti dopo**: confronta quello che hai scritto con
+  quello che è stato detto e propone le aggiunte, una per una, da
+  accettare o rifiutare. Non riscrive mai quello che hai scritto tu:
+  al massimo finisce le tue righe.
+- **Corregge in diretta**: se scrivi una data o un numero che non torna
+  con la lezione, te lo segnala nel margine mentre sei ancora in aula.
+- **Commenti** su parole e frasi, come su Notion.
+- **Ripassa**: argomenti, quiz generati dai tuoi appunti, archivio.
+- **Sincronizza** fra Mac e telefono, se vuoi (Supabase), o resta tutto
+  in locale.
+
+## Cosa serve
+
+- **un Mac con macOS 26**: la trascrizione usa `SpeechTranscriber` di
+  sistema. Senza, tutto il resto funziona lo stesso: non registra;
+- **Node 24** (`nvm use` legge `.nvmrc`);
+- gli **strumenti da riga di comando di Xcode**, una volta sola, per
+  compilare il programmino che ascolta il microfono
+  (`xcode-select --install`);
+- una **chiave di OpenRouter** per le parti con l'AI — qualche
+  centesimo al mese. Tutto il resto funziona senza.
+
+## Installazione
 
 ```bash
+git clone <questa repository>
+cd Pergamena
 nvm use            # Node 24: Vite 8 non gira sul 20 di sistema
 npm install
 npm run dev        # http://localhost:5180
 ```
 
+Il primo `npm run dev` compila da solo il programma che ascolta
+(`nativo/ascolto/compila.sh`); la prima volta che premi **Registra**,
+macOS chiede il permesso per il microfono.
+
 `npm run check` per il controllo dei tipi.
+
+## Le chiavi
+
+Due strade, e la prima non chiede di aprire nessun file:
+
+1. **Dalle Impostazioni** (⌘,) › **Chiavi**: incolli la chiave di
+   OpenRouter e l'app funziona. Resta su quel computer, in
+   `localStorage`, e viaggia solo al server locale — che è l'unico che
+   parla con OpenRouter. C'è anche «Prova», che ti dice subito se la
+   chiave è buona.
+2. **In un file `.env.local`**, copiando [`.env.example`](.env.example):
+   sta fuori dal browser, ed è il posto più sicuro dei due. Se c'è, vince.
+
+| chiave | serve a | senza |
+|---|---|---|
+| `OPENROUTER_API_KEY` | integratore, quiz, correzioni in diretta | l'app scrive e registra, ma non integra |
+| `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` | sincronia fra Mac e telefono | tutto resta su questo computer |
+| `SERPER_API_KEY` | immagini da Google | immagini da Wikipedia, Commons e Openverse |
+
+I modelli si scelgono dal `.env.local` (`MODELLO_MERGE` e compagnia):
+cambiarli non tocca il codice.
+
+## Dove finiscono i tuoi appunti
+
+Sul tuo computer: IndexedDB per il testo, una cartella per gli audio
+(`~/Library/Application Support/Pergamena`). Su internet va solo quello
+che decidi tu: le pagine, se configuri Supabase — che è un tuo account,
+non mio — e i pezzi di trascrizione che servono all'integratore, quando
+lo lanci, verso il modello che hai scelto. Nessuna telemetria, nessun
+account per usarlo.
 
 ---
 
-## Chiavi API
+## Chiavi API — tutte, per fase
 
 Stanno **tutte** in [`.env.example`](.env.example), divise per fase, con
 scritto dove prendere ognuna. Si copia in `.env.local` e si riempie solo
