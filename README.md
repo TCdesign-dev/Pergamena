@@ -1,5 +1,10 @@
 # Pergamena
 
+![licenza MIT](https://img.shields.io/badge/licenza-MIT-black)
+![macOS 26](https://img.shields.io/badge/macOS-26%2B-black)
+![Node 24](https://img.shields.io/badge/Node-24-black)
+![stato: in uso tutti i giorni](https://img.shields.io/badge/stato-in%20uso%20tutti%20i%20giorni-brightgreen)
+
 Un quaderno per gli appunti a lezione. Scrivi mentre il professore parla;
 Pergamena ascolta, trascrive **sul Mac** e poi ti aiuta a completare quello
 che non hai fatto in tempo a scrivere — senza riscrivere quello che hai
@@ -9,6 +14,8 @@ Non è un clone di Notion: è pensato per una cosa sola, prendere appunti a
 lezione e ritrovarli buoni un mese dopo. Regge molte ore di lezione a
 settimana: ogni funzione che costa (trascrizione, modelli) è fatta per
 girare tutti i giorni senza diventare un abbonamento.
+
+![Una pagina di appunti aperta accanto alla barra laterale delle materie](docs/immagini/scrittura.png)
 
 ---
 
@@ -42,6 +49,9 @@ anche l'audio (~17 MB l'ora, spento di partenza).
 Se ricarichi la pagina o il Mac va in stop, la registrazione non si
 perde: la pagina si ricollega e riprende le frasi arrivate nel frattempo.
 
+![Il pannello delle lezioni, con la trascrizione e «Integrazione completa»](docs/immagini/lezioni.png)
+*Ogni lezione tiene la sua trascrizione, si riascolta dal minuto che clicchi (se hai tenuto l'audio) e si può togliere insieme a tutto quello che ha prodotto.*
+
 ### Completare gli appunti dopo la lezione
 
 È la funzione per cui esiste il progetto. A lezione finita, **Integra
@@ -61,6 +71,9 @@ Tre regole che cambiano tutto:
   forma, non con quella del modello;
 - **si vede sempre cosa non è tuo.** Il testo proposto è sottolineato a
   puntini e resta riconoscibile anche dopo che l'hai accettato.
+
+![Tre proposte nel testo, sottolineate a puntini, e la barra della revisione in basso](docs/immagini/integratore.png)
+*Le proposte si scorrono con `J` e `K`, si accettano con `↵`, si rifiutano con `X`. Quella in alto è un completamento: cresce in fondo a una riga già scritta.*
 
 Sa anche proporre i **titoli** degli argomenti che mancano, scrivere
 **formule** in LaTeX quando il professore ne ha dettata una, e suggerire
@@ -90,6 +103,8 @@ Una domanda sulla pagina, e risponde leggendo **due sole fonti**: i tuoi
 appunti e la trascrizione. «Cosa ho perso mentre scrivevo?», «su cosa ha
 insistito?», «riassumimi la lezione in cinque punti».
 
+![Il pannello «Chiedi alla lezione» con una domanda e la risposta che cita il professore](docs/immagini/chiedi.png)
+
 Cita il professore fra virgolette col minuto — «(0:42)» — e distingue
 quello che ha detto lui da quello che avevi già scritto. Se la risposta
 non c'è, lo dice invece di inventarla. Le domande restano nella pagina:
@@ -99,9 +114,12 @@ quella che ti sei fatto a ottobre è ancora lì a gennaio.
 
 Selezioni, `⌘⇧M`, scrivi: il pezzo resta segnato in viola e cliccandolo
 si rilegge la nota. Un pannello elenca tutti i commenti della pagina
-nell'ordine in cui stanno nel testo. Se cancelli la frase commentata il
-commento non sparisce in silenzio: resta in fondo all'elenco con la
-citazione di com'era.
+nell'ordine in cui stanno nel testo.
+
+Se cancelli la frase commentata il commento non sparisce in silenzio:
+resta in fondo all'elenco con la citazione di com'era.
+
+![Un commento aperto su una frase segnata in viola](docs/immagini/commenti.png)
 
 ### Immagini
 
@@ -258,6 +276,42 @@ raccontate nel [quaderno di bordo](docs/quaderno-di-bordo.md), insieme
 al perché di tutto il resto: le misure, gli errori presi per strada e le
 cose provate e buttate.
 
+## Stato del progetto
+
+In uso tutti i giorni, su lezioni vere, da settembre 2026. Le funzioni
+descritte qui ci sono tutte e funzionano; quello che cambia più spesso
+sono i prompt, perché è lì che si vede la differenza fra una proposta
+utile e una da buttare.
+
+Non è un prodotto: è un progetto personale tenuto in ordine abbastanza
+da poter essere letto, copiato e cambiato. Non c'è un installatore, non
+c'è un servizio dietro, e la roadmap dipende da cosa serve la settimana
+dopo.
+
+## Domande e problemi
+
+Le [issue](https://github.com/TCdesign-dev/Pergamena/issues) sono il
+posto giusto: sia per i difetti sia per le domande su come è fatto. Se
+qualcosa non parte, aiuta sapere versione di macOS, versione di Node e
+cosa dice il terminale dove gira `npm run dev`.
+
+Le pull request sono benvenute. Per un cambiamento grosso conviene
+aprire prima una issue: il progetto ha delle scelte di fondo (niente
+framework di componenti, il documento come unica fonte, le chiavi che
+non entrano nel browser) che è meglio discutere prima di scriverci
+sopra del codice.
+
 ## Licenza
 
-[MIT](LICENSE).
+[MIT](LICENSE) — fanne quello che vuoi, senza garanzie.
+
+---
+
+*In short, in English: Pergamena is a note-taking app for students. You
+write during class while it records and transcribes the lecture locally
+on your Mac; afterwards it compares your notes with what was actually
+said and proposes the missing bits — completing your own lines instead
+of rewriting them. It also fact-checks dates and numbers live, answers
+questions about the lecture using only your notes and the transcript,
+and keeps everything on your computer unless you configure your own
+Supabase project. The interface and the documentation are in Italian.*
