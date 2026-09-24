@@ -11,6 +11,8 @@ export type Impostazioni = {
   /** le istruzioni date al modello per integrare gli appunti;
    *  null = quelle di serie (vedi merge/prompt.ts) */
   promptMerge: string | null
+  /** le scorciatoie che hai cambiato: id del comando → combinazione */
+  scorciatoie: Record<string, string>
 }
 
 /*  L'audio è spento di partenza: il disco è pieno al 97%, e la
@@ -18,7 +20,7 @@ export type Impostazioni = {
  *  riascoltare il professore, o una seconda passata più accurata. */
 const PREDEFINITE: Impostazioni = {
   sintassiImmagini: true, salvaAudio: false, microfono: null, fonteImmagini: 'web', correzioniInDiretta: true,
-  promptMerge: null,
+  promptMerge: null, scorciatoie: {},
 }
 const CHIAVE = 'pergamena:impostazioni'
 

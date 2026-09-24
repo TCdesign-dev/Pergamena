@@ -16,6 +16,7 @@ import { esponi } from './lib/dev'
 import { PannelloImmagini } from './layout/PannelloImmagini'
 import { Impostazioni } from './layout/Impostazioni'
 import { apriImpostazioni } from './layout/statoImpostazioni'
+import { corrisponde } from './tastiera/scorciatoie'
 import { PannelloLezioni } from './registrazione/PannelloLezioni'
 import { apriLezioni, iscrivitiLezioni, leggiLezioni } from './registrazione/statoLezioni'
 import { apriCommenti, iscrivitiCommenti, leggiCommenti } from './commenti/statoPannello'
@@ -162,18 +163,19 @@ export function App() {
     catch { /* finestra privata: pazienza */ }
   }, [apertoId])
 
-  // ⌘\ barra · ⌘K palette · ⌘/ immagini · ⌘, impostazioni (⌘R sta nel pulsante della registrazione)
+  /*  Barra, palette, immagini, impostazioni: le combinazioni le decide
+   *  il registro delle scorciatoie (si cambiano dalle Impostazioni).
+   *  ⌘R sta nel pulsante della registrazione. */
   useEffect(() => {
     const giu = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey)) return
-      if (e.key === '\\') {
+      if (corrisponde('barra', e)) {
         e.preventDefault()
         if (strettoRif.current) setSopraAperto((v) => !v)
         else setLatoAperto((v) => !v)
       }
-      else if (e.key === 'k' || e.key === 'K') { e.preventDefault(); setComandiAperti((v) => !v) }
-      else if (e.key === '/') { e.preventDefault(); apriPannello(!leggiPannello().aperto) }
-      else if (e.key === ',') { e.preventDefault(); apriImpostazioni() }
+      else if (corrisponde('cerca', e)) { e.preventDefault(); setComandiAperti((v) => !v) }
+      else if (corrisponde('immagini', e)) { e.preventDefault(); apriPannello(!leggiPannello().aperto) }
+      else if (corrisponde('impostazioni', e)) { e.preventDefault(); apriImpostazioni() }
     }
     window.addEventListener('keydown', giu)
     return () => window.removeEventListener('keydown', giu)

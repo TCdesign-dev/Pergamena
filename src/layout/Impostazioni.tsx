@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
 import { ISTRUZIONI_DI_SERIE } from '../merge/prompt'
+import {
+  COMANDI, azzeraScorciatoie, combinazioneDa, combinazioneDi, giaPresa, impostaScorciatoia, scrittaDi,
+} from '../tastiera/scorciatoie'
 import { applicaTema, leggiTema, type Tema } from '../stili/tema'
 import {
   chiudiImpostazioni, iscrivitiImpostazioniAperte, leggiImpostazioniAperte, scegliSezione, type Sezione,
@@ -322,40 +325,103 @@ function Immagini() {
   )
 }
 
-const SCORCIATOIE: [string, string][] = [
-  ['⌘K', 'Cerca o dai un comando'],
-  ['⌘\\', 'Barra laterale'],
-  ['⌘R', 'Registra la lezione'],
-  ['⌘/', 'Pannello delle immagini'],
-  ['⌘,', 'Impostazioni'],
-  ['⌥⌘↓  ⌥⌘↑', 'Segnalazione dopo, e prima'],
-  ['⌘⇧↑  ⌘⇧↓', 'Sposta il blocco'],
-  ['⌘⇧C', 'Colora col colore di prima'],
-  ['⌘⇧0', 'Togli il colore'],
+/*  Quelle che NON si cambiano: non sono scorciatoie, sono sintassi —
+ *  e i tasti della revisione, dove una lettera riassegnata male
+ *  vorrebbe dire non riuscire più a scrivere. */
+const FISSE: [string, string][] = [
   ['/', 'Menu dei blocchi, in una riga vuota'],
   ['$$…$$', 'Formula nel testo'],
   ['!…!', 'Cerca un’immagine'],
+  ['⌥⌘↓  ⌥⌘↑', 'Segnalazione dopo, e prima'],
+  ['J  K', 'Proposta dopo, e prima (in revisione)'],
+  ['↵  X', 'Accetta, rifiuta (in revisione)'],
   ['esc', 'Chiude menu e finestre'],
 ]
 
+/*  Le scorciatoie si registrano premendole: il campo ascolta il tasto
+ *  vero invece di far scrivere «⌘⇧B» a mano. Esc lascia com'era,
+ *  ⌫ rimette quella di serie, e una combinazione già presa non si
+ *  prende: se la si potesse rubare, il comando derubato resterebbe
+ *  senza tasto e nessuno lo direbbe. */
 function Tastiera({ stretta }: { stretta: boolean }) {
-  const [mostra, setMostra] = useState(!stretta)
+  useSyncExternalStore(iscrivitiImpostazioni, leggiImpostazioni)
+  const [inAscolto, setInAscolto] = useState<string | null>(null)
+  const [avviso, setAvviso] = useState<string | null>(null)
+  const [mostraFisse, setMostraFisse] = useState(!stretta)
+
+  useEffect(() => {
+    if (!inAscolto) return
+    const giu = (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (e.key === 'Escape') { setInAscolto(null); setAvviso(null); return }
+      if (e.key === 'Backspace') { impostaScorciatoia(inAscolto, null); setInAscolto(null); setAvviso(null); return }
+      const combinazione = combinazioneDa(e)
+      if (!combinazione) return   // solo modificatori, o un tasto da solo: si aspetta
+      const presa = giaPresa(combinazione, inAscolto)
+      if (presa) { setAvviso(`${scrittaDi(combinazione)} è già di «${presa.nome}»`); return }
+      impostaScorciatoia(inAscolto, combinazione)
+      setInAscolto(null)
+      setAvviso(null)
+    }
+    window.addEventListener('keydown', giu, true)
+    return () => window.removeEventListener('keydown', giu, true)
+  }, [inAscolto])
+
+  const cambiate = COMANDI.filter((c) => combinazioneDi(c.id) !== c.predefinita).length
+
+  const gruppo = (ambito: 'app' | 'editor') => (
+    <dl className={s.scorciatoie}>
+      {COMANDI.filter((c) => c.ambito === ambito).map((c) => (
+        <div key={c.id} className={s.scorciatoia}>
+          <dt>{c.nome}</dt>
+          <dd>
+            <button
+              className={`${s.tastoCambia} ${inAscolto === c.id ? s.inAscolto : ''}`}
+              aria-label={`Cambia la scorciatoia di ${c.nome}`}
+              onClick={() => { setAvviso(null); setInAscolto(inAscolto === c.id ? null : c.id) }}
+            >
+              {inAscolto === c.id ? 'premi i tasti…' : scrittaDi(combinazioneDi(c.id))}
+            </button>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+
   return (
     <>
-      {stretta && (
-        <Riga titolo="Tutte le scorciatoie">
-          <button className={s.secondario} aria-expanded={mostra} onClick={() => setMostra((v) => !v)}>
-            <Icona nome="tastiera" dimensione={14} />
-            {mostra ? 'Nascondi' : 'Mostra'}
+      <Riga
+        titolo="Le scorciatoie"
+        spiega={inAscolto
+          ? <>Premi la combinazione. <b>esc</b> lascia com’era, <b>⌫</b> rimette quella di serie.</>
+          : <>Clicca una combinazione per cambiarla. Ci vuole almeno ⌘, ⌥ o ⌃: una lettera da sola servirebbe a scrivere.</>}
+      >
+        {cambiate > 0 && (
+          <button className={s.secondario} onClick={() => { azzeraScorciatoie(); setInAscolto(null); setAvviso(null) }}>
+            Ripristina tutte
           </button>
-        </Riga>
-      )}
-      {mostra && (
+        )}
+      </Riga>
+      {avviso && <p className={s.avvisoTasti}>{avviso}</p>}
+
+      <h3 className={s.gruppoTasti}>Nell’app</h3>
+      {gruppo('app')}
+      <h3 className={s.gruppoTasti}>Nel foglio</h3>
+      {gruppo('editor')}
+
+      <Riga titolo="Quelle che non si cambiano" spiega="Sintassi che scrivi, e i tasti della revisione.">
+        <button className={s.secondario} aria-expanded={mostraFisse} onClick={() => setMostraFisse((v) => !v)}>
+          <Icona nome="tastiera" dimensione={14} />
+          {mostraFisse ? 'Nascondi' : 'Mostra'}
+        </button>
+      </Riga>
+      {mostraFisse && (
         <dl className={s.scorciatoie}>
-          {SCORCIATOIE.map(([tasti, cosa]) => (
+          {FISSE.map(([tasti, cosa]) => (
             <div key={tasti} className={s.scorciatoia}>
               <dt>{cosa}</dt>
-              <dd>{tasti.split('  ').map((t) => <kbd key={t} className={s.tasto}>{t}</kbd>)}</dd>
+              <dd>{tasti.split('  ').map((x) => <kbd key={x} className={s.tasto}>{x}</kbd>)}</dd>
             </div>
           ))}
         </dl>

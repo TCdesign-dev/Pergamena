@@ -8,6 +8,7 @@ import { mappaDocumenti, mappaQuaderni } from '../../documento/archivio'
 import { apriQuiz } from '../../ripasso/statoQuiz'
 import { apriNuovoCommento } from '../../commenti/statoScheda'
 import type { BloccoTesto } from '../../ripasso/argomenti'
+import { scrittaDiComando } from '../../tastiera/scorciatoie'
 import { Icona } from '../../lib/Icona'
 import s from './MenuSelezione.module.css'
 
@@ -157,7 +158,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           </button>
           <span className={s.separatore} />
           <button
-            title="Commenta  ⌘⇧M"
+            title={`Commenta  ${scrittaDiComando('commenta')}`}
             aria-label="Commenta"
             className={s.bottone}
             onClick={() => {

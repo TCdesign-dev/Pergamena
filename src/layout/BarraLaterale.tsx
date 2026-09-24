@@ -8,6 +8,7 @@ import {
 } from '../documento/ordinamento'
 import { StatoSincronia } from './StatoSincronia'
 import { PallinoInCorso } from '../registrazione/InCorso'
+import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './BarraLaterale.module.css'
 
@@ -62,7 +63,7 @@ export function BarraLaterale({
     <nav className={s.barra} aria-label="Materie e pagine">
       <div className={s.testa}>
         <span className={s.marchio}>Pergamena</span>
-        <button className={s.chiudi} onClick={onChiudi} aria-label="Chiudi la barra laterale (⌘\)" title="Chiudi  ⌘\">
+        <button className={s.chiudi} onClick={onChiudi} aria-label={`Chiudi la barra laterale (${scrittaDiComando('barra')})`} title={`Chiudi  ${scrittaDiComando('barra')}`}>
           <Icona nome="barra-laterale" />
         </button>
       </div>
@@ -74,7 +75,7 @@ export function BarraLaterale({
       <button className={s.cerca} onClick={onCerca}>
         <Icona nome="cerca" dimensione={14} />
         <span className={s.cercaTesto}>Cerca o dai un comando</span>
-        <kbd className={s.tasto}>⌘K</kbd>
+        <kbd className={s.tasto}>{scrittaDiComando('cerca')}</kbd>
       </button>
 
       <button className={`${s.voce} ${inHome ? s.corrente : ''}`} onClick={onHome}>

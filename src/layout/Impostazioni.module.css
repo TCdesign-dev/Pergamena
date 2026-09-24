@@ -210,3 +210,33 @@ section:first-child > .etichetta { padding-top: calc(var(--u) * 2); }
 }
 .scorciatoia dt { flex: 1; color: var(--inchiostro); }
 .scorciatoia dd { display: flex; gap: calc(var(--u) / 2); margin: 0; }
+
+/* il titoletto di un gruppo di scorciatoie */
+.gruppoTasti {
+  composes: etichetta from './Superficie.module.css';
+  margin: calc(var(--u) * 2) 0 calc(var(--u) / 2);
+}
+
+/*  La combinazione è un pulsante: si clicca e si preme il tasto nuovo.
+ *  Mentre ascolta diventa accesa, per dire che adesso la tastiera è
+ *  sua e non tua. */
+.tastoCambia {
+  composes: tasto from './Superficie.module.css';
+  min-width: calc(var(--u) * 7);
+  padding: calc(var(--u) * 0.5) calc(var(--u) * 0.875);
+  border: calc(var(--u) / 8) solid transparent;
+  font-size: var(--t-piccolo);
+}
+.tastoCambia:hover { border-color: var(--linea-forte); color: var(--inchiostro); }
+.inAscolto, .inAscolto:hover {
+  border-color: var(--accento);
+  background: var(--accento-fondo);
+  color: var(--accento-testo);
+  font-family: var(--font-ui);
+}
+
+.avvisoTasti {
+  margin: calc(var(--u) * 0.75) 0 0;
+  color: var(--avviso);
+  font-size: var(--t-piccolo);
+}

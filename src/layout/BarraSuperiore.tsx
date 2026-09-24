@@ -15,6 +15,7 @@ import { PannelloImmagini } from './PannelloImmagini'
 import { apriImpostazioni } from './statoImpostazioni'
 import { MenuPagina, type VoceMenu } from './MenuPagina'
 import { useLargo } from './larghezza'
+import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './BarraSuperiore.module.css'
 
@@ -57,7 +58,7 @@ export function BarraSuperiore({
   const rifCommenti = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
-    ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: '⌘/', azione: onPannello } satisfies VoceMenu]),
+    ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
     { etichetta: 'Elimina pagina…', icona: 'elimina', pericolo: true, azione: onElimina },
   ]
 
@@ -111,7 +112,7 @@ export function BarraSuperiore({
         {largo && (
           <button
             className={`${s.icona} ${pannelloAperto ? s.attivo : ''}`}
-            title="Immagini  ⌘/"
+            title={`Immagini  ${scrittaDiComando('immagini')}`}
             aria-label="Pannello delle immagini"
             aria-pressed={pannelloAperto}
             onClick={onPannello}

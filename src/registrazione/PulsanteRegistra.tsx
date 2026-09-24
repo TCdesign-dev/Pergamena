@@ -5,6 +5,7 @@ import {
   avviaRegistrazione, collegaEditore, fermaRegistrazione, pausaRegistrazione, riprendiRegistrazione,
 } from './registrazione'
 import { leggiImpostazioni } from '../impostazioni'
+import { corrisponde, scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './PulsanteRegistra.module.css'
 
@@ -99,7 +100,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
   rifForma.current = forma
   useEffect(() => {
     const giu = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'r') return
+      if (!corrisponde('registra', e)) return
       e.preventDefault()
       if (e.repeat) return
       if (rifForma.current === 'pronta' || rifForma.current === 'interrotta') void registra(documentoId, materia, rifEditore)
@@ -113,12 +114,12 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       return (
         <button
           className={s.registra}
-          title="Registra la lezione e trascrivila sul Mac  ⌘R"
+          title={`Registra la lezione e trascrivila sul Mac  ${scrittaDiComando('registra')}`}
           onClick={() => void registra(documentoId, materia, rifEditore)}
         >
           <span className={s.pallino} />
           Registra
-          <kbd className={s.tasto}>⌘R</kbd>
+          <kbd className={s.tasto}>{scrittaDiComando('registra')}</kbd>
         </button>
       )
     case 'parto':

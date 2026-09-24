@@ -5,6 +5,7 @@ import { togliCommento, useCommenti } from './deposito'
 import { commentiInPagina, elementoDi, togliSegno } from './posizione'
 import { apriCommento } from './statoScheda'
 import type { Commento } from './tipi'
+import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { quandoFa } from '../lib/quando'
 import { Icona } from '../lib/Icona'
 import s from './PannelloCommenti.module.css'
@@ -76,7 +77,7 @@ export function PannelloCommenti({ doc, rifEditore, modo, onChiudi }: {
       <div className={s.corpo}>
         {elenco.length === 0 && (
           <p className={s.vuoto}>
-            Nessun commento qui. Seleziona una frase e premi <b>⌘⇧M</b> per lasciartene uno.
+            Nessun commento qui. Seleziona una frase e premi <b>{scrittaDiComando('commenta')}</b> per lasciartene uno.
           </p>
         )}
 

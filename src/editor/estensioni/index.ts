@@ -7,6 +7,7 @@ import type * as Y from 'yjs'
 import { IdStabile } from './idStabile'
 import { SegnoAi } from './segnoAi'
 import { Commento } from './commento'
+import { ScorciatoieUtente } from './scorciatoieUtente'
 import { ColoreTesto } from './coloreTesto'
 import { Frecce } from './frecce'
 import { Slash } from './slash'
@@ -36,6 +37,7 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string; documento
     IdStabile,
     SegnoAi,
     Commento,
+    ScorciatoieUtente,
     ColoreTesto,
     Frecce,
     Elenchi,

@@ -24,7 +24,7 @@ function profondita($pos: ResolvedPos) {
   return Math.min(1, $pos.depth)
 }
 
-function sposta(editor: Editor, verso: -1 | 1): boolean {
+export function sposta(editor: Editor, verso: -1 | 1): boolean {
   const { state } = editor
   const { selection } = state
   const $from = isNodeRangeSelection(selection) ? state.doc.resolve(selection.from + 1) : selection.$from
