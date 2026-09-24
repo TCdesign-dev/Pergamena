@@ -30,6 +30,9 @@ const COMPITI: Record<string, Compito> = {
   // «latency» le richieste in JSON finivano su un fornitore degradato che
   // rispondeva dopo 10-13 s ripiegando su un altro; per «throughput», 1,2-1,6 s
   veloce: { variabile: 'MODELLO_VELOCE', attesa: 30_000, ordine: 'throughput' },
+  // le domande alla lezione: contesto grosso (appunti + trascrizioni),
+  // quindi il modello del merge, che è quello col milione di contesto
+  domanda: { variabile: 'MODELLO_MERGE', attesa: 90_000, ordine: 'throughput' },
 }
 
 const TENTATIVI = 2

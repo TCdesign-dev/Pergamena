@@ -9,6 +9,9 @@ import { useRegistrazioni } from '../registrazione/useRegistrazioni'
 import { apriLezioni, iscrivitiLezioni, leggiLezioni } from '../registrazione/statoLezioni'
 import { apriPannello, iscrivitiPannello, leggiPannello } from '../immagini/statoPannello'
 import { apriCommenti, iscrivitiCommenti, leggiCommenti } from '../commenti/statoPannello'
+import { apriDomande, iscrivitiDomande, leggiDomande } from '../domande/statoPannello'
+import { PannelloDomande } from '../domande/PannelloDomande'
+import { useDomande } from '../domande/deposito'
 import { PannelloCommenti } from '../commenti/PannelloCommenti'
 import { useCommenti } from '../commenti/deposito'
 import { PannelloImmagini } from './PannelloImmagini'
@@ -52,10 +55,13 @@ export function BarraSuperiore({
   const immagini = useSyncExternalStore(iscrivitiPannello, leggiPannello).aperto
   const commentiAperti = useSyncExternalStore(iscrivitiCommenti, leggiCommenti)
   const commenti = useCommenti(doc)
+  const domandeAperte = useSyncExternalStore(iscrivitiDomande, leggiDomande)
+  const domande = useDomande(doc)
   const largo = useLargo()
   const materia = quaderno?.nome ?? ''
   const rifLezioni = useRef<HTMLButtonElement>(null)
   const rifCommenti = useRef<HTMLButtonElement>(null)
+  const rifDomande = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
     ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
@@ -96,6 +102,18 @@ export function BarraSuperiore({
           <Icona nome="lezioni" />
           <span>{lezioni.length}</span>
         </button>
+        {(lezioni.length > 0 || domande.length > 0) && (
+          <button
+            ref={rifDomande}
+            className={`${s.icona} ${domandeAperte ? s.attivo : ''}`}
+            title={`Chiedi alla lezione  ${scrittaDiComando('chiedi')}`}
+            aria-label="Chiedi alla lezione"
+            aria-expanded={domandeAperte}
+            onClick={() => apriDomande(!domandeAperte)}
+          >
+            <Icona nome="domanda" />
+          </button>
+        )}
         {commenti.length > 0 && (
           <button
             ref={rifCommenti}
@@ -132,6 +150,11 @@ export function BarraSuperiore({
       {!largo && lezioniAperte && (
         <Tendina escludi={rifLezioni} onChiudi={() => apriLezioni(false)}>
           <PannelloLezioni doc={doc} materia={materia} rifEditore={rifEditore} modo="tendina" onChiudi={() => apriLezioni(false)} />
+        </Tendina>
+      )}
+      {!largo && domandeAperte && (
+        <Tendina alta escludi={rifDomande} onChiudi={() => apriDomande(false)}>
+          <PannelloDomande doc={doc} rifEditore={rifEditore} materia={materia} modo="tendina" onChiudi={() => apriDomande(false)} />
         </Tendina>
       )}
       {!largo && commentiAperti && (

@@ -32,6 +32,7 @@ export const COMANDI: Comando[] = [
   { id: 'registra', nome: 'Registra la lezione', ambito: 'app', predefinita: 'mod+r' },
   { id: 'immagini', nome: 'Pannello delle immagini', ambito: 'app', predefinita: 'mod+/' },
   { id: 'impostazioni', nome: 'Impostazioni', ambito: 'app', predefinita: 'mod+,' },
+  { id: 'chiedi', nome: 'Chiedi alla lezione', ambito: 'app', predefinita: 'mod+shift+d' },
 
   { id: 'commenta', nome: 'Commenta la selezione', ambito: 'editor', predefinita: 'mod+shift+m' },
   { id: 'grassetto', nome: 'Grassetto', ambito: 'editor', predefinita: 'mod+b' },

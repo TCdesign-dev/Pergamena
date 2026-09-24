@@ -20,6 +20,9 @@ professore.
   al massimo finisce le tue righe.
 - **Corregge in diretta**: se scrivi una data o un numero che non torna
   con la lezione, te lo segnala nel margine mentre sei ancora in aula.
+- **Chiedi alla lezione**: una domanda sulla pagina, e risponde leggendo
+  i tuoi appunti e la trascrizione — solo quelli. «Cosa ho perso mentre
+  scrivevo?», «su cosa ha insistito?». Le domande restano nella pagina.
 - **Commenti** su parole e frasi, come su Notion.
 - **Ripassa**: argomenti, quiz generati dai tuoi appunti, archivio.
 - **Sincronizza** fra Mac e telefono, se vuoi (Supabase), o resta tutto

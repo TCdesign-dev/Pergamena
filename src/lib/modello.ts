@@ -13,8 +13,8 @@ import { intestazioniChiavi } from '../chiavi'
  *  Resta un secondo tentativo automatico: OpenRouter smista il
  *  modello fra tanti fornitori, e non tutti si comportano uguale. */
 
-type Messaggio = { role: 'system' | 'user' | 'assistant'; content: string }
-type Compito = 'merge' | 'quiz' | 'veloce'
+export type Messaggio = { role: 'system' | 'user' | 'assistant'; content: string }
+type Compito = 'merge' | 'quiz' | 'veloce' | 'domanda'
 
 const TENTATIVI = 2
 
@@ -76,4 +76,26 @@ export async function chiediJson(compito: Compito, messaggi: Messaggio[], opzion
   throw new Error(`il modello ${motivo}, due volte di fila. Riprova fra poco.`)
 }
 
-esponi({ modello: { chiediJson, ultimaIlleggibile: () => ultimaIlleggibile } })
+/*  Una risposta in prosa, non in JSON: per le domande alla lezione.
+ *  Niente secondo tentativo — se il modello risponde male qui non c'è
+ *  un formato da rispettare, c'è una risposta brutta, e riprovarla da
+ *  soli vuol dire far aspettare il doppio per la stessa cosa. */
+export async function chiediTesto(compito: Compito, messaggi: Messaggio[], opzioni: { maxToken: number }) {
+  const r = await fetch(`/api/llm/${compito}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...intestazioniChiavi() },
+    body: JSON.stringify({
+      messages: messaggi,
+      reasoning: { enabled: false },
+      max_tokens: opzioni.maxToken,
+      temperature: 0.3,
+    }),
+  })
+  const dati = await r.json().catch(() => ({}))
+  if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? `il modello non risponde (${r.status})`)
+  const testo = String(dati.choices?.[0]?.message?.content ?? '').trim()
+  if (!testo) throw new Error('il modello ha risposto vuoto. Riprova.')
+  return { testo, costo: Number(dati.usage?.cost) || 0 }
+}
+
+esponi({ modello: { chiediJson, chiediTesto, ultimaIlleggibile: () => ultimaIlleggibile } })

@@ -1,0 +1,130 @@
+/*  «Chiedi alla lezione»: stessa struttura degli altri pannelli, ma
+ *  con il campo in fondo — si legge dall'alto e si scrive in basso,
+ *  come una conversazione. */
+
+.pannello {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; }
+.pannello .testa { gap: calc(var(--u) / 4); padding-right: var(--u); }
+[data-modo="tendina"] .testa { border-bottom: calc(var(--u) / 8) solid var(--linea); }
+.titolo { composes: titolo from '../layout/Superficie.module.css'; }
+.testa .titolo { flex: 1; }
+.svuota { composes: trasparente from '../layout/Superficie.module.css'; }
+.testa .svuota { height: calc(var(--u) * 3); color: var(--tenue-testo); font-size: var(--t-piccolo); }
+.chiudi { composes: icona from '../layout/Superficie.module.css'; }
+
+.corpo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: calc(var(--u) * 1.5) calc(var(--u) * 2);
+}
+[data-modo="lato"] .corpo { padding: var(--u) calc(var(--u) * 1.5); }
+
+/* ── la pagina vuota: cosa legge, e tre domande da cui partire ── */
+.vuoto { display: flex; flex-direction: column; align-items: flex-start; gap: calc(var(--u) * 0.75); }
+.spiega {
+  margin: 0 0 calc(var(--u) / 2);
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-ui);
+  line-height: 1.6;
+}
+.esempio {
+  composes: secondario from '../layout/Superficie.module.css';
+  max-width: 100%;
+  height: auto;
+  padding: calc(var(--u) * 0.75) calc(var(--u) * 1.25);
+  white-space: normal;
+  text-align: left;
+  font-size: var(--t-ui);
+}
+
+/* ── uno scambio: la domanda, la risposta, quando ── */
+.scambio { animation: var(--entra); }
+.scambio + .scambio { margin-top: calc(var(--u) * 2.5); }
+
+.domanda {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u);
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.25);
+  border-radius: var(--raggio-g);
+  background: var(--carta-alt-2);
+}
+.testoDomanda {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.togli {
+  flex: none;
+  margin: calc(var(--u) / 8) calc(var(--u) * -0.5) 0 0;
+  color: var(--tenue);
+  opacity: 0;
+}
+.domanda:hover .togli, .togli:focus-visible { opacity: 1; }
+.togli:hover { color: var(--inchiostro-tenue); }
+
+.risposta {
+  margin: var(--u) 0 0;
+  padding: 0 calc(var(--u) * 1.25);
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.quando, .attesa {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  margin: calc(var(--u) * 0.75) 0 0;
+  padding: 0 calc(var(--u) * 1.25);
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+}
+.errore { margin: var(--u) 0 0; color: var(--avviso); font-size: var(--t-piccolo); }
+
+/* ── il campo, in fondo ── */
+.piede {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--u) * 0.75);
+  padding: var(--u) calc(var(--u) * 1.5) calc(var(--u) * 1.25);
+  border-top: calc(var(--u) / 8) solid var(--linea);
+}
+.campo {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.125);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro);
+  font-family: var(--font-ui);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.5;
+  outline: none;
+}
+.campo:focus { border-color: var(--accento); }
+.campo::placeholder { color: var(--tenue-testo); }
+.manda {
+  composes: primario from '../layout/Superficie.module.css';
+  flex: none;
+  width: calc(var(--u) * 4.25);
+  padding: 0;
+  place-items: center;
+  display: grid;
+}
