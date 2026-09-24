@@ -15,9 +15,10 @@ export type Impostazioni = {
   scorciatoie: Record<string, string>
 }
 
-/*  L'audio è spento di partenza: il disco è pieno al 97%, e la
- *  trascrizione dal vivo basta per il merge. Si accende quando serve
- *  riascoltare il professore, o una seconda passata più accurata. */
+/*  L'audio è spento di partenza: un'ora di lezione sono circa 17 MB,
+ *  e la trascrizione dal vivo basta per il merge. Si accende quando
+ *  serve riascoltare il professore, o una seconda passata più
+ *  accurata. */
 const PREDEFINITE: Impostazioni = {
   sintassiImmagini: true, salvaAudio: false, microfono: null, fonteImmagini: 'web', correzioniInDiretta: true,
   promptMerge: null, scorciatoie: {},

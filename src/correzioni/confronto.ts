@@ -82,7 +82,7 @@ export function stessoSuono(a: string, b: string) {
 /*  Solo quelle con qualcosa di verificabile: un numero, un nome, o un
  *  buco lasciato per dopo. Una riga di soli concetti («il terzo stato
  *  si ribella») non si controlla nemmeno: è la regola che tiene bassi
- *  i costi, a 32 ore di lezione a settimana. */
+ *  i costi quando le ore di lezione sono tante. */
 export function meritaControllo(testo: string) {
   const t = testo.trim()
   if (t.length < 3) return false

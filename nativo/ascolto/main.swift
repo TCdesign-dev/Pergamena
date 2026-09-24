@@ -522,7 +522,7 @@ struct Ascolto {
                 muori("conversione dal microfono impossibile")
             }
 
-            // l'audio si tiene solo se richiesto: il disco è pieno al 97%
+            // l'audio si tiene solo se richiesto: sono circa 17 MB l'ora
             var registratore = opzioni.salva.flatMap { Registratore(dove: $0, da: naturale) }
 
             /*  Guardia del silenzio: se per 6 secondi non arriva niente

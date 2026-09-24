@@ -6,7 +6,7 @@ import { intestazioniChiavi } from '../chiavi'
  *  DeepSeek V4 Flash, col ragionamento acceso, ogni tanto ragionava
  *  finché non finivano i token e la risposta arrivava VUOTA: da lì
  *  «il modello non ha risposto in JSON», e al secondo tentativo
- *  andava. Provato sulla lezione vera di Materiali: 1 volta su 3.
+ *  andava. Provato su una lezione vera: 1 volta su 3.
  *  Col ragionamento spento: 4 s invece di 20, un quarto del costo,
  *  JSON valido ogni volta, e proposte che si ripetono meno.
  *

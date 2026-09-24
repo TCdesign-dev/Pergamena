@@ -515,11 +515,12 @@ riconoscibile, sottolineato a puntini.
 
 **Lezioni** nella barra: trascrizioni, merge, riascolto dal minuto
 cliccato (se l'audio è salvato), eliminazione. L'audio è spento di
-partenza — circa 17 MB l'ora in AAC 32 kbps, e il disco è al 97%.
+partenza — circa 17 MB l'ora in AAC 32 kbps.
 
 **Il microfono.** Il programma ascolta il microfono di sistema, ma dice
 da quale — e se per 6 secondi non sente niente lo scrive nella
-striscia. Sul Mac di sviluppo il microfono «di sistema» era BlackHole,
+striscia. Su un Mac con dei dispositivi virtuali installati il
+microfono «di sistema» può essere BlackHole,
 un ingresso virtuale: timer che correva, silenzio registrato. Dal
 pannello Lezioni si sceglie il microfono; i virtuali stanno in fondo.
 La prima volta macOS chiede il permesso a nome di **pergamena-ascolto**:
@@ -806,10 +807,11 @@ Una correzione lasciata non torna, nemmeno se ritocchi la riga. Una
 lezione eliminata si porta via le sue correzioni ancora aperte.
 
 **Costi.** In una lezione di prova: 4 controlli, 3 correzioni, 0,04
-centesimi. A 32 ore a settimana la stima è fra 30 e 50 centesimi al
-mese. La chiave ha un tetto di 1 $ che non si ricarica, condiviso con
-merge e quiz: al 22/09 ne restano 0,98. Quando finisce, le correzioni
-si fermano senza disturbare e il pannello delle lezioni lo dice.
+centesimi — dell'ordine di qualche decina di centesimi al mese per chi
+ha molte ore di lezione. Le chiavi gratuite di OpenRouter hanno un
+tetto che non si ricarica, condiviso con merge e quiz: quando finisce,
+le correzioni si fermano senza disturbare e il pannello delle lezioni
+lo dice.
 
 **La latenza la faceva OpenRouter.** Le prime correzioni arrivavano dopo
 12-13 s. Chiedendo il fornitore «più rapido», le richieste in JSON
