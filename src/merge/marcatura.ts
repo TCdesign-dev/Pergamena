@@ -51,6 +51,15 @@ export function inMarcatura(blocco: NodoPM): string {
  *  e una riga tutta rossa non evidenzia più niente. */
 const MASSIMO_COLORI = 2
 
+/*  Una formula: `$E=mc^2$`, o `$$…$$`. Dopo il dollaro ci vuole subito
+ *  un carattere non bianco e dentro ci stanno 200 caratteri, altrimenti
+ *  «costa 5$ e poi 10$» diventa la formula « e poi 10». */
+const FORMULA = String.raw`\$\$?(?<latex>[^\s$][^$]{0,199}?)\$\$?`
+
+/** Solo le formule, per chi deve riconoscerle senza interpretare il
+ *  resto (il confronto fra proposte). Nuova ogni volta: `lastIndex`. */
+export const soloFormule = () => new RegExp(FORMULA, 'g')
+
 export function daMarcatura(testo: string, sempre: Segno[]): Pezzo[] {
   const pezzi: Pezzo[] = []
   let grassetto = false
@@ -72,14 +81,8 @@ export function daMarcatura(testo: string, sempre: Segno[]): Pezzo[] {
     if (t) pezzi.push({ type: 'text', text: t, marks: marche() })
   }
 
-  /*  Le formule si riconoscono per prime: dentro al LaTeX ci sono
-   *  graffe e underscore, non i segni di qui, e un `$…$` mangiato a
-   *  metà diventerebbe testo coi dollari in mezzo.
-   *
-   *  Dopo il dollaro ci vuole subito un carattere non bianco, e la
-   *  formula sta in 200 caratteri: senza, «costa 5$ e poi 10$»
-   *  diventava la formula « e poi 10». */
-  const segni = /\$\$?(?<latex>[^\s$][^$]{0,199}?)\$\$?|\*\*|==|<(?<chiusura>\/?)(?<colore>rosso|arancio|verde|blu|viola)>/g
+  // le formule si riconoscono per prime (vedi FORMULA, qui sopra)
+  const segni = new RegExp(`${FORMULA}|\\*\\*|==|<(?<chiusura>\\/?)(?<colore>rosso|arancio|verde|blu|viola)>`, 'g')
   let ultimo = 0
   for (const m of testo.matchAll(segni)) {
     aggiungi(testo.slice(ultimo, m.index))
