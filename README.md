@@ -1,32 +1,149 @@
 # Pergamena
 
-Quaderno intelligente per appunti scolastici. Non è un clone di Notion:
-è ottimizzato per **scrivere veloce a lezione** e per **completare gli
-appunti dopo**, confrontandoli con quello che ha davvero detto il
-professore.
+Un quaderno per gli appunti a lezione. Scrivi mentre il professore parla;
+Pergamena ascolta, trascrive **sul Mac** e poi ti aiuta a completare quello
+che non hai fatto in tempo a scrivere — senza riscrivere quello che hai
+scritto tu.
+
+Non è un clone di Notion: è pensato per una cosa sola, prendere appunti a
+lezione e ritrovarli buoni un mese dopo. Regge molte ore di lezione a
+settimana: ogni funzione che costa (trascrizione, modelli) è fatta per
+girare tutti i giorni senza diventare un abbonamento.
 
 ---
 
 ## Cosa fa
 
-- **Scrivi a lezione** come su un foglio: niente barre degli strumenti,
-  il menu compare solo quando selezioni. Titoli, elenchi, colori,
-  evidenziatore, formule LaTeX, immagini.
-- **Registra la lezione** e la trascrive sul Mac, mentre parla il
-  professore. L'audio non esce dal computer.
-- **Completa gli appunti dopo**: confronta quello che hai scritto con
-  quello che è stato detto e propone le aggiunte, una per una, da
-  accettare o rifiutare. Non riscrive mai quello che hai scritto tu:
-  al massimo finisce le tue righe.
-- **Corregge in diretta**: se scrivi una data o un numero che non torna
-  con la lezione, te lo segnala nel margine mentre sei ancora in aula.
-- **Chiedi alla lezione**: una domanda sulla pagina, e risponde leggendo
-  i tuoi appunti e la trascrizione — solo quelli. «Cosa ho perso mentre
-  scrivevo?», «su cosa ha insistito?». Le domande restano nella pagina.
-- **Commenti** su parole e frasi, come su Notion.
-- **Ripassa**: argomenti, quiz generati dai tuoi appunti, archivio.
-- **Sincronizza** fra Mac e telefono, se vuoi (Supabase), o resta tutto
-  in locale.
+### Scrivere, senza attrezzi in mezzo
+
+Nessuna barra degli strumenti: gli strumenti arrivano quando servono.
+Selezioni del testo e compare il menu (grassetto, corsivo, titoli, cinque
+colori, evidenziatore, «Quiz» su quel passaggio, «Commenta»). Su una riga
+vuota, `/` apre l'elenco dei blocchi. A sinistra di ogni riga c'è una
+maniglia per trascinarla, e `⌘⇧↑` / `⌘⇧↓` la spostano da tastiera.
+
+Dentro: titoli, elenchi (anche annidati), citazioni, codice, immagini,
+formule LaTeX (`$$E=mc^2$$` nel testo, `$$$…$$$` su una riga da sola,
+disegnate da KaTeX), e le frecce che si scrivono da sole (`->` → `→`).
+
+### Registrare la lezione, e trascriverla sul Mac
+
+Premi **Registra** (`⌘R`) e Pergamena ascolta il microfono. La
+trascrizione la fa `SpeechTranscriber` di macOS, **sul tuo computer**:
+l'audio non esce dal Mac e non passa da nessun servizio.
+
+Mentre registra, in fondo al foglio scorre una fascia con le ultime frasi
+sentite — serve a capire a colpo d'occhio che sta sentendo *te* e non il
+ventilatore. Se per sei secondi non arriva niente lo dice, perché il
+microfono «di sistema» può essere un dispositivo virtuale che non sente
+l'aula. Si può mettere in pausa, scegliere un altro microfono, e tenere
+anche l'audio (~17 MB l'ora, spento di partenza).
+
+Se ricarichi la pagina o il Mac va in stop, la registrazione non si
+perde: la pagina si ricollega e riprende le frasi arrivate nel frattempo.
+
+### Completare gli appunti dopo la lezione
+
+È la funzione per cui esiste il progetto. A lezione finita, **Integra
+negli appunti**: il modello confronta quello che hai scritto con quello
+che è stato detto e propone le aggiunte — una per una, da accettare (`↵`)
+o rifiutare (`X`), con `J` e `K` per scorrerle.
+
+Tre regole che cambiano tutto:
+
+- **non riscrive i tuoi appunti.** Se la tua riga esiste già ma è monca,
+  la *completa* — attacca il pezzo mancante in fondo o nel punto giusto,
+  come se avessi continuato tu. Apre una riga nuova solo quando di quella
+  cosa non c'era traccia;
+- **scrive come scrivi tu.** Prima di chiedere, misura la tua pagina:
+  lunghezza delle righe, minuscole a inizio riga, punto finale o no,
+  simboli che usi, grassetto e colori. Le proposte arrivano con la tua
+  forma, non con quella del modello;
+- **si vede sempre cosa non è tuo.** Il testo proposto è sottolineato a
+  puntini e resta riconoscibile anche dopo che l'hai accettato.
+
+Sa anche proporre i **titoli** degli argomenti che mancano, scrivere
+**formule** in LaTeX quando il professore ne ha dettata una, e suggerire
+**immagini** per i concetti che ne meritano una.
+
+Con più lezioni sulla stessa pagina c'è **Integrazione completa**: le
+legge tutte insieme in una chiamata sola, così un dato ripreso a distanza
+di settimane diventa una proposta sola e una precisazione fatta dopo
+vince su quella di prima.
+
+### Correggere mentre sei ancora in aula
+
+Se scrivi una data, un numero o un nome che non torna con quello che è
+appena stato detto, compare un pallino nel margine: `⌥⌘↓` apre la scheda
+con la citazione del professore e il cambio proposto. `↵` corregge, `X`
+lascia com'era.
+
+Si controllano solo le righe con qualcosa di **verificabile** — un
+numero, un nome, un buco lasciato per dopo — al massimo una volta ogni
+dieci secondi, e solo contro gli ultimi novanta secondi di lezione. È
+quello che tiene bassi i costi e le interruzioni: una riga di soli
+concetti non viene nemmeno guardata.
+
+### Chiedere alla lezione
+
+Una domanda sulla pagina, e risponde leggendo **due sole fonti**: i tuoi
+appunti e la trascrizione. «Cosa ho perso mentre scrivevo?», «su cosa ha
+insistito?», «riassumimi la lezione in cinque punti».
+
+Cita il professore fra virgolette col minuto — «(0:42)» — e distingue
+quello che ha detto lui da quello che avevi già scritto. Se la risposta
+non c'è, lo dice invece di inventarla. Le domande restano nella pagina:
+quella che ti sei fatto a ottobre è ancora lì a gennaio.
+
+### Commentare parole e frasi
+
+Selezioni, `⌘⇧M`, scrivi: il pezzo resta segnato in viola e cliccandolo
+si rilegge la nota. Un pannello elenca tutti i commenti della pagina
+nell'ordine in cui stanno nel testo. Se cancelli la frase commentata il
+commento non sparisce in silenzio: resta in fondo all'elenco con la
+citazione di com'era.
+
+### Immagini
+
+Un pannello cerca immagini e le trascini dove vuoi; `!Basilica di
+Superga!` fa partire la ricerca mentre scrivi. Ogni ricerca passa prima
+da Wikipedia, che risolve la parola e dà quasi sempre l'immagine giusta —
+e in regalo il termine inglese per Commons e Openverse, che sono
+catalogati quasi solo in inglese. Con una chiave di Serper arrivano
+anche i risultati di Google Immagini.
+
+Le immagini inserite restano sul tuo computer, con autore e licenza
+scritti sotto.
+
+### Ripassare
+
+Ogni titolo 1 apre un **argomento**. La scheda di una materia mette in
+fila gli argomenti, «dove eravamo rimasti» (il punto sulle ultime due
+lezioni) e i **quiz**: domande generate dai tuoi appunti e dalla lezione,
+con «rileggi negli appunti» che riporta al punto esatto.
+
+L'**archivio** dice quanto occupa cosa — pagine, trascrizioni, audio,
+immagini — e permette di togliere quello che non serve più.
+
+### Il telefono, e la sincronia
+
+Se colleghi un progetto Supabase (tuo), le pagine si sincronizzano fra
+Mac e telefono. Sul telefono si **legge**: stessa resa, stessi blocchi,
+niente da configurare. Senza Supabase, Pergamena resta un'app locale e
+funziona uguale.
+
+### Farla tua
+
+- **Scorciatoie** (Impostazioni › Tastiera): ogni combinazione si
+  ri-registra premendo i tasti nuovi, e quelle già prese non si rubano.
+- **Istruzioni dell'integratore** (Impostazioni › Integratore): il testo
+  che il modello legge prima dei tuoi appunti è un campo, non una
+  costante nel codice. «Niente definizioni», «solo numeri e date»,
+  «scrivi in inglese».
+- **Chiavi** (Impostazioni › Chiavi), tema, microfono, fonte delle
+  immagini, correzioni in diretta accese o spente.
+
+---
 
 ## Cosa serve
 
@@ -36,13 +153,13 @@ professore.
 - gli **strumenti da riga di comando di Xcode**, una volta sola, per
   compilare il programmino che ascolta il microfono
   (`xcode-select --install`);
-- una **chiave di OpenRouter** per le parti con l'AI — qualche
-  centesimo al mese. Tutto il resto funziona senza.
+- una **chiave di OpenRouter** per le parti con l'AI. Tutto il resto —
+  scrivere, registrare, trascrivere, immagini, archivio — funziona senza.
 
 ## Installazione
 
 ```bash
-git clone <questa repository>
+git clone https://github.com/TCdesign-dev/Pergamena.git
 cd Pergamena
 nvm use            # Node 24: Vite 8 non gira sul 20 di sistema
 npm install
@@ -59,792 +176,88 @@ macOS chiede il permesso per il microfono.
 
 Due strade, e la prima non chiede di aprire nessun file:
 
-1. **Dalle Impostazioni** (⌘,) › **Chiavi**: incolli la chiave di
+1. **Dalle Impostazioni** (`⌘,`) › **Chiavi**: incolli la chiave di
    OpenRouter e l'app funziona. Resta su quel computer, in
    `localStorage`, e viaggia solo al server locale — che è l'unico che
-   parla con OpenRouter. C'è anche «Prova», che ti dice subito se la
-   chiave è buona.
+   parla con OpenRouter. C'è anche «Prova», che dice subito se la chiave
+   è buona.
 2. **In un file `.env.local`**, copiando [`.env.example`](.env.example):
    sta fuori dal browser, ed è il posto più sicuro dei due. Se c'è, vince.
 
 | chiave | serve a | senza |
 |---|---|---|
-| `OPENROUTER_API_KEY` | integratore, quiz, correzioni in diretta | l'app scrive e registra, ma non integra |
+| `OPENROUTER_API_KEY` | integratore, domande, quiz, correzioni | l'app scrive e registra, ma non integra |
 | `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` | sincronia fra Mac e telefono | tutto resta su questo computer |
 | `SERPER_API_KEY` | immagini da Google | immagini da Wikipedia, Commons e Openverse |
 
 I modelli si scelgono dal `.env.local` (`MODELLO_MERGE` e compagnia):
 cambiarli non tocca il codice.
 
+## Quanto costa
+
+Poco, ed è una scelta di progetto: il modello si chiama una volta per
+lezione (l'integratore), e le correzioni in diretta passano prima da un
+filtro che costa una frazione di centesimo a riga. Nell'ordine di qualche
+decina di centesimi al mese anche con molte ore di lezione a settimana.
+
+La trascrizione è gratis perché gira sul Mac. Le immagini sono gratis
+finché bastano Wikipedia, Commons e Openverse.
+
 ## Dove finiscono i tuoi appunti
 
 Sul tuo computer: IndexedDB per il testo, una cartella per gli audio
 (`~/Library/Application Support/Pergamena`). Su internet va solo quello
 che decidi tu: le pagine, se configuri Supabase — che è un tuo account,
-non mio — e i pezzi di trascrizione che servono all'integratore, quando
-lo lanci, verso il modello che hai scelto. Nessuna telemetria, nessun
-account per usarlo.
+non di qualcun altro — e i pezzi di trascrizione che servono
+all'integratore, quando lo lanci, verso il modello che hai scelto.
+Nessuna telemetria, nessun account per usarlo.
 
 ---
 
-## Chiavi API — tutte, per fase
+## Come è fatto
 
-Stanno **tutte** in [`.env.example`](.env.example), divise per fase, con
-scritto dove prendere ognuna. Si copia in `.env.local` e si riempie solo
-quello che serve alla fase corrente.
+React + TypeScript + Vite. L'editor è TipTap (ProseMirror); il documento
+è un `Y.Doc` di Yjs, salvato in IndexedDB e — se configurato —
+sincronizzato via Supabase. Niente Tailwind, niente librerie di
+componenti: CSS Modules e un file di token.
 
-**La fase 0 non richiede nessuna chiave.** L'unica veramente
-indispensabile, più avanti, è `OPENROUTER_API_KEY`: da sola copre merge,
-triage e quiz.
-
-I modelli si cambiano dal `.env`, mai dal codice.
-
----
-
-## Struttura
-
-Un file, una responsabilità. Niente file da mille righe.
+Il server di sviluppo di Vite fa anche da server dell'app: quattro
+plugin in `server/` espongono l'ascolto del microfono, il proxy verso i
+modelli, le decisioni del filtro e la ricerca delle immagini. Le chiavi
+restano lì e non entrano mai nel browser.
 
 ```
 src/
-├── stili/
-│   ├── token.css        tutto il progetto grafico: colori, tipografia, ritmo
-│   ├── colori.ts        la tavolozza: la usano il testo E il pallino materia
-│   ├── base.css         azzeramenti
-│   ├── editor.css       stile del CONTENUTO (selettori veri, non utility)
-│   └── movimento.css    tempi, curve e animazioni: tutte da qui
-│
-├── documento/
-│   ├── tipi.ts          Quaderno · Documento · Argomento
-│   ├── archivio.ts      Yjs + IndexedDB: apre, crea, rinomina, elimina
-│   ├── ordinamento.ts   i tre ordini dei documenti
-│   └── useIndice.ts     ponte fra Yjs e React
-│
-├── lib/
-│   ├── testo.ts         normalizzazione per le ricerche (accenti, maiuscole)
-│   ├── modello.ts       le chiamate al modello che rispondono in JSON
-│   ├── decisioni.ts     le domande a Jev: rispondono numeri, non testo
-│   └── dev.ts           la maniglia `pergamena` in console (solo in sviluppo)
-│
-├── ricerca/
-│   ├── indice.ts        legge il testo dai documenti Yjs, cache e ricerca
-│   └── useRicerca.ts    il ponte verso React, con attesa
-│
-├── ripasso/
-│   ├── argomenti.ts     un titolo 1 e ciò che segue
-│   ├── quiz.ts          le domande, dagli appunti e dalla lezione
-│   ├── riepilogo.ts     «dove eravamo rimasti»
-│   ├── risultati.ts     com'è andato l'ultimo quiz
-│   ├── FinestraQuiz.tsx
-│   └── RipassoMateria.tsx
-│
-├── correzioni/          date, numeri e nomi che non tornano con la lezione
-│   ├── sorveglianza.ts  quando controllare: righe finite, al più ogni 10 s
-│   ├── finestra.ts      gli ultimi 90 secondi di lezione
-│   ├── triage.ts        Jev: quali righe sono sospette
-│   ├── proponi.ts       DeepSeek, solo sulle sospette: cosa cambiare
-│   ├── confronto.ts     le regole: pezzo minimo, niente invenzioni, nomi storpiati
-│   ├── posto.ts         dove sta adesso una correzione negli appunti
-│   ├── deposito.ts      le correzioni nel documento Yjs
-│   ├── applica.ts       «Correggi» e «Lascia così»
-│   ├── SchedaCorrezione.tsx     la scheda che si apre dal pallino
-│   └── RiepilogoCorrezioni.tsx  nel pannello delle lezioni
-│
-├── archivio/
-│   ├── misure.ts        quanto occupa cosa
-│   ├── azioni.ts        togliere l'audio, o la trascrizione
-│   └── Archivio.tsx
-│
-├── materia/
-│   ├── SchedaMateria.tsx   la vista: campi in cima, note libere sotto
-│   ├── Testata.tsx         copertina, nome, campi
-│   ├── Esami.tsx           le prove d'esame, una riga ciascuna
-│   └── Collegamenti.tsx    i link
-│
-├── immagini/
-│   ├── deposito.ts      i byte in IndexedDB, con attribuzione
-│   ├── commons.ts       Wikimedia Commons (nessuna chiave)
-│   ├── statoPannello.ts la pila delle ricerche
-│   └── inserisci.ts     scarica, deposita, mette il nodo
-│
-├── impostazioni.ts      quello che si può spegnere
-│
-├── editor/
-│   ├── Editor.tsx       colonna di scrittura + titolo + gestione del fuoco
-│   ├── estensioni/
-│   │   ├── index.ts     l'elenco: aggiungere una funzione = aggiungere una riga
-│   │   ├── idStabile.ts ⭐ un id immutabile per ogni blocco
-│   │   ├── segnoAi.ts   marca il testo che non hai scritto tu
-│   │   ├── coloreTesto.ts  i cinque colori + scorciatoie
-│   │   ├── frecce.ts    -> diventa →,  --> diventa ⟶
-│   │   ├── elenchi.ts   Tab e sottoelenchi, «1. » e «- » dentro un elenco
-│   │   ├── spostaBlocchi.ts  ⌘⇧↑/↓ e il gruppo di blocchi (⌘ + selezione)
-│   │   ├── formule.ts   LaTeX con KaTeX: $$…$$ nel testo, $$$…$$$ a sé
-│   │   ├── slash.ts     il plugin di «/» (intercetta frecce e Invio)
-│   │   ├── immagine.ts  il nodo, più incolla e trascina
-│   │   ├── richiestaImmagine.ts   la sintassi !…!
-│   │   └── correzioni.ts   il segno a margine, e quali righe stai scrivendo
-│   ├── immagine/
-│   │   └── NodoImmagine.tsx    ridimensionamento e allineamento
-│   ├── formula/
-│   │   └── EditorFormula.tsx   la finestrella: LaTeX e anteprima
-│   └── menu/
-│       ├── MenuSelezione.tsx   compare solo selezionando: niente barra fissa
-│       ├── MenuSlash.tsx       l'elenco dei blocchi
-│       ├── vociSlash.ts        quali blocchi, e con che sinonimi
-│       └── statoSlash.ts       lo stato condiviso fra plugin e React
-│
-└── layout/
-    ├── Guscio.tsx       tre zone (la terza arriva in fase 2)
-    ├── BarraLaterale.tsx
-    ├── Comandi.tsx      la palette ⌘K
-    ├── Attesa.tsx       rotellina, barra, tessere: i segni dell'attesa
-    ├── Miniatura.tsx    un'immagine che arriva: riflesso, poi dissolvenza
-    └── PannelloImmagini.tsx
+├── editor/          l'editor: estensioni TipTap, menu, formule, immagini
+├── documento/       Yjs + IndexedDB: quaderni, pagine, archivio
+├── registrazione/   microfono, trascrizione, pannello delle lezioni
+├── merge/           l'integratore: prompt, proposte, revisione
+├── correzioni/      le correzioni in diretta, dal triage alla scheda
+├── domande/         «chiedi alla lezione»
+├── commenti/        i commenti sul testo
+├── immagini/        Wikipedia, Commons, web, immagini consigliate
+├── ripasso/         argomenti, quiz, «dove eravamo rimasti»
+├── materia/         la scheda della materia, esami, collegamenti
+├── ricerca/         l'indice e la ricerca nel testo
+├── sync/            Supabase: accesso e sincronizzazione
+├── tastiera/        le scorciatoie, e quelle che hai cambiato
+├── telefono/        la vista di sola lettura
+├── layout/          guscio, barre, pannelli, impostazioni
+├── lib/             modello, decisioni, testo, icone
+└── stili/           token, colori, movimento, stile del contenuto
+
+server/              i plugin di Vite: ascolto, llm, decisioni, immagini
+nativo/ascolto/      il programma Swift che ascolta e trascrive
+supabase/schema.sql  tabella, indici e politiche di accesso
+docs/                il quaderno di bordo: perché le cose sono così
 ```
 
-### Le tre decisioni da cui dipende tutto il resto
-
-**1. `idStabile` — ogni blocco ha un id che non cambia mai.**
-È l'ancora di: patch dell'AI, timestamp audio, confini degli argomenti,
-posizione delle immagini. Va in fase 0 per forza: aggiungerlo dopo
-lascerebbe i documenti vecchi senza ancore.
-
-**2. L'argomento non è un contenitore, è un'ancora.**
-Una pagina è un canvas verticale continuo e contiene molti argomenti.
-Un argomento è un *intervallo* fra due id di blocco, non una scatola —
-altrimenti saresti di nuovo costretto a creare una pagina nuova a ogni
-cambio di argomento. Questo fa funzionare insieme i filtri, il recap e
-i quiz per argomento.
-
-**3. Tutto è Yjs, anche l'indice.**
-Sembra eccessivo in locale, ma in fase 1 fa comparire la
-sincronizzazione quasi gratis, e dà un undo che non si rompe quando
-l'AI scrive mentre stai scrivendo tu.
-
-**4. I colori si salvano per nome, non in esadecimale.**
-Nel documento finisce `data-colore="rosso"`, non `#c02626`. Il codice
-esadecimale salvato su fondo chiaro sarebbe illeggibile in tema scuro,
-e resterebbe sbagliato per sempre dentro gli appunti. Vale sia per il
-colore del testo sia per il pallino delle materie. Cambiare tavolozza
-è cambiare cinque token in `token.css`.
-
-### Perché lo stato di «/» sta in uno store e non in React
-
-Frecce e Invio devono essere consumati dal plugin di ProseMirror
-*prima* che diventino spostamento del cursore o un a capo. Il plugin
-però non può leggere lo stato di React. Uno store condiviso
-(`statoSlash.ts`) è più semplice e meno fragile di un intreccio di
-ref fra i due mondi.
-
-### Perché il font è quello di sistema
-
-Niente grazie, niente carta color panna: SF Pro e una scala di grigi
-neutra su bianco. Gli unici colori nel documento sono quelli che ci
-metti tu.
-
-### Perché non c'è Tailwind
-
-Il contenuto dell'editor lo genera ProseMirror: si stila per forza con
-selettori veri. L'app ha una schermata sola. Quindi: token CSS +
-CSS Modules, e Radix (quando servirà) solo per i comportamenti.
-Il controllo visivo vale più della velocità di scrittura.
-
----
-
-## Stato
-
-### ✅ Fase 0 — editor
-
-Canvas verticale continuo, quaderni e documenti, id stabili,
-salvataggio locale, si riapre sull'ultimo documento.
-
-| tasti | effetto |
-|---|---|
-| `⌘K` | palette: cerca nei titoli **e dentro agli appunti**, o crea |
-| `/` | elenco dei blocchi, a inizio riga o dopo uno spazio |
-| `⌘/` | apre il pannello delle immagini |
-| `⌘\` | nasconde la barra laterale |
-
-`/` non scatta in mezzo a una parola: così `12/03` resta una data e
-non apre niente. Nel menu si scrive per filtrare (`elen` → i due
-elenchi), frecce per scegliere, Invio o Tab per inserire, Esc per
-annullare lasciando il testo com'era.
-
-Formattazione: grassetto, corsivo, sottolineato, evidenziatore, codice,
-titoli **H1–H3**, citazione, elenchi puntati e numerati con annidamento,
-blocchi di codice, **cinque colori per il testo**.
-
-Scorciatoie dei colori:
-
-| tasti | effetto |
-|---|---|
-| `⌘⇧C` | colora con **l'ultimo colore usato** |
-| `⌘⇧1` … `⌘⇧5` | rosso · arancio · verde · blu · viola |
-| `⌘⇧0` | toglie il colore |
-
-`⌘⇧1…5` non è un di più: senza un modo da tastiera per *cambiare*
-l'ultimo colore, `⌘⇧C` ti costringerebbe a passare dal menu ogni volta
-che cambi colore. L'ultimo colore usato sopravvive al riavvio, e la
-«A» nel menu lo mostra sbiadito quando la selezione non è colorata —
-così sai cosa farà `⌘⇧C` prima di premerlo.
-
-Frecce automatiche (non scattano nei blocchi di codice):
-
-| digiti | ottieni | | digiti | ottieni |
-|---|---|---|---|---|
-| `->` | → | | `<-` ␣ | ← |
-| `-->` | ⟶ | | `<--` ␣ | ⟵ |
-| `=>` | ⇒ | | `<->` ␣ | ↔ |
-| `==>` | ⟹ | | `<-->` ␣ | ⟷ |
-
-Le frecce a destra si convertono subito; quelle a sinistra alla
-pressione dello spazio — altrimenti `<-` scatterebbe prima che tu
-possa finire di scrivere `<->`.
-
-### ✅ Fase 1a — ricerca e organizzazione
-
-`⌘K` cerca anche **dentro** agli appunti, non solo nei titoli, e mostra
-un'anteprima del punto trovato. Insensibile ad accenti e maiuscole.
-
-I documenti nella barra si ordinano per **ultima modifica**, **data di
-creazione** o **titolo** — si cicla dal comando sotto l'intestazione,
-e la scelta resta fra una sessione e l'altra.
-
-Non c'è un indice separato da tenere allineato: il testo si rilegge
-dai documenti Yjs già in IndexedDB, con una cache chiusa a chiave sul
-timestamp di modifica. Se il documento cambia, la voce non combacia
-più e viene riletta — niente invalidazione manuale, niente indice che
-si disallinea in silenzio.
-
-Misurato su 64 documenti: **26 ms a freddo, 0 ms a caldo**.
-
-### ✅ Fase 1b — sincronizzazione
-
-Una tabella sola, un registro di aggiornamenti Yjs: non ci sono
-tabelle «documenti» o «quaderni» perché quelli vivono *dentro* al Yjs
-come tutto il resto. Meno schema sul server significa nessuna
-migrazione quando cambia la forma degli appunti.
-
-Prima volta: incolla `supabase/schema.sql` nel SQL Editor del
-progetto. È sicuro rilanciarlo.
-
-**Accesso: con la password.** Per un'app che usa una persona sola la
-posta è solo un intralcio — l'SMTP integrato di Supabase manda poche
-mail all'ora, e quando finiscono resti fuori.
-
-L'utente si crea una volta sola dal pannello, senza mandare niente:
-
-> *Authentication › Users › Add user › Create new user*
-> email, password, e **spunta «Auto Confirm User»**
-
-Da lì in poi si entra con email e password, sul Mac e sul telefono,
-senza dipendere da un servizio di posta proprio quando sei in aula.
-
-Restano due strade di riserva, dietro a *entra via email*: il **link**
-(che i modelli predefiniti mandano, e che riporta dentro l'app) e il
-**codice** a sei cifre. Per avere il codice invece del link, in
-*Authentication › Email Templates* apri **Magic Link** e **Confirm
-signup** e aggiungi al corpo:
-
-```html
-<p>Il tuo codice: <b>{{ .Token }}</b></p>
-```
-
-L'app accetta tutte e tre le strade senza sapere quale arriverà.
-
-**Come viaggia.** Gli aggiornamenti si accumulano 1,5 s e si
-uniscono prima di partire — senza, una lezione da un'ora sarebbe
-decine di migliaia di righe. All'avvio si ricostruisce lo stato
-*remoto* a parte, per spedire esattamente il delta locale invece di
-rimandare tutto: è anche ciò che rende indolore lavorare offline.
-Oltre le 300 righe si compatta, cancellando solo **sotto** all'id
-davvero letto, così ciò che arriva nel frattempo da un altro
-dispositivo sopravvive.
-
-**Tutti i documenti, non solo quello aperto.** Poco dopo l'accesso
-parte una passata su ogni documento dell'indice, uno alla volta,
-aprendo e richiudendo. Senza, la copia coprirebbe solo ciò che hai
-toccato: una lezione che non apri da settimane non arriverebbe mai sul
-server, ed è esattamente il caso in cui un backup deve esserci.
-La stessa passata, al contrario, riempie un Mac nuovo.
-
-**Le immagini viaggiano a parte.** I byte non possono stare nel
-documento Yjs, che gonfierebbe, né solo in locale. Vanno in un secchio
-privato su Supabase Storage, una cartella per utente; nel documento
-resta l'identificativo, e didascalia e attribuzione sono già attributi
-del nodo. Se un'immagine manca in locale si ripesca dal server e si
-rimette in cache, così la volta dopo è istantanea e funziona offline.
-
-Senza chiavi l'app resta locale e funziona identica.
-
-**Se IndexedDB si impianta** — capita: un database in stato anomalo
-non risponde né con successo né con errore, tace e basta — il deposito
-locale si arrende dopo 4 secondi e si ripiega sul server. Le immagini
-si vedono lo stesso e se ne inseriscono di nuove. Verificato con un
-database davvero bloccato, non simulato. Per rimetterlo a posto si
-svuotano i dati del sito dal browser.
-
-**Collaudato end-to-end:** scritto senza rete → la spia diventa rossa
-e la modifica resta in coda; rete ripristinata → riparte da sola in
-9 s; svuotato *tutto* il locale → quaderni, documenti e il testo
-scritto offline tornano giù da Supabase identici.
-
-### ✅ Fase 1c — telefono
-
-App installabile, **in sola lettura**. Materie con le loro copertine,
-pagine, lettura, e la ricerca che guarda anche dentro agli appunti.
-
-Non è una limitazione mascherata da scelta: portare un editor a
-blocchi sul touch è una settimana di lavoro e di guai con selezione e
-tastiera, per un caso d'uso che non c'è — gli appunti si prendono sul
-Mac, a lezione. Sul telefono serve ritrovarli.
-
-**Stesso ProseMirror, in sola lettura.** Una pagina si vede identica a
-come l'hai scritta: restano fuori solo le estensioni che servono a
-scrivere (il menu «/», le frecce, la sintassi delle immagini). Un
-renderer statico separato avrebbe voluto dire due schemi da tenere
-allineati, e prima o poi due rese diverse.
-
-**Caricamento diviso.** Il telefono non scarica palette, pannello
-immagini e scelta copertine: `main.tsx` importa il guscio giusto in
-modo pigro. La soglia è la larghezza (600px), non il tipo di
-dispositivo, così una finestra stretta sul Mac prende comunque quello
-che ci sta meglio.
-
-Il service worker tiene in cache il guscio: dopo la prima apertura
-parte anche senza rete. Gli appunti non passano di lì — vivono in
-IndexedDB e li gestisce Yjs.
-
-L'icona è un segnaposto: `public/icona.svg`. Per l'aggiunta alla
-schermata Home di iOS ci vuole un PNG, ed è una decisione di design,
-non mia.
-
-### ✅ Fase 2 — immagini
-
-`⌘/` apre il pannello a destra. Si cerca a mano, oppure si scrive
-`!Basilica di Superga!` negli appunti e la ricerca parte da sola — i
-punti esclamativi spariscono, **la frase resta**, perché è una frase
-dei tuoi appunti e non un comando. Si spegne dal pannello.
-
-Le immagini **non entrano mai da sole nel testo**: arrivano nel
-pannello e le trascini tu. Durante una lezione un'immagine che si
-infila da sola in mezzo a un paragrafo è un disastro.
-
-Una volta nel documento: ridimensionamento dalla maniglia, tre
-allineamenti (piena larghezza, a sinistra o a destra col testo che
-scorre accanto). Si inseriscono anche incollandole e trascinandole dal
-Finder.
-
-**Due schede.** *Cercate* sono le ricerche tue — a mano o con
-`!parola!` — dodici risultati da cui scegli, e l'immagine va dove la
-trascini. *Consigliate* sono i concetti che secondo l'AI meritano
-un'immagine: ogni consiglio è agganciato al passo degli appunti che lo
-nomina (la citazione ci riporta lì), quindi sa già dove andare —
-*Metti sotto il paragrafo*, anche se stai scrivendo altrove. Una foto
-in evidenza e tre alternative invece di una griglia: la scelta l'AI
-l'ha già fatta. Un consiglio aperto alla volta, gli altri su una riga.
-
-I consigli arrivano **mai mentre scrivi**: con il merge, nella stessa
-chiamata, oppure dal pulsante *Suggerisci immagini*. Dopo un merge con
-consigli nuovi il pannello si apre da solo sulle Consigliate. *Non
-serve* se lo ricorda la pagina (i consigli vivono nel suo documento
-Yjs): un concetto scartato non torna, nemmeno chiedendone altri.
-
-Tre decisioni dietro a questa fase:
-
-**I byte si copiano, non si collegano.** Un link a Commons prima o poi
-marcisce, e senza connessione non vedresti più niente mentre ripassi.
-Le immagini vivono in IndexedDB con la loro attribuzione, che per la
-licenza di Commons è un obbligo.
-
-**Un'immagine non viene mai ingrandita oltre la sua risoluzione.**
-Una foto da 500px portata a tutta colonna diventa sfocata, e fra due
-mesi non capisci perché. La larghezza iniziale la decide la
-risoluzione vera.
-
-**Il trascinamento si aggancia al confine del blocco.** `posAtCoords`
-dà il punto esatto sotto al puntatore, che di solito è in mezzo a un
-paragrafo: inserire lì un blocco lo spezza e lascia un paragrafo
-vuoto. L'immagine va sopra o sotto al blocco, secondo la metà in cui
-hai lasciato la presa.
-
-### ✅ Fase 3 — registrazione e merge
-
-**Registra** nella barra in alto. Il microfono lo ascolta
-`pergamena-ascolto`, un piccolo programma nativo che trascrive in
-italiano con `SpeechTranscriber` di macOS 26 — sul Mac, senza mandare
-l'audio da nessuna parte. La prima volta macOS chiede il permesso del
-microfono per l'app da cui hai lanciato `npm run dev`.
-
-```
-nativo/ascolto/       il programma nativo (Swift)  ─┐  righe JSON
-server/ascolto.ts     lo lancia, gira le righe      ├─ Server-Sent Events
-src/registrazione/    le scrive nel documento      ─┘
-src/merge/            allineamento, prompt, proposte, revisione
-server/llm.ts         proxy verso OpenRouter: la chiave non va nel browser
-```
-
-`npm run dev` lo compila da solo se manca (`npm run ascolto` per
-ricompilarlo).
-
-**Dove finisce la lezione.** Dentro al documento Yjs della pagina, in
-una mappa separata dal testo: si sincronizza col resto, si cancella
-con la pagina, l'editor non la vede. I segmenti entrano man mano che
-il riconoscitore li chiude — se il Mac si spegne a metà, fino a lì è
-salvo.
-
-**Le àncore.** Ogni 5 secondi, se il cursore è passato a un altro
-blocco, si annota «al secondo *t* stavo scrivendo qui». È ciò che
-permette di sapere quale pezzo di lezione corrisponde a quale pezzo di
-appunti — con 4 secondi di ritardo, perché si scrive *dopo* aver
-sentito.
-
-**Il merge** è una chiamata sola per lezione (col tetto delle chiamate
-gratuite, tre separate avrebbero fatto sei lezioni al giorno). Il
-modello non riscrive mai gli appunti: propone **aggiunte**, ognuna
-agganciata al blocco dopo cui va, e prende la forma del posto in cui
-va — dopo un elenco diventa una voce di quell'elenco. Per lo stile non
-c'è una descrizione a parole: ci sono gli appunti stessi, e
-l'istruzione di imitarli.
-
-**La revisione** è una modalità, e va dichiarata: `J` `K` scorrono,
-`↵` accetta, `X` rifiuta, `⌘↵` accetta tutte, `esc` esce. Fuori dalla
-revisione quei tasti tornano a scrivere. Il testo accettato resta
-riconoscibile, sottolineato a puntini.
-
-**Lezioni** nella barra: trascrizioni, merge, riascolto dal minuto
-cliccato (se l'audio è salvato), eliminazione. L'audio è spento di
-partenza — circa 17 MB l'ora in AAC 32 kbps.
-
-**Il microfono.** Il programma ascolta il microfono di sistema, ma dice
-da quale — e se per 6 secondi non sente niente lo scrive nella
-striscia. Su un Mac con dei dispositivi virtuali installati il
-microfono «di sistema» può essere BlackHole,
-un ingresso virtuale: timer che correva, silenzio registrato. Dal
-pannello Lezioni si sceglie il microfono; i virtuali stanno in fondo.
-La prima volta macOS chiede il permesso a nome di **pergamena-ascolto**:
-il programma si rilancia rinunciando alla responsabilità ereditata,
-altrimenti — lanciato da un server avviato con responsabilità già
-rinunciata, come fa l'app Claude — macOS negava in silenzio.
-
-**Le chiamate al modello** hanno un tempo massimo (90 s il merge) e un
-secondo tentativo, e OpenRouter preferisce i fornitori veloci: lo
-stesso modello gira su decine di fornitori, e uno ha tenuto un merge
-aperto per più di due minuti e mezzo. Il ragionamento è **spento**:
-vedi sotto.
-
-**La revisione vale finché la selezione è sulla proposta.** Se clicchi
-altrove nel testo stai scrivendo, e Invio torna ad andare a capo.
-
-Collaudato su una lezione sintetizzata con la voce Alice:
-
-| | |
-|---|---|
-| trascrizione | 28,6 s di audio in 2 s; 4 segmenti con tempi per parola |
-| merge (DeepSeek V4 Flash) | 3 proposte giuste, 22 s, **0,00043 $** |
-| proposte | «costruita 1717-1731 come ex voto dopo assedio 1706» dopo il paragrafo di Superga; «recinzione delle terre» come voce dell'elenco dei fattori |
-| audio | AAC mono 16 kHz, 34,1 s, riascolto dal secondo 20 |
-
-Da verificare su una lezione vera: i **nomi propri**. «Juvarra» esce
-«Ivarra» o «Iubarra» anche col vocabolario di contesto — ma a
-pronunciarlo era una voce sintetica.
-
-### ✅ La scheda della materia
-
-Ogni materia ha una scheda: **ⓘ** nella barra laterale e sulla
-copertina in Home, oppure il nome della materia in cima a una pagina.
-
-In cima, come le proprietà di una pagina di Notion, **pochi campi
-strutturati — solo quelli che fanno qualcosa**:
-
-- **Esami** — più prove (parziale, scritto, orale), ognuna con data e
-  nota. La data diventa un conto alla rovescia sulla copertina in Home
-  («Scritto fra 10 giorni», in evidenza sotto le due settimane) e un
-  piccolo «10g» nella barra laterale. Le prove passate scivolano in fondo
-  barrate.
-- **Docente, email, ricevimento** — l'email si apre nella posta.
-- **Link** — Moodle, il sito del corso: si aprono davvero anche scritti
-  senza `https://`.
-
-Sotto, **testo libero**: programma, libri, regole d'esame. È una pagina
-vera, con lo stesso editor, che si sincronizza, si trova con ⌘K e se ne
-va insieme alla materia — ma non compare fra le pagine degli appunti.
-
-Le date d'esame sono giorni, non istanti: si confrontano come giorni di
-calendario locali, così «domani» resta domani a qualunque ora.
-
-Sul telefono la scheda è la prima riga dell'elenco delle pagine, in sola
-lettura. Guardarla non crea niente: se la materia non ha ancora note
-libere si vedono solo i campi.
-
-### ✅ Dopo le prime lezioni vere
-
-**«Il modello non ha risposto in JSON».** Riprodotto sulla lezione di
-Materiali: col ragionamento acceso DeepSeek V4 Flash, una volta su tre,
-ragionava finché non finivano i 4000 token e la risposta arrivava
-vuota. Spento il ragionamento (`lib/modello.ts`):
-
-| | ragionamento basso | spento |
-|---|---|---|
-| tempo | 14–23 s | **4 s** |
-| costo | 0,0005–0,0007 $ | **0,00016 $** |
-| JSON valido | 2 su 3 (a 4000 token) | 3 su 3 |
-| ripetizioni | «Divisa in 2 parti» + «Parte 1…» + «Parte 2…» | una proposta per dato |
-
-Se la risposta è comunque illeggibile si riprova da soli, una volta.
-
-**Le ripetizioni.** La trascrizione non duplica: le ripetizioni che si
-leggono sono del professore («il loro computer, il loro computer»). Le
-proposte invece ripetevano: il prompt ora chiede un dato una volta sola,
-e `merge/doppioni.ts` controlla — scarta ciò che è già negli appunti o
-già in un'altra proposta, confrontando le parole che contano (radici,
-numeri interi: «4 domande» non è «10 domande»). Fra due proposte con lo
-stesso dato resta la più completa. Le proposte per lo stesso blocco ora
-entrano **nell'ordine giusto** (prima uscivano al contrario), e le
-àncore su una riga vuota valgono per la riga piena di sopra: prima il
-modello riceveva un id che negli appunti non c'era.
-
-**Se il server si ferma mentre registri.** Le frasi finite sono nel
-documento man mano, quindi erano già salve; mancavano tre cose:
-
-- *Server ripartito*: il programma di ascolto muore col server, ma le
-  sue ultime frasi le scrive quando nessuno ascolta più. Il server le
-  mette in `~/Library/Application Support/Pergamena/sospese/`, la
-  pagina le recupera appena torna. La registrazione si chiude da sola,
-  segnata **interrotta**, e resta integrabile. (Prima restava «in
-  corso» per sempre, senza il pulsante del merge.)
-- *Pagina ricaricata*: il microfono restava acceso con nessuno ad
-  ascoltarlo, e tutto quello che veniva detto dopo andava perso. Ora la
-  pagina si ricollega e il server le rimanda tutte le frasi, senza
-  doppioni.
-- *Collegamento che cade*: ogni evento ha un numero, il browser dice
-  l'ultimo che ha visto e il server rimanda i mancanti. Se il server
-  non torna entro 15 s la registrazione si chiude, invece di far correre
-  un cronometro che non registra.
-
-Collaudato con una lezione sintetizzata da 49 s: riavvio del server a
-metà → 3 frasi su 3 salve (1 già scritta + 2 recuperate dal file);
-pagina ricaricata a metà → 5 frasi su 5, zero doppioni, àncore riprese.
-
-**Una pagina sola scrive.** Una copia della pagina rimasta viva in
-background dopo un ricaricamento ha scritto la stessa lezione insieme
-alla pagina nuova: quattro frasi doppie, e la pagina nuova mostrava
-«Registra» e rispondeva «sto già ascoltando». Ora il server tiene uno
-*scrivente* solo, riconosciuto da un gettone nell'indirizzo:
-
-- la pagina che si apre durante una registrazione si ricollega da sola
-  se nessuno la sta scrivendo (riprova per qualche secondo: la
-  connessione della pagina vecchia può essere ancora aperta);
-- se la scrive un'altra finestra, in alto compare **in corso altrove ·
-  continua qui**, e «continua qui» (o «Registra») sposta la scrittura in
-  questa pagina: l'altra riceve *sostituito* e si ferma;
-- le frasi doppie comunque non si leggono mai (merge, trascrizione,
-  conti), e alla chiusura si tolgono dal documento.
-
-**Nessuna frase esiste solo in memoria.** Quando il programma di
-ascolto esce, il server mette sempre da parte tutte le frasi finite; la
-pagina che le ha scritte tutte cancella il file, altrimenti la prossima
-pagina che si apre recupera quelle mancanti. È servito il giorno stesso:
-una lezione finita mentre nessuna pagina la scriveva aveva 12 frasi solo
-nella memoria del server, e un riavvio le avrebbe perse.
-
-**Una copia di prova dell'app ha la sua cartella.** Con
-`PERGAMENA_CARTELLA` nel suo `.env.local` (e senza le chiavi di
-Supabase): altrimenti potrebbe prendersi le frasi sospese di una lezione
-vera, o cancellarne l'audio.
-
-**Pausa.** ❚❚ accanto a Registra. In pausa il microfono resta aperto ma
-al riconoscitore e al file arriva **silenzio**: così il tempo continua a
-scorrere e le frasi, le àncore e il minuto da riascoltare restano
-allineati. Il cronometro non conta le pause; la trascrizione le segna
-(«— pausa di 12 min —»). Il comando arriva al programma di ascolto su
-stdin, e l'interfaccia cambia solo quando lui risponde.
-
-**Il programma di ascolto si ricompila senza fermare nessuno**:
-`compila.sh` scrive un file nuovo e poi lo scambia. Sovrascrivere sul
-posto un binario firmato mentre registra fa uccidere il processo da
-macOS. Dopo una ricompilazione macOS chiede di nuovo il permesso del
-microfono: per lui è un programma nuovo.
-
-**Elenchi.** Tab su un elenco numerato che sta sotto un puntato lo
-sposta dentro come sottoelenco (anche più voci selezionate insieme);
-«1. » in una voce puntata la fa diventare numerata, «- » il contrario.
-Il Tab non porta più il cursore fuori dall'editor.
-
-**Movimento e attesa.** Pannelli e finestre compaiono in 200 ms; il
-merge dice a che punto è (prepara, confronta, riprova, inserisce, cerca
-immagini) con i secondi che passano; le immagini luccicano finché non
-arrivano e poi affiorano. Con «Riduci movimento» del Mac non si muove
-niente.
-
-### ✅ L'editor, come su Notion
-
-**Spostare i blocchi.** A sinistra della riga sotto il mouse compare la
-maniglia ⋮⋮: si trascina per spostare la riga, il titolo, l'immagine o la
-voce d'elenco; un clic seleziona il blocco intero. Tenendo premuto ⌘
-mentre si seleziona col mouse si prendono righe intere: trascinando la
-maniglia si sposta tutto il gruppo. Da tastiera ⌘⇧↑ e ⌘⇧↓ spostano di un
-posto la riga (o la voce d'elenco, o il gruppo). I blocchi spostati
-tengono il loro id: àncore delle lezioni e immagini restano attaccate.
-
-**/h1, /h2, /h3.** «/h1» trova il Titolo 1 nel menu (prima non trovava
-niente: si cercava solo per nome); «/h1» seguito da spazio lo applica
-subito, come «# ».
-
-**Formule.** In LaTeX, disegnate da KaTeX: `$$E=mc^2$$` dentro una riga,
-`$$$…$$$` su una riga da sola (centrata), oppure «/formula» e «/fx» dal
-menu, che aprono una finestrella con l'anteprima dal vivo. Un clic su una
-formula la riapre. Il telefono le mostra, il merge e i quiz le leggono.
-
-**L'AI scrive come te.** Il modello vedeva gli appunti come testo nudo e
-proponeva tutto piatto. Ora li riceve con la formattazione (`**grassetto**`,
-`<rosso>…</rosso>`, `==evidenziato==`) e con lo stile della pagina detto in
-chiaro — «colora di rosso le 1-2 parole più importanti, come fa lui, per
-esempio: …» — e le proposte arrivano col tuo grassetto e il tuo colore
-(al massimo due parti colorate per proposta: una riga tutta rossa non
-evidenzia più niente). Sulla lezione di Materiali: «Prima parte: 10
-domande a risposta multipla…» coi numeri chiave in rosso, come i tuoi.
-
-**Immagini dal web.** Nel pannello Immagini, «Web» oltre a «Commons».
-L'API di Google per le immagini è chiusa ai nuovi utenti (e si spegne a
-gennaio 2027): con `SERPER_API_KEY` arrivano i risultati di Google
-Immagini tramite Serper; senza chiavi, Openverse (immagini libere da
-tutto il web, Flickr compreso). Le immagini le scarica il server — i siti
-non lo lasciano fare al browser — solo da indirizzi pubblici, fino a
-15 MB, e il browser le riduce a 1600 px. I consigli dell'AI provano il
-web quando Commons non ha niente.
-
-### ✅ Fase 4 — argomenti, ripasso e archivio
-
-**Gli argomenti.** Un argomento è un titolo 1 e tutto quello che segue,
-fino al titolo 1 successivo; il testo prima del primo titolo è un
-argomento che porta il nome della pagina. Si leggono dal documento ogni
-volta (`ripasso/argomenti.ts`): niente elenco da tenere allineato. Dopo
-una lezione integrata il merge propone i titoli 1 che mancano, con lo
-stesso giro di chiamata, e si rivedono come le altre proposte.
-
-**Il ripasso** di una materia (↺ nella barra laterale e sulle copertine,
-«Ripasso di…» in ⌘K):
-
-- *Dove eravamo rimasti*: il punto sulle ultime due lezioni, da leggere
-  prima di entrare in aula. Una lezione è un GIORNO — le registrazioni
-  si fanno a pezzi — e senza registrazioni si guardano le ultime pagine.
-  Si rifà solo quando ci sono lezioni nuove.
-- *Argomenti*: quelli da ripassare in cima (mai fatto un quiz, meno di
-  sette su dieci, o più di una settimana fa), col risultato dell'ultimo.
-
-**I quiz** — per argomento, su tutta la materia (parte da quelli da
-ripassare), o sul passaggio selezionato («Quiz» nel menu della
-selezione). Scelta multipla e domande aperte, una alla volta, tutto da
-tastiera (1-4, Invio, Esc), con la spiegazione dopo ogni risposta. Per un
-argomento solo, oltre agli appunti il modello legge i passi della
-lezione registrata che gli corrispondono (le àncore dicono quali). Ogni
-domanda sa da quale blocco nasce: a fine giro, per ogni errore, «rileggi»
-porta lì. Le opzioni si rimescolano in casa (i modelli mettono la giusta
-sempre al primo posto) e i nomi dei blocchi non finiscono nel testo.
-Esiti e riepiloghi stanno nell'indice: si sincronizzano col resto.
-
-**L'archivio** (in ⌘K, e «archivio» sotto «Le tue materie»): quanto
-occupano appunti, trascrizioni, audio e immagini, materia per materia,
-le più pesanti in cima; dentro, pagina per pagina e lezione per lezione.
-Si toglie una cosa alla volta: l'audio lasciando la trascrizione, la
-trascrizione lasciando gli appunti, la pagina intera.
-
-Collaudato sulla lezione di Materiali: 2 argomenti letti dalla pagina, il
-punto della lezione in 13 s (sei punti, voto finale 10+10+10), un quiz di
-5 domande in 21 s, «rileggi» sul blocco giusto, l'esito salvato («4 su 5
-· oggi»), un quiz su un passaggio selezionato in 4 s.
-
-### ✅ Fase 5 — correzioni in diretta
-
-Mentre registri, quello che scrivi si confronta con quello che il
-professore ha detto negli ultimi 90 secondi. Solo **date, numeri e
-nomi**: sbagliati («14 luglio 1798» quando ha detto 1789) o lasciati a
-metà («26 agosto 17..»). Il pezzo che non torna si sottolinea in arancio
-e nel margine destro compare un pallino. Il testo non cambia mai da solo.
-
-Il clic sul pallino apre la scheda: le parole del professore, il pezzo
-vecchio barrato e quello nuovo, **Correggi** (Invio) o **Lascia così**.
-Esc la chiude e la lascia lì per dopo. «Correggi» cambia solo il pezzo
-(«1798», non la riga), tiene grassetto e colori, e il pezzo nuovo resta
-segnato come testo della macchina; ⌘Z lo annulla. Se correggi da te, o
-riscrivi la riga, il pallino sparisce da solo. In classe si può
-ignorare: le correzioni senza risposta restano nella pagina, e il
-pannello delle lezioni dice quante sono («vedi» porta alla prima), con
-i conti della lezione. L'interruttore sta nello stesso pannello.
-
-**Quando controlla.** Una riga si controlla quando è finita: il cursore
-è passato a un'altra, o da 4 secondi non batti tasti. A metà frase
-«nel…» è solo una frase che stai scrivendo. Al più un controllo ogni 10
-secondi, fino a sei righe insieme, e ogni versione di una riga una volta
-sola. Alla pressione di Ferma, un ultimo giro per le righe che
-aspettavano ancora: altrimenti l'errore nell'ultima riga prima di
-fermare non si vedrebbe mai. Si controllano solo le righe con qualcosa di
-verificabile, cioè una cifra, un nome o un buco: «il terzo stato si
-ribella» non costa niente.
-
-```
-riga finita ─→ Jev: sospetta?          0,3-0,6 s   ~0,003 cent
-            ─→ DeepSeek, solo sospette ~1,5 s      ~0,012 cent
-            ─→ regole (confronto.ts)   ─→ pallino a margine
-```
-
-**Jev** fa il filtro, e non scrive: a ogni riga risponde con la
-probabilità che contenga un dato che non torna. Gli errori veri escono
-fra 0,75 e 0,98, le righe giuste fra 0,1 e 0,3; la soglia è 0,5.
-**DeepSeek** vede solo le righe sospette e dice cosa cambiare, con le
-parole del professore che lo dimostrano. Poi tre regole senza modelli:
-
-- ogni parola o numero *nuovo* deve essere nella trascrizione: il
-  modello non corregge con quello che sa lui, anche se ha ragione;
-- la citazione deve esserci davvero, non riassunta;
-- due nomi che suonano uguali sono lo stesso nome. Il riconoscitore li
-  storpia (nella prova: «Versailles» → «avversari», «ghigliottinato» →
-  «ghittinato»), e «Russo» contro il tuo «Rousseau» non è un errore tuo.
-
-Una correzione lasciata non torna, nemmeno se ritocchi la riga. Una
-lezione eliminata si porta via le sue correzioni ancora aperte.
-
-**Costi.** In una lezione di prova: 4 controlli, 3 correzioni, 0,04
-centesimi — dell'ordine di qualche decina di centesimi al mese per chi
-ha molte ore di lezione. Le chiavi gratuite di OpenRouter hanno un
-tetto che non si ricarica, condiviso con merge e quiz: quando finisce,
-le correzioni si fermano senza disturbare e il pannello delle lezioni
-lo dice.
-
-**La latenza la faceva OpenRouter.** Le prime correzioni arrivavano dopo
-12-13 s. Chiedendo il fornitore «più rapido», le richieste in JSON
-finivano su uno degradato che rispondeva dopo 10 s, e poi si ripiegava.
-Col fornitore più veloce a generare: 1,2-1,6 s. Vale anche per le
-immagini consigliate, che usano lo stesso compito.
-
-Collaudato con una lezione sintetica (`say -v Alice`, 66 s sulla
-Rivoluzione francese) riprodotta come dal vivo, in un browser separato
-senza chiavi Supabase. Presi 5 errori su 5: 98% → 97%, 1798 → 1789,
-17.. → 1789, Montesquieu → Rousseau, 1795 → 1794. Nessun falso allarme
-sulle 5 righe giuste, compreso «Rousseau». Il pallino arriva circa 6 s
-dopo la fine della riga se il cursore resta lì: 4 sono l'attesa che sia
-finita, e andando a capo si risparmiano. Dopo Ferma, 2,3 s.
-
----
-
-## Nota di collaudo
-
-Le regole di input di ProseMirror (`# ` → titolo, `- ` → elenco) non
-si possono verificare con l'automazione del browser, che inserisce
-testo senza eventi di tastiera veri. In sviluppo `window.pergamena`
-espone `{ editor, doc, documento }` per pilotare l'editor dalla console.
-
-Per collaudare le regole di input (frecce, `# `, `- `) si può simulare
-la digitazione vera:
-
-```js
-const { editor } = window.pergamena, view = editor.view
-const digita = (t) => { for (const ch of t) {
-  const { from, to } = view.state.selection
-  if (!view.someProp('handleTextInput', f => f(view, from, to, ch)))
-    view.dispatch(view.state.tr.insertText(ch, from, to))
-} }
-digita('causa -> effetto, poi --> conseguenza')
-```
+Le tre decisioni da cui dipende il resto — l'id stabile su ogni blocco,
+lo stato dei menu fuori da React, il documento come unica fonte — sono
+raccontate nel [quaderno di bordo](docs/quaderno-di-bordo.md), insieme
+al perché di tutto il resto: le misure, gli errori presi per strada e le
+cose provate e buttate.
+
+## Licenza
+
+[MIT](LICENSE).
