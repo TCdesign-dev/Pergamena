@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { iscrivitiImpostazioni, leggiImpostazioni, imposta } from '../impostazioni'
+import { impostaChiave, intestazioniChiavi, iscrivitiChiavi, leggiChiavi, type Chiavi as ChiaviTipo } from '../chiavi'
 import { ISTRUZIONI_DI_SERIE } from '../merge/prompt'
 import {
   COMANDI, azzeraScorciatoie, combinazioneDa, combinazioneDi, giaPresa, impostaScorciatoia, scrittaDi,
@@ -24,6 +25,7 @@ const SEZIONI: { id: Sezione; nome: string; icona: NomeIcona }[] = [
   { id: 'aspetto', nome: 'Aspetto', icona: 'chiaro' },
   { id: 'registrazione', nome: 'Registrazione', icona: 'microfono' },
   { id: 'integratore', nome: 'Integratore', icona: 'ai' },
+  { id: 'chiavi', nome: 'Chiavi', icona: 'chiave' },
   { id: 'immagini', nome: 'Immagini', icona: 'immagini' },
   { id: 'tastiera', nome: 'Tastiera', icona: 'tastiera' },
   { id: 'archivio', nome: 'Archivio', icona: 'archivio' },
@@ -132,6 +134,7 @@ function Contenuto({ sezione, stretta, microfono, onArchivio }: {
     case 'aspetto': return <Aspetto />
     case 'registrazione': return <Registrazione suMicrofono={microfono} />
     case 'integratore': return <Integratore />
+    case 'chiavi': return <Chiavi />
     case 'immagini': return <Immagini />
     case 'tastiera': return <Tastiera stretta={stretta} />
     case 'archivio':
@@ -243,6 +246,111 @@ function Integratore() {
           <button className={s.principale} disabled={!cambiato} onClick={salva}>Salva</button>
         </span>
       </div>
+    </>
+  )
+}
+
+/*  Le chiavi, per chi non vuole aprire il .env.local.
+ *
+ *  Restano su questo computer (localStorage) e vanno solo al server
+ *  locale, che è l'unico che parla con OpenRouter. Se una chiave c'è
+ *  anche nel file, vince quella e il campo si spegne: il file sta
+ *  fuori dal browser, ed è il posto più sicuro dei due. */
+function CampoChiave({ nome, titolo, spiega, dalFile = false, tipo = 'password', children }: {
+  nome: keyof ChiaviTipo
+  titolo: string
+  spiega: ReactNode
+  dalFile?: boolean
+  tipo?: 'password' | 'text'
+  children?: ReactNode
+}) {
+  const chiavi = useSyncExternalStore(iscrivitiChiavi, leggiChiavi)
+  return (
+    <div className={s.campoChiave}>
+      <div className={s.titoloRiga}>{titolo}</div>
+      <div className={s.spiega}>{spiega}</div>
+      <div className={s.rigaChiave}>
+        <input
+          className={s.chiave}
+          type={dalFile ? 'text' : tipo}
+          value={dalFile ? '' : chiavi[nome]}
+          disabled={dalFile}
+          spellCheck={false}
+          autoComplete="off"
+          placeholder={dalFile ? 'c’è già nel .env.local' : 'incolla qui'}
+          aria-label={titolo}
+          onChange={(e) => impostaChiave(nome, e.target.value)}
+        />
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function Chiavi() {
+  const chiavi = useSyncExternalStore(iscrivitiChiavi, leggiChiavi)
+  const [dalFile, setDalFile] = useState(false)
+  const [prova, setProva] = useState<string | null>(null)
+  const [inProva, setInProva] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/llm/stato')
+      .then((r) => r.json())
+      .then((j) => setDalFile(Boolean(j.chiaveDalFile)))
+      .catch(() => setDalFile(false))
+  }, [])
+
+  async function provaChiave() {
+    setInProva(true)
+    setProva(null)
+    try {
+      const r = await fetch('/api/llm/prova', { headers: intestazioniChiavi() })
+      const j = await r.json()
+      if (!j.ok) setProva(`non va: ${j.errore ?? 'chiave rifiutata'}`)
+      else {
+        const soldi = typeof j.residuo === 'number' ? `, ${j.residuo.toFixed(2)} $ residui` : ''
+        setProva(`la chiave risponde${soldi}`)
+      }
+    } catch {
+      setProva('il server locale non risponde')
+    }
+    setInProva(false)
+  }
+
+  return (
+    <>
+      <CampoChiave
+        nome="openrouter"
+        titolo="OpenRouter"
+        dalFile={dalFile}
+        spiega={<>Serve all’integratore, ai quiz e alle correzioni in diretta. Si prende su <code>openrouter.ai/keys</code>: qualche centesimo al mese ai ritmi di una persona che studia.</>}
+      >
+        <button className={s.secondario} disabled={inProva || (!dalFile && !chiavi.openrouter)} onClick={() => void provaChiave()}>
+          {inProva ? 'Provo…' : 'Prova'}
+        </button>
+      </CampoChiave>
+      {prova && <p className={s.esitoChiave}>{prova}</p>}
+
+      <CampoChiave
+        nome="serper"
+        titolo="Serper (facoltativa)"
+        spiega={<>Dà le immagini di Google al posto di Openverse. Senza, le immagini arrivano lo stesso da Wikipedia e Commons.</>}
+      />
+
+      <CampoChiave
+        nome="supabaseUrl"
+        titolo="Supabase — indirizzo (facoltativo)"
+        tipo="text"
+        spiega={<>Per sincronizzare Mac e telefono. Finisce per <code>.supabase.co</code>.</>}
+      />
+      <CampoChiave
+        nome="supabaseAnon"
+        titolo="Supabase — chiave pubblica"
+        spiega={<>Quella con l’etichetta <b>anon public</b>. Non la <b>service_role</b>: quella scavalca ogni regola di accesso e qui non avrebbe dove stare al sicuro.</>}
+      />
+      <p className={s.esitoChiave}>
+        Le chiavi restano su questo computer e vanno solo al server locale. Supabase entra in funzione al prossimo caricamento della pagina.
+      </p>
     </>
   )
 }

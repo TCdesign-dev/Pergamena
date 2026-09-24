@@ -235,6 +235,38 @@ section:first-child > .etichetta { padding-top: calc(var(--u) * 2); }
   font-family: var(--font-ui);
 }
 
+/* ── le chiavi ──────────────────────────────────────────────── */
+.campoChiave {
+  padding: calc(var(--u) * 1.5) 0;
+  border-top: calc(var(--u) / 8) solid var(--linea);
+}
+.rigaChiave {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  margin-top: var(--u);
+}
+.chiave {
+  flex: 1;
+  min-width: 0;
+  padding: calc(var(--u) * 0.875) calc(var(--u) * 1.125);
+  border: calc(var(--u) / 8) solid var(--linea-forte);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro);
+  font-family: var(--font-mono);
+  font-size: var(--t-piccolo);
+  outline: none;
+}
+.chiave:focus { border-color: var(--accento); }
+.chiave:disabled { color: var(--tenue-testo); }
+.esitoChiave {
+  margin: calc(var(--u) * 0.75) 0 0;
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  line-height: 1.45;
+}
+
 .avvisoTasti {
   margin: calc(var(--u) * 0.75) 0 0;
   color: var(--avviso);

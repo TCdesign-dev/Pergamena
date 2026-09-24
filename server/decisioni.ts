@@ -49,9 +49,10 @@ export function decisioni(env: Record<string, string>): Plugin {
 
         if (req.method !== 'POST') return rispondi(405, { errore: 'solo POST' })
 
-        const chiave = env.OPENROUTER_API_KEY
+        // dal file, o dalle Impostazioni (vedi server/llm.ts)
+        const chiave = env.OPENROUTER_API_KEY || String(req.headers['x-chiave-openrouter'] ?? '')
         const modello = env.MODELLO_TRIAGE
-        if (!chiave) return rispondi(503, { errore: 'manca OPENROUTER_API_KEY in .env.local' })
+        if (!chiave) return rispondi(503, { errore: 'manca la chiave di OpenRouter: mettila in Impostazioni › Chiavi, o nel .env.local' })
         if (!modello) return rispondi(503, { errore: 'manca MODELLO_TRIAGE in .env.local' })
 
         let testo = ''

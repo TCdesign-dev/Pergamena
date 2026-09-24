@@ -1,4 +1,5 @@
 import type { Trovata } from './commons'
+import { intestazioniChiavi } from '../chiavi'
 
 /*  Le immagini dal web: le cerca il server (server/immagini.ts), con
  *  Google Immagini se c'è la chiave di Serper, altrimenti con Openverse.
@@ -12,7 +13,7 @@ export type FonteWeb = 'google' | 'brave' | 'openverse'
 
 export async function cercaSulWeb(query: string, n = 12, inglese?: string | null): Promise<{ fonte: FonteWeb; risultati: Trovata[] }> {
   const en = inglese ? `&en=${encodeURIComponent(inglese)}` : ''
-  const r = await fetch(`/api/immagini/cerca?q=${encodeURIComponent(query.trim())}&n=${n}${en}`)
+  const r = await fetch(`/api/immagini/cerca?q=${encodeURIComponent(query.trim())}&n=${n}${en}`, { headers: intestazioniChiavi() })
   const j = await r.json().catch(() => ({}))
   if (!r.ok) throw new Error(j.errore ?? `ricerca fallita (${r.status})`)
   return j

@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 import { esponi } from '../lib/dev'
+import { leggiChiavi } from '../chiavi'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const chiave = import.meta.env.VITE_SUPABASE_ANON_KEY
+/*  Dal .env.local, oppure da Impostazioni › Chiavi: il file vince.
+ *  Si legge una volta all'avvio — chi le incolla adesso deve
+ *  ricaricare, e le Impostazioni glielo dicono. */
+const tue = leggiChiavi()
+const url = import.meta.env.VITE_SUPABASE_URL || tue.supabaseUrl
+const chiave = import.meta.env.VITE_SUPABASE_ANON_KEY || tue.supabaseAnon
 
 /*  Se le chiavi non ci sono, Pergamena resta un'app locale e basta:
  *  niente accesso, niente sincronizzazione, tutto il resto funziona.

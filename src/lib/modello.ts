@@ -1,4 +1,5 @@
 import { esponi } from './dev'
+import { intestazioniChiavi } from '../chiavi'
 
 /*  Le chiamate al modello che devono rispondere in JSON.
  *
@@ -46,7 +47,7 @@ export async function chiediJson(compito: Compito, messaggi: Messaggio[], opzion
 
     const r = await fetch(`/api/llm/${compito}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...intestazioniChiavi() },
       body: JSON.stringify({
         messages: messaggi,
         response_format: { type: 'json_object' },

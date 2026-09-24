@@ -1,4 +1,5 @@
 import { esponi } from './dev'
+import { intestazioniChiavi } from '../chiavi'
 
 /*  Le domande a Jev (vedi server/decisioni.ts).
  *
@@ -31,7 +32,7 @@ export const eCreditoFinito = (stato: number, messaggio: string) =>
 export async function decidi(stato: unknown, domande: Record<string, Domanda>) {
   const r = await fetch('/api/decisioni', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...intestazioniChiavi() },
     body: JSON.stringify({ state: stato, questions: domande }),
   })
   const dati = await r.json().catch(() => ({}))

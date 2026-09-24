@@ -36,6 +36,7 @@ const TRATTI = {
   'altra-finestra': <><rect x="3" y="4" width="14" height="12" rx="2" /><path d="M3 7.5h14" /></>,
   'invio': <><path d="M15.5 5v3.5a2 2 0 0 1-2 2H5M8 7.5l-3 3 3 3" /></>,
   'ai': <><path d="M10 3l1.5 4.5L16 9l-4.5 1.5L10 15l-1.5-4.5L4 9l4.5-1.5z" /></>,
+  'chiave': <><circle cx="7" cy="10" r="3.5" /><path d="M10.5 10H17M14.5 10v2.5M16.5 10v2" /></>,
   'commento': <><path d="M3.5 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H9l-3.5 3v-3a2 2 0 0 1-2-2z" /></>,
   'esame': <><rect x="3" y="4.5" width="14" height="12" rx="2" /><path d="M3 8.5h14M7 3v3M13 3v3" /></>,
   'sposta': <><circle cx="8" cy="5.5" r=".9" fill="currentColor" stroke="none" /><circle cx="12" cy="5.5" r=".9" fill="currentColor" stroke="none" /><circle cx="8" cy="10" r=".9" fill="currentColor" stroke="none" /><circle cx="12" cy="10" r=".9" fill="currentColor" stroke="none" /><circle cx="8" cy="14.5" r=".9" fill="currentColor" stroke="none" /><circle cx="12" cy="14.5" r=".9" fill="currentColor" stroke="none" /></>,

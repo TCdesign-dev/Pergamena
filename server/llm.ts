@@ -3,10 +3,15 @@ import type { Plugin } from 'vite'
 
 /*  Il proxy verso OpenRouter.
  *
- *  La chiave NON deve finire nel browser: sta nel .env.local senza
- *  prefisso VITE_, la legge solo questo codice lato server, e il
- *  browser chiede un COMPITO («merge», «quiz»), non un modello. Il
- *  modello lo decide il .env: cambiarlo non tocca l'app.
+ *  La chiave sta nel .env.local senza prefisso VITE_, la legge solo
+ *  questo codice, e il browser chiede un COMPITO («merge», «quiz»),
+ *  non un modello. Il modello lo decide il .env: cambiarlo non tocca
+ *  l'app.
+ *
+ *  Chi non vuole aprire un file può incollare la sua chiave nelle
+ *  Impostazioni: arriva qui nell'intestazione `x-chiave-openrouter` e
+ *  vale solo per quella richiesta. Il .env.local, se c'è, vince: sta
+ *  fuori dal browser, ed è il posto più sicuro dei due.
  *
  *  OpenRouter smista lo stesso modello fra decine di fornitori, e
  *  qualcuno ogni tanto non risponde più: senza un tempo massimo, la
@@ -60,15 +65,52 @@ export function llm(env: Record<string, string>): Plugin {
           res.end(JSON.stringify(corpo))
         }
 
+        const nome = (req.url ?? '').replace(/^\//, '').split('?')[0]
+        const dalBrowser = String(req.headers['x-chiave-openrouter'] ?? '')
+
+        /*  Come sta messa la configurazione, per le Impostazioni: se la
+         *  chiave è nel file, se i modelli ci sono. La chiave non torna
+         *  mai indietro, solo il fatto che c'è. */
+        if (req.method === 'GET' && nome === 'stato') {
+          return rispondi(200, {
+            chiaveDalFile: Boolean(env.OPENROUTER_API_KEY),
+            chiave: Boolean(env.OPENROUTER_API_KEY || dalBrowser),
+            modelli: Object.fromEntries(Object.entries(COMPITI).map(([k, c]) => [k, env[c.variabile] ?? null])),
+          })
+        }
+
+        /*  «Prova la chiave»: chiede a OpenRouter chi è. Serve a
+         *  capire subito se una chiave incollata è buona, invece di
+         *  scoprirlo a fine lezione quando il merge non parte. */
+        if (req.method === 'GET' && nome === 'prova') {
+          const chiaveDaProvare = env.OPENROUTER_API_KEY || dalBrowser
+          if (!chiaveDaProvare) return rispondi(400, { errore: 'nessuna chiave da provare' })
+          try {
+            const r = await fetch('https://openrouter.ai/api/v1/key', {
+              headers: { Authorization: `Bearer ${chiaveDaProvare}` },
+            })
+            if (!r.ok) return rispondi(200, { ok: false, errore: `OpenRouter ha risposto ${r.status}` })
+            const j = await r.json() as { data?: { usage?: number; limit?: number | null; limit_remaining?: number | null } }
+            return rispondi(200, {
+              ok: true,
+              speso: j.data?.usage ?? null,
+              tetto: j.data?.limit ?? null,
+              residuo: j.data?.limit_remaining ?? null,
+            })
+          } catch (e) {
+            return rispondi(200, { ok: false, errore: e instanceof Error ? e.message : 'OpenRouter non risponde' })
+          }
+        }
+
         if (req.method !== 'POST') return rispondi(405, { errore: 'solo POST' })
 
-        const nome = (req.url ?? '').replace(/^\//, '').split('?')[0]
         const compito = COMPITI[nome]
         if (!compito) return rispondi(404, { errore: `compito sconosciuto: ${nome}` })
 
-        const chiave = env.OPENROUTER_API_KEY
+
+        const chiave = env.OPENROUTER_API_KEY || dalBrowser
         const modello = env[compito.variabile]
-        if (!chiave) return rispondi(503, { errore: 'manca OPENROUTER_API_KEY in .env.local' })
+        if (!chiave) return rispondi(503, { errore: 'manca la chiave di OpenRouter: mettila in Impostazioni › Chiavi, o nel .env.local' })
         if (!modello) return rispondi(503, { errore: `manca ${compito.variabile} in .env.local` })
 
         let testo = ''

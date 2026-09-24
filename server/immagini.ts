@@ -137,9 +137,11 @@ export function immagini(env: Record<string, string>): Plugin {
           const inglese = (url.searchParams.get('en') ?? '').trim()
           const n = Number(url.searchParams.get('n')) || 12
           if (q.length < 2) return rispondi(res, 400, { errore: 'ricerca troppo corta' })
+          // la chiave può arrivare dalle Impostazioni; il file vince
+          const serper = env.SERPER_API_KEY || String(req.headers['x-chiave-serper'] ?? '')
           try {
             // Google e Brave capiscono l'italiano, Openverse no
-            if (env.SERPER_API_KEY) return rispondi(res, 200, { fonte: 'google', risultati: await daSerper(env.SERPER_API_KEY, q, n) })
+            if (serper) return rispondi(res, 200, { fonte: 'google', risultati: await daSerper(serper, q, n) })
             if (env.BRAVE_API_KEY) return rispondi(res, 200, { fonte: 'brave', risultati: await daBrave(env.BRAVE_API_KEY, q, n) })
             return rispondi(res, 200, { fonte: 'openverse', risultati: await daOpenverse(inglese || q, n) })
           } catch (e) {
