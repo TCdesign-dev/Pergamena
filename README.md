@@ -19,9 +19,9 @@ girare tutti i giorni senza diventare un abbonamento.
 
 ---
 
-## Cosa fa
+## Funzionalità
 
-### Scrivere, senza attrezzi in mezzo
+### Editor
 
 Nessuna barra degli strumenti: gli strumenti arrivano quando servono.
 Selezioni del testo e compare il menu (grassetto, corsivo, titoli, cinque
@@ -33,7 +33,7 @@ Dentro: titoli, elenchi (anche annidati), citazioni, codice, immagini,
 formule LaTeX (`$$E=mc^2$$` nel testo, `$$$…$$$` su una riga da sola,
 disegnate da KaTeX), e le frecce che si scrivono da sole (`->` → `→`).
 
-### Registrare la lezione, e trascriverla sul Mac
+### Registrazione e trascrizione
 
 Premi **Registra** (`⌘R`) e Pergamena ascolta il microfono. La
 trascrizione la fa `SpeechTranscriber` di macOS, **sul tuo computer**:
@@ -52,7 +52,7 @@ perde: la pagina si ricollega e riprende le frasi arrivate nel frattempo.
 ![Il pannello delle lezioni, con la trascrizione e «Integrazione completa»](docs/immagini/lezioni.png)
 *Ogni lezione tiene la sua trascrizione, si riascolta dal minuto che clicchi (se hai tenuto l'audio) e si può togliere insieme a tutto quello che ha prodotto.*
 
-### Completare gli appunti dopo la lezione
+### Integrazione degli appunti
 
 È la funzione per cui esiste il progetto. A lezione finita, **Integra
 negli appunti**: il modello confronta quello che hai scritto con quello
@@ -73,7 +73,7 @@ Tre regole che cambiano tutto:
   puntini e resta riconoscibile anche dopo che l'hai accettato.
 
 ![Tre proposte nel testo, sottolineate a puntini, e la barra della revisione in basso](docs/immagini/integratore.png)
-*Le proposte si scorrono con `J` e `K`, si accettano con `↵`, si rifiutano con `X`. Quella in alto è un completamento: cresce in fondo a una riga già scritta.*
+*Le proposte si scorrono con `J` e `K`, si accettano con `↵`, si rifiutano con `X`. La prima è un completamento: cresce in fondo a una riga già scritta, invece di aprirne una nuova.*
 
 Sa anche proporre i **titoli** degli argomenti che mancano, scrivere
 **formule** in LaTeX quando il professore ne ha dettata una, e suggerire
@@ -84,7 +84,7 @@ legge tutte insieme in una chiamata sola, così un dato ripreso a distanza
 di settimane diventa una proposta sola e una precisazione fatta dopo
 vince su quella di prima.
 
-### Correggere mentre sei ancora in aula
+### Correzioni in diretta
 
 Se scrivi una data, un numero o un nome che non torna con quello che è
 appena stato detto, compare un pallino nel margine: `⌥⌘↓` apre la scheda
@@ -97,7 +97,7 @@ dieci secondi, e solo contro gli ultimi novanta secondi di lezione. È
 quello che tiene bassi i costi e le interruzioni: una riga di soli
 concetti non viene nemmeno guardata.
 
-### Chiedere alla lezione
+### Domande sulla lezione
 
 Una domanda sulla pagina, e risponde leggendo **due sole fonti**: i tuoi
 appunti e la trascrizione. «Cosa ho perso mentre scrivevo?», «su cosa ha
@@ -110,7 +110,7 @@ quello che ha detto lui da quello che avevi già scritto. Se la risposta
 non c'è, lo dice invece di inventarla. Le domande restano nella pagina:
 quella che ti sei fatto a ottobre è ancora lì a gennaio.
 
-### Commentare parole e frasi
+### Commenti
 
 Selezioni, `⌘⇧M`, scrivi: il pezzo resta segnato in viola e cliccandolo
 si rilegge la nota. Un pannello elenca tutti i commenti della pagina
@@ -133,7 +133,7 @@ anche i risultati di Google Immagini.
 Le immagini inserite restano sul tuo computer, con autore e licenza
 scritti sotto.
 
-### Ripassare
+### Ripasso e quiz
 
 Ogni titolo 1 apre un **argomento**. La scheda di una materia mette in
 fila gli argomenti, «dove eravamo rimasti» (il punto sulle ultime due
@@ -143,14 +143,14 @@ con «rileggi negli appunti» che riporta al punto esatto.
 L'**archivio** dice quanto occupa cosa — pagine, trascrizioni, audio,
 immagini — e permette di togliere quello che non serve più.
 
-### Il telefono, e la sincronia
+### Sincronizzazione e telefono
 
 Se colleghi un progetto Supabase (tuo), le pagine si sincronizzano fra
 Mac e telefono. Sul telefono si **legge**: stessa resa, stessi blocchi,
 niente da configurare. Senza Supabase, Pergamena resta un'app locale e
 funziona uguale.
 
-### Farla tua
+### Personalizzazione
 
 - **Scorciatoie** (Impostazioni › Tastiera): ogni combinazione si
   ri-registra premendo i tasti nuovi, e quelle già prese non si rubano.
@@ -163,7 +163,7 @@ funziona uguale.
 
 ---
 
-## Cosa serve
+## Requisiti
 
 - **un Mac con macOS 26**: la trascrizione usa `SpeechTranscriber` di
   sistema. Senza, tutto il resto funziona lo stesso: non registra;
@@ -190,7 +190,7 @@ macOS chiede il permesso per il microfono.
 
 `npm run check` per il controllo dei tipi.
 
-## Le chiavi
+## Chiavi API
 
 Due strade, e la prima non chiede di aprire nessun file:
 
@@ -211,7 +211,7 @@ Due strade, e la prima non chiede di aprire nessun file:
 I modelli si scelgono dal `.env.local` (`MODELLO_MERGE` e compagnia):
 cambiarli non tocca il codice.
 
-## Quanto costa
+## Costi
 
 Poco, ed è una scelta di progetto: il modello si chiama una volta per
 lezione (l'integratore), e le correzioni in diretta passano prima da un
@@ -221,7 +221,7 @@ decina di centesimi al mese anche con molte ore di lezione a settimana.
 La trascrizione è gratis perché gira sul Mac. Le immagini sono gratis
 finché bastano Wikipedia, Commons e Openverse.
 
-## Dove finiscono i tuoi appunti
+## Privacy e dati
 
 Sul tuo computer: IndexedDB per il testo, una cartella per gli audio
 (`~/Library/Application Support/Pergamena`). Su internet va solo quello
@@ -232,7 +232,7 @@ Nessuna telemetria, nessun account per usarlo.
 
 ---
 
-## Come è fatto
+## Architettura
 
 React + TypeScript + Vite. L'editor è TipTap (ProseMirror); il documento
 è un `Y.Doc` di Yjs, salvato in IndexedDB e — se configurato —
@@ -288,7 +288,7 @@ da poter essere letto, copiato e cambiato. Non c'è un installatore, non
 c'è un servizio dietro, e la roadmap dipende da cosa serve la settimana
 dopo.
 
-## Domande e problemi
+## Supporto e contributi
 
 Le [issue](https://github.com/TCdesign-dev/Pergamena/issues) sono il
 posto giusto: sia per i difetti sia per le domande su come è fatto. Se
