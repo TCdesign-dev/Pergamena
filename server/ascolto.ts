@@ -139,6 +139,11 @@ function avvia(corpo: Record<string, unknown>) {
   if (typeof corpo.dispositivo === 'string' && corpo.dispositivo) {
     args.push('--dispositivo', corpo.dispositivo)
   }
+  //  la lingua in cui si ascolta: arriva dalla lingua scelta
+  //  nell'applicazione (vedi src/lingua/lingua.ts)
+  if (typeof corpo.lingua === 'string' && /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$/.test(corpo.lingua)) {
+    args.push('--lingua', corpo.lingua)
+  }
   if (Array.isArray(corpo.contesto) && corpo.contesto.length) {
     args.push('--contesto', corpo.contesto.filter((x) => typeof x === 'string').slice(0, 100).join(','))
   }

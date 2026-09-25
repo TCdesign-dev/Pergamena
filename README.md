@@ -47,6 +47,10 @@ microfono di sistema è un dispositivo virtuale che non riceve l'audio
 dell'aula. Sono disponibili pausa, scelta del microfono e salvataggio
 dell'audio (circa 17 MB l'ora, disattivato per impostazione predefinita).
 
+La lingua in cui si ascolta segue quella scelta nelle impostazioni: il
+primo utilizzo di una lingua nuova comporta il download del modello di
+riconoscimento da parte di macOS.
+
 Se la pagina viene ricaricata o il Mac va in stop la registrazione
 prosegue: alla riconnessione il server restituisce le frasi prodotte nel
 frattempo.

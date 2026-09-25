@@ -88,6 +88,7 @@ struct Opzioni {
     var tempoReale = false
     var contesto: [String] = []
     var dispositivo: String?     // uid; se manca, quello di sistema
+    var lingua = "it-IT"         // la lingua in cui si ascolta
     var elenca = false           // --dispositivi: stampa gli ingressi ed esce
 }
 
@@ -100,6 +101,7 @@ func leggiOpzioni() -> Opzioni {
         case "--salva": if let v = args.next() { o.salva = URL(fileURLWithPath: v) }
         case "--tempo-reale": o.tempoReale = true
         case "--dispositivo": o.dispositivo = args.next()
+        case "--lingua": if let v = args.next(), !v.isEmpty { o.lingua = v }
         case "--dispositivi": o.elenca = true
         case "--contesto":
             if let v = args.next() {
@@ -301,7 +303,7 @@ struct Ascolto {
     static func main() async {
         diventaResponsabile()
         let opzioni = leggiOpzioni()
-        let locale = Locale(identifier: "it-IT")
+        let locale = Locale(identifier: opzioni.lingua)
 
         if opzioni.elenca {
             let sistema = ingressoDiSistema()
@@ -313,7 +315,7 @@ struct Ascolto {
 
         guard SpeechTranscriber.isAvailable else { muori("SpeechTranscriber non disponibile su questo Mac") }
         guard let supportato = await SpeechTranscriber.supportedLocale(equivalentTo: locale) else {
-            muori("l'italiano non è supportato dal riconoscitore")
+            muori("il riconoscitore non conosce \(opzioni.lingua)")
         }
 
         let trascrittore = SpeechTranscriber(
@@ -323,9 +325,9 @@ struct Ascolto {
             attributeOptions: [.audioTimeRange]
         )
 
-        // il modello italiano: di solito c'è già, altrimenti si scarica
+        // il modello della lingua: di solito c'è già, altrimenti si scarica
         if await AssetInventory.status(forModules: [trascrittore]) != .installed {
-            emetti(["evento": "stato", "messaggio": "scarico il modello italiano…"])
+            emetti(["evento": "stato", "messaggio": "scarico il modello di \(opzioni.lingua)…"])
             do {
                 try await AssetInventory.assetInstallationRequest(supporting: [trascrittore])?.downloadAndInstall()
             } catch {

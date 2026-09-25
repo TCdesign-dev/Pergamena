@@ -10,7 +10,7 @@ import { recuperaInterrotte, recuperaSospese } from './recupero'
 import { esponi } from '../lib/dev'
 import { leggiImpostazioni } from '../impostazioni'
 import { togliCorrezioniDi } from '../correzioni/deposito'
-import { tr } from '../lingua/lingua'
+import { linguaCorrente, tr } from '../lingua/lingua'
 
 export { mappaRegistrazioni, leggiRegistrazioni } from './voci'
 export { chiudiOrfane, recuperaInterrotte } from './recupero'
@@ -131,6 +131,7 @@ export async function avviaRegistrazione(opzioni: {
     salvaAudio: opzioni.salvaAudio,
     contesto: ed ? vocabolario(ed, opzioni.materia) : [opzioni.materia],
     dispositivo: leggiImpostazioni().microfono,
+    lingua: linguaCorrente().ascolto ?? linguaCorrente().locale,
     file: opzioni.file,
   })
 
