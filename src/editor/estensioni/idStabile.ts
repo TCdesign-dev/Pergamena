@@ -1,4 +1,5 @@
 import { Extension } from '@tiptap/core'
+import { isChangeOrigin } from '@tiptap/extension-collaboration'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { nanoid } from 'nanoid'
 
@@ -52,6 +53,16 @@ export const IdStabile = Extension.create({
         appendTransaction: (transazioni, _prima, dopo) => {
           if (!transazioni.some((t) => t.docChanged)) return null
 
+          /*  Se la modifica arriva da Yjs — un annullamento, o
+           *  l'altro dispositivo — gli id ci sono già: li ha scritti
+           *  chi ha creato il blocco. Rimetterci le mani qui vuol dire
+           *  cambiare il documento nel mezzo del lavoro di y-tiptap,
+           *  che subito dopo va a rimettere il cursore dov'era e trova
+           *  un documento diverso da quello su cui aveva fatto i
+           *  conti: «Position N out of range», e da lì in poi ⌘Z non
+           *  risponde più. */
+          if (transazioni.some(isChangeOrigin)) return null
+
           const tr = dopo.tr
           const visti = new Set<string>()
           let cambiato = false
@@ -72,7 +83,19 @@ export const IdStabile = Extension.create({
             }
           })
 
-          return cambiato ? tr.setMeta('addToHistory', false) : null
+          /*  Niente `addToHistory: false` qui dentro.
+           *
+           *  Sembrerebbe giusto — l'id è manutenzione, non una
+           *  modifica tua — ma con Yjs quel flag non riguarda solo
+           *  questa transazione: y-tiptap lo legge dall'ultima
+           *  transazione vista e lo applica all'INTERA transazione
+           *  Yjs, che comprende anche la modifica che ha creato il
+           *  blocco. Risultato: tutto ciò che crea un blocco — un
+           *  Invio, un elenco, un incollamento, una proposta dell'AI —
+           *  non finiva nello storico e non si poteva annullare, e
+           *  l'undo di quel che restava rimetteva il testo in un
+           *  documento diverso da quello che si aspettava. */
+          return cambiato ? tr : null
         },
       }),
     ]

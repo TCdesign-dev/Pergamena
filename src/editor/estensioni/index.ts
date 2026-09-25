@@ -4,6 +4,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import Collaboration from '@tiptap/extension-collaboration'
 import type * as Y from 'yjs'
 
+import { Annulla } from './annulla'
 import { IdStabile } from './idStabile'
 import { SegnoAi } from './segnoAi'
 import { Commento } from './commento'
@@ -35,6 +36,7 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string; documento
     Placeholder.configure({
       placeholder: opzioni.segnaposto ?? tr('Scrivi, oppure premi / per i blocchi…'),
     }),
+    Annulla,
     IdStabile,
     SegnoAi,
     Commento,
