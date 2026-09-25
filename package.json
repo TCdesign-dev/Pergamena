@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "check": "tsc -b --noEmit",
     "predev": "[ -x build/pergamena-ascolto ] || sh nativo/ascolto/compila.sh",
-    "ascolto": "sh nativo/ascolto/compila.sh"
+    "ascolto": "sh nativo/ascolto/compila.sh",
+    "lingue": "node strumenti/lingue.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

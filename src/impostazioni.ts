@@ -13,6 +13,8 @@ export type Impostazioni = {
   promptMerge: string | null
   /** le scorciatoie che hai cambiato: id del comando → combinazione */
   scorciatoie: Record<string, string>
+  /** la lingua dell'interfaccia; null = quella del sistema (vedi lingua/lingua.ts) */
+  lingua: string | null
 }
 
 /*  L'audio è spento di partenza: un'ora di lezione sono circa 17 MB,
@@ -21,7 +23,7 @@ export type Impostazioni = {
  *  accurata. */
 const PREDEFINITE: Impostazioni = {
   sintassiImmagini: true, salvaAudio: false, microfono: null, fonteImmagini: 'web', correzioniInDiretta: true,
-  promptMerge: null, scorciatoie: {},
+  promptMerge: null, scorciatoie: {}, lingua: null,
 }
 const CHIAVE = 'pergamena:impostazioni'
 

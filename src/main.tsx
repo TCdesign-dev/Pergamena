@@ -7,6 +7,8 @@ import './stili/editor.css'
 import './stili/movimento.css'
 import 'katex/dist/katex.min.css'
 import { applicaTema, leggiTema } from './stili/tema'
+import { caricaLingua } from './lingua/lingua'
+import { useLingua } from './lingua/Tr'
 
 // il tema scelto nelle Impostazioni, prima di disegnare qualunque cosa
 applicaTema(leggiTema())
@@ -45,10 +47,23 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   })
 }
 
-createRoot(document.getElementById('radice')!).render(
-  <StrictMode>
+/*  Cambiare lingua rifà l'app da capo: le frasi sono dentro i
+ *  componenti, e rimontare è più onesto che sperare che si aggiornino
+ *  tutti. Succede una volta ogni tanto, nelle impostazioni. */
+function Radice() {
+  return (
     <Suspense fallback={null}>
-      <Guscio />
+      <Guscio key={useLingua()} />
     </Suspense>
-  </StrictMode>,
-)
+  )
+}
+
+/*  Prima il dizionario, poi il disegno: se si disegnasse subito, chi
+ *  usa l'app in un'altra lingua vedrebbe un lampo di italiano. */
+void caricaLingua().then(() => {
+  createRoot(document.getElementById('radice')!).render(
+    <StrictMode>
+      <Radice />
+    </StrictMode>,
+  )
+})
