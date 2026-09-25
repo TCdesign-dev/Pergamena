@@ -4,7 +4,7 @@ import { leggiDocumento } from '../documento/leggi'
 import { leggiRegistrazioni } from '../registrazione/voci'
 import { chiediJson } from '../lib/modello'
 import { argomentiDellaPagina } from './argomenti'
-import { locale } from '../lingua/lingua'
+import { comeRispondere, locale } from '../lingua/lingua'
 
 /*  «Dove eravamo rimasti»: il punto della situazione sulle ultime
  *  lezioni di una materia, da leggere prima di entrare in aula.
@@ -94,7 +94,7 @@ export async function faiRiepilogo(quadernoId: string, materia: string): Promise
   ).join('\n\n')
 
   const { json } = await chiediJson('quiz', [
-    { role: 'system', content: SISTEMA },
+    { role: 'system', content: `${SISTEMA}\n\n${comeRispondere()}` },
     { role: 'user', content: `MATERIA: ${materia || 'non indicata'}\n\n${materiale}` },
   ], { maxToken: 2500 })
 

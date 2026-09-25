@@ -4,7 +4,7 @@ import { leggiRegistrazioni } from '../registrazione/voci'
 import { allinea } from '../merge/allinea'
 import { blocchiDelDocumento, type Argomento, type BloccoTesto } from './argomenti'
 import { esponi } from '../lib/dev'
-import { tr } from '../lingua/lingua'
+import { comeRispondere, tr } from '../lingua/lingua'
 
 /*  I quiz di ripasso.
  *
@@ -46,7 +46,7 @@ Regole:
 - "spiegazione": una frase che dice perché la risposta giusta è giusta.
 - Se il materiale basta per meno domande di quelle chieste, fanne meno.
   Mai inventare fatti che nel materiale non ci sono.
-- Scrivi in italiano, in modo semplice.
+- Scrivi in modo semplice.
 
 Rispondi SOLO con un oggetto JSON:
 {"domande":[
@@ -137,7 +137,7 @@ export async function preparaQuiz(ambito: Ambito, quante: number): Promise<Doman
   if (!rif.size) throw new Error(tr('negli appunti non c’è ancora abbastanza testo per un quiz'))
 
   const { json } = await chiediJson('quiz', [
-    { role: 'system', content: SISTEMA },
+    { role: 'system', content: `${SISTEMA}\n\n${comeRispondere()}` },
     { role: 'user', content: `MATERIA: ${ambito.materia || 'non indicata'}\nDOMANDE: ${quante}\n\nAPPUNTI:\n${materiale}` },
   ], { maxToken: 5000 })
 

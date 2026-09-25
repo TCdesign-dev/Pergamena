@@ -22,7 +22,8 @@ export type Scheda = {
   locale: string
   /** la lingua in cui ascoltare, se diversa da quella delle date: «en-US» */
   ascolto?: string
-  /** come deve rispondere il modello: «English, and use plain words» */
+  /** la riga che dice al modello in che lingua rispondere:
+   *  «Answer in English, and address the reader as "you".» */
   modello?: string
   /** chi l'ha tradotta, per i ringraziamenti */
   tradotta?: string
@@ -35,7 +36,7 @@ const ITALIANO: Lingua = {
   nome: 'Italiano',
   locale: 'it-IT',
   ascolto: 'it-IT',
-  modello: 'Italiano, e dai del tu',
+  modello: 'Rispondi in italiano, e dai del tu.',
 }
 
 /*  Due sguardi sugli stessi file: le schede servono subito tutte
@@ -61,6 +62,14 @@ let dizionario: Record<string, string> = {}
 export const linguaCorrente = () => corrente
 /** Il locale da dare a `toLocaleDateString` e compagnia. */
 export const locale = () => corrente.locale
+
+/*  Quando il modello parla allo studente — le risposte alle domande, i
+ *  quiz, il punto della situazione — deve parlargli nella sua lingua.
+ *  Quando invece scrive dentro gli appunti, no: lì segue la lingua
+ *  degli appunti, che può essere un'altra (un corso in inglese, un
+ *  quaderno in italiano). Per questo la riga si aggiunge a mano dove
+ *  serve, invece di finire in tutte le richieste. */
+export const comeRispondere = () => corrente.modello ?? `Rispondi in ${corrente.nome}.`
 
 /*  Quale lingua mostrare: quella scelta nelle impostazioni; se non è
  *  stata scelta, la prima delle lingue del browser che esiste anche

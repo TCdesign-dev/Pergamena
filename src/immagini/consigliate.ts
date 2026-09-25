@@ -136,7 +136,7 @@ export const DOMANDA_IMMAGINI = `Indica al massimo 4 concetti degli appunti per 
 davvero a capire o a ricordare: luoghi, edifici, opere d'arte, persone, oggetti,
 schemi, mappe. Niente concetti astratti che non hanno un'immagine chiara, niente
 concetti che negli appunti hanno già un'immagine (blocchi di tipo «immagine»).
-Per ciascuno: "concetto" (breve), "query" per cercare l'immagine — in italiano,
+Per ciascuno: "concetto" (breve), "query" per cercare l'immagine — nella lingua degli appunti,
 come la cosa si chiama davvero — e "blocco" (l'id del blocco che lo nomina).`
 
 export async function suggerisci(editor: Editor, doc: Y.Doc, materia: string) {

@@ -12,7 +12,7 @@ import {
 import { useStretto } from './larghezza'
 import { Icona, type NomeIcona } from '../lib/Icona'
 import s from './Impostazioni.module.css'
-import { tr } from '../lingua/lingua'
+import { cambiaLingua, lingue, tr } from '../lingua/lingua'
 import { Tr } from '../lingua/Tr'
 
 /*  Le Impostazioni: una finestra sopra tutto, su --velo. Si aprono con
@@ -183,9 +183,36 @@ const TEMI: { id: Tema; nome: string; icona: NomeIcona }[] = [
   { id: 'scuro', nome: tr('Scuro'), icona: 'scuro' },
 ]
 
+/*  La lingua compare solo se ce n'è più d'una installata: con il solo
+ *  italiano sarebbe una tendina con dentro una voce. */
+function Lingua() {
+  const elenco = lingue()
+  const scelta = leggiImpostazioni().lingua
+  if (elenco.length < 2) return null
+  return (
+    <Riga
+      titolo={tr('Lingua')}
+      spiega={<Tr frase="Le traduzioni le scrive chi usa Pergamena. Se la tua lingua non c’è, o c’è e va corretta, si aggiunge un file in <code>lingue/</code>." />}
+    >
+      <span className={s.tendina}>
+        <select
+          aria-label={tr('Lingua')}
+          value={scelta ?? ''}
+          onChange={(e) => cambiaLingua(e.target.value || null)}
+        >
+          <option value="">{tr('Come il sistema')}</option>
+          {elenco.map((l) => <option key={l.codice} value={l.codice}>{l.nome}</option>)}
+        </select>
+        <Icona nome="giu" dimensione={12} className={s.freccia} />
+      </span>
+    </Riga>
+  )
+}
+
 function Aspetto() {
   const [tema, setTema] = useState<Tema>(leggiTema)
   return (
+    <>
     <Riga titolo={tr('Tema')}>
       <div className={s.segmenti} role="radiogroup" aria-label={tr('Tema')}>
         {TEMI.map((t) => (
@@ -202,6 +229,8 @@ function Aspetto() {
         ))}
       </div>
     </Riga>
+    <Lingua />
+    </>
   )
 }
 
@@ -394,10 +423,10 @@ function Registrazione({ suMicrofono }: { suMicrofono: boolean }) {
             value={impostazioni.microfono ?? ''}
             onChange={(e) => imposta('microfono', e.target.value || null)}
           >
-            <option value="">Come il sistema{diSistema ? ` · ${diSistema.nome}` : ''}</option>
+            <option value="">{tr('Come il sistema')}{diSistema ? ` · ${diSistema.nome}` : ''}</option>
             {/* i virtuali in fondo: servono solo per l'audio di altre app */}
             {[...microfoni].sort((a, b) => Number(a.virtuale) - Number(b.virtuale)).map((m) => (
-              <option key={m.uid} value={m.uid}>{m.nome}{m.virtuale ? ' — virtuale' : ''}</option>
+              <option key={m.uid} value={m.uid}>{m.nome}{m.virtuale ? ` — ${tr('virtuale')}` : ''}</option>
             ))}
           </select>
           <Icona nome="giu" dimensione={12} className={s.freccia} />

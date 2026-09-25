@@ -5,7 +5,7 @@ import { leggiRegistrazioni } from '../registrazione/registrazione'
 import { chiediTesto, type Messaggio } from '../lib/modello'
 import { aggiungiDomanda, domandeDi, type Domanda } from './deposito'
 import { esponi } from '../lib/dev'
-import { locale, tr } from '../lingua/lingua'
+import { comeRispondere, locale, tr } from '../lingua/lingua'
 
 /*  Chiedere alla lezione.
  *
@@ -34,7 +34,7 @@ Regole:
   di una parafrasi, e indica il minuto se lo sai: «(0:42)».
 - Breve: quattro o cinque righe. Elenchi solo se la domanda chiede una
   lista.
-- Italiano, e dai del tu. Niente premesse («certo!», «ottima domanda»):
+- Niente premesse («certo!», «ottima domanda»):
   si comincia dalla risposta.
 - Non correggere gli appunti e non proporre di riscriverli: per quello
   c'è l'integratore. Qui si risponde e basta.`
@@ -83,7 +83,7 @@ export async function chiediAllaLezione(
   if (!trascrizione && !appunti) throw new Error(tr('questa pagina è vuota: non c’è niente da chiedere'))
 
   const messaggi: Messaggio[] = [
-    { role: 'system', content: SISTEMA },
+    { role: 'system', content: `${SISTEMA}\n\n${comeRispondere()}` },
     {
       role: 'user',
       content: `MATERIA: ${materia || 'non indicata'}\n\n` +
