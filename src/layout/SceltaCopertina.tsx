@@ -57,7 +57,7 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
             onChange={(e) => setQuery(e.target.value)}
           />
           <button type="button" className={s.secondario} onClick={() => rifFile.current?.click()}>
-            dal computer
+            {tr('dal computer')}
           </button>
           <input
             ref={rifFile}
@@ -83,7 +83,7 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
 
         {quaderno.copertinaId && (
           <button className={s.togli} onClick={() => { void togliCopertina(quaderno.id); onChiudi() }}>
-            togli la copertina
+            {tr('togli la copertina')}
           </button>
         )}
       </div>

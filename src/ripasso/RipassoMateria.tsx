@@ -146,7 +146,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
           <aside className={s.lato} aria-label={tr('Argomenti e quiz')}>
             <button className={s.quizMateria} onClick={quizMateria} disabled={!ordinati?.length}>
               <Icona nome="ripasso" dimensione={14} />
-              Quiz su tutta la materia
+              {tr('Quiz su tutta la materia')}
             </button>
 
             <div className={s.intestazione}>
@@ -179,7 +179,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
                       className={s.quiz}
                       onClick={() => apriQuiz({ tipo: 'argomenti', titolo: a.titolo, materia: quaderno.nome, argomenti: [a], chiaveEsito: a.chiave })}
                     >
-                      Quiz
+                      {tr('Quiz')}
                     </button>
                     <span className={`${s.esito} ${esito && esito.giuste / esito.totale < 0.7 ? s.maluccio : ''}`}>{comeEAndato(esito)}</span>
                   </li>

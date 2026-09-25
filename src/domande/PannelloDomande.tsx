@@ -77,7 +77,7 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
         <span className={s.titolo}>{tr('Chiedi alla lezione')}</span>
         {domande.length > 0 && (
           <button className={s.svuota} title={tr('Cancella tutte le domande')} onClick={() => svuotaDomande(doc)}>
-            Svuota
+            {tr('Svuota')}
           </button>
         )}
         <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello delle domande')} onClick={onChiudi}>

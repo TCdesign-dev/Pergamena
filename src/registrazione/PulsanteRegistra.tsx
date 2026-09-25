@@ -119,7 +119,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
           onClick={() => void registra(documentoId, materia, rifEditore)}
         >
           <span className={s.pallino} />
-          Registra
+          {tr('Registra')}
           <kbd className={s.tasto}>{scrittaDiComando('registra')}</kbd>
         </button>
       )
@@ -135,21 +135,21 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       return (
         <span className={`${s.stato} ${s.grigio}`}>
           <Icona nome="altra-finestra" dimensione={14} />
-          In un’altra finestra
+          {tr('In un’altra finestra')}
         </span>
       )
     case 'pagina':
       return (
         <span className={`${s.stato} ${s.grigio}`} title={tr('La lezione si sta registrando in un’altra pagina')}>
           <span className={`${s.pallino} ${s.acceso}`} />
-          In un’altra pagina
+          {tr('In un’altra pagina')}
         </span>
       )
     case 'interrotta':
       return (
         <span className={`${s.stato} ${s.rosso}`}>
           <Icona nome="errore" dimensione={14} />
-          Interrotta
+          {tr('Interrotta')}
         </span>
       )
   }
@@ -175,7 +175,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       {r.pausa ? (
         <button className={s.riprendi} title={tr('Riprendi a registrare')} onClick={() => void riprendiRegistrazione()}>
           <Icona nome="registra" dimensione={12} />
-          Riprendi
+          {tr('Riprendi')}
         </button>
       ) : (
         <button

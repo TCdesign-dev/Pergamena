@@ -265,7 +265,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                     onClick={() => { setAperta(aperte ? null : r.id); setTutte(null) }}
                   >
                     <Icona nome="trascrizione" dimensione={14} />
-                    Trascrizione
+                    {tr('Trascrizione')}
                   </button>
                   <span className={s.spazio} />
                   <MenuPagina
@@ -335,7 +335,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
         </span>
         <button className={s.impostazioni} onClick={() => apriImpostazioni('registrazione')}>
           <Icona nome="impostazioni" dimensione={14} />
-          Impostazioni
+          {tr('Impostazioni')}
         </button>
       </footer>
 

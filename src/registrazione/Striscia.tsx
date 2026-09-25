@@ -45,7 +45,7 @@ export function Striscia({ documentoId }: { documentoId: string }) {
       <div className={s.fascia} role="status" aria-live="polite">
         <span className={s.ora}>
           <span className={s.pallino} aria-hidden />
-          Ora
+          {tr('Ora')}
         </span>
         <p className={s.testo}>
           {r.pausa ? (

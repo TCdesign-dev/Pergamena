@@ -82,7 +82,7 @@ export function BarraLaterale({
 
       <button className={`${s.voce} ${inHome ? s.corrente : ''}`} onClick={onHome}>
         <Icona nome="materie" dimensione={14} />
-        Le tue materie
+        {tr('Le tue materie')}
       </button>
 
       <div className={s.etichetta}>{tr('Materie')}</div>
@@ -163,18 +163,18 @@ export function BarraLaterale({
           onClick={() => { const q = creaQuaderno(''); onApri(creaDocumento(q.id).id, 'titolo') }}
         >
           <Icona nome="nuovo" dimensione={14} />
-          Nuova materia
+          {tr('Nuova materia')}
         </button>
       </div>
 
       <div className={s.piede}>
         <button className={`${s.voce} ${archivioAperto ? s.corrente : ''}`} onClick={onArchivio}>
           <Icona nome="archivio" dimensione={14} />
-          Archivio
+          {tr('Archivio')}
         </button>
         <button className={s.voce} onClick={onImpostazioni}>
           <Icona nome="impostazioni" dimensione={14} />
-          Impostazioni
+          {tr('Impostazioni')}
           <kbd className={`${s.tasto} ${s.inFondo}`}>⌘,</kbd>
         </button>
       </div>

@@ -101,12 +101,12 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
         <div className={s.piede}>
           {passo === 'password' && (
             <button type="button" className={s.secondario} onClick={() => setPasso('email')}>
-              entra via email
+              {tr('entra via email')}
             </button>
           )}
           {passo !== 'password' && (
             <button type="button" className={s.secondario} onClick={() => setPasso('password')}>
-              usa la password
+              {tr('usa la password')}
             </button>
           )}
           <button type="submit" className={s.principale} disabled={inCorso}>

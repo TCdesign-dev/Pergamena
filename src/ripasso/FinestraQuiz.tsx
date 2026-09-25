@@ -214,7 +214,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                   {d.fonte && (
                     <button className={s.secondario} onClick={() => rileggi(d)}>
                       <Icona nome="apri-fuori" dimensione={14} />
-                      Rileggi negli appunti
+                      {tr('Rileggi negli appunti')}
                     </button>
                   )}
                   <button className={s.principale} onClick={avanti} autoFocus>

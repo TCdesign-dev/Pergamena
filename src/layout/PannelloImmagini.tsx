@@ -46,10 +46,10 @@ export function PannelloImmagini({ rifEditore, doc, materia }: {
 
       <div className={s.schede} role="tablist">
         <button role="tab" aria-selected={scheda === 'consigliate'} className={scheda === 'consigliate' ? s.schedaAttiva : undefined} onClick={() => scegliScheda('consigliate')}>
-          Consigliate{nuovi.length > 0 && <span className={s.conto}>{nuovi.length}</span>}
+          {tr('Consigliate')}{nuovi.length > 0 && <span className={s.conto}>{nuovi.length}</span>}
         </button>
         <button role="tab" aria-selected={scheda === 'cercate'} className={scheda === 'cercate' ? s.schedaAttiva : undefined} onClick={() => scegliScheda('cercate')}>
-          Cercate
+          {tr('Cercate')}
         </button>
       </div>
 

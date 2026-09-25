@@ -326,15 +326,15 @@ function AzioniProposta({ editor, proposta, onEntra, onEsci, onAccetta, onRifiut
     >
       <span className={s.fonte}>
         <Icona nome="ai" dimensione={14} />
-        Dalla lezione
+        {tr('Dalla lezione')}
       </span>
       <button className={s.accetta} onClick={onAccetta}>
         <Icona nome="accetta" dimensione={14} />
-        Accetta
+        {tr('Accetta')}
       </button>
       <button className={s.rifiuta} onClick={onRifiuta}>
         <Icona nome="chiudi" dimensione={14} />
-        Rifiuta
+        {tr('Rifiuta')}
       </button>
     </div>
   )

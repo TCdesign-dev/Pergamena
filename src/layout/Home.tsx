@@ -66,7 +66,7 @@ export function Home({
           )}
           <button className={s.nuova} onClick={nuovaMateria}>
             <Icona nome="nuovo" dimensione={14} />
-            Nuova materia
+            {tr('Nuova materia')}
           </button>
         </div>
 

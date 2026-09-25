@@ -175,7 +175,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
             className={`${s.bottone} ${s.quiz}`}
             onClick={() => quizSullaSelezione(editor, documentoId)}
           >
-            Quiz
+            {tr('Quiz')}
           </button>
         </>
       ) : (

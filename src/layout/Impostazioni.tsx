@@ -275,7 +275,7 @@ function Integratore() {
         </span>
         <span className={s.tastiPrompt}>
           <button className={s.secondario} disabled={diSerie} onClick={() => { setBozza(ISTRUZIONI_DI_SERIE); imposta('promptMerge', null) }}>
-            Ripristina
+            {tr('Ripristina')}
           </button>
           <button className={s.principale} disabled={!cambiato} onClick={salva}>{tr('Salva')}</button>
         </span>
