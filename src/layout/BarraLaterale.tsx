@@ -186,11 +186,11 @@ export function BarraLaterale({
 
 function quando(t: number) {
   const min = Math.floor((Date.now() - t) / 60000)
-  if (min < 1) return 'ora'
-  if (min < 60) return `${min} min`
+  if (min < 1) return tr('ora')
+  if (min < 60) return tr('{n} min', { n: min })
   const ore = Math.floor(min / 60)
-  if (ore < 24) return `${ore} h`
+  if (ore < 24) return tr('{n} h', { n: ore })
   const giorni = Math.floor(ore / 24)
-  if (giorni < 7) return `${giorni} g`
+  if (giorni < 7) return tr('{n} g', { n: giorni })
   return new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

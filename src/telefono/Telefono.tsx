@@ -198,7 +198,7 @@ function SchedaMateria({ quaderno, pagine, onApri }: { quaderno: Quaderno; pagin
 function quando(t: number) {
   const g = Math.floor((Date.now() - t) / 86400000)
   if (g < 1) return tr('oggi')
-  if (g === 1) return 'ieri'
+  if (g === 1) return tr('ieri')
   if (g < 7) return tr('{n} giorno fa | {n} giorni fa', { n: g })
   return new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

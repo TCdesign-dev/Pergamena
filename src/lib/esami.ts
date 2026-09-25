@@ -24,8 +24,8 @@ export function comeDetto(data: string) {
   const n = mancano(data)
   if (n === 0) return tr('oggi')
   if (n === 1) return tr('domani')
-  if (n > 1) return `fra ${n} giorni`
-  if (n === -1) return 'ieri'
+  if (n > 1) return tr('fra {n} giorno | fra {n} giorni', { n })
+  if (n === -1) return tr('ieri')
   return tr('{n} giorno fa | {n} giorni fa', { n: -n })
 }
 
