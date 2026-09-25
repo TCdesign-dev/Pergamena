@@ -151,16 +151,38 @@ function Tela({ documento, quaderno, doc, fuoco, rifEditore, intestazione, segna
   )
 }
 
+/*  TipTap mette la maniglia a sinistra del blocco che stai sfiorando.
+ *  Per un paragrafo va bene: a sinistra del paragrafo c'è il margine.
+ *  Per una voce d'elenco no: a sinistra della voce c'è il pallino, e la
+ *  maniglia ci finisce sopra. Più l'elenco è annidato, più la maniglia
+ *  entra nel testo.
+ *
+ *  Questo la riporta sempre nella corsia a sinistra della colonna,
+ *  alla stessa distanza per ogni riga: sposta la x all'indietro di
+ *  quanto la riga è rientrata rispetto al bordo del testo. */
+function inCorsia(editor: EditoreTipTap) {
+  return {
+    name: 'corsia',
+    fn({ x, elements }: { x: number; elements: { reference: { getBoundingClientRect: () => { left: number } } } }) {
+      const riga = elements.reference.getBoundingClientRect()
+      const colonna = editor.view.dom.getBoundingClientRect()
+      return { x: x - (riga.left - colonna.left) }
+    },
+  }
+}
+
 /*  La maniglia (icona «sposta») a sinistra della riga sotto il mouse: si trascina per
  *  spostare il blocco (o la voce d'elenco); un clic seleziona il blocco
  *  intero, e da lì ⌘⇧↑/↓ lo sposta o Canc lo toglie. Se c'è già un
  *  gruppo selezionato, trascinandola si sposta tutto il gruppo. */
 function Maniglia({ editor }: { editor: EditoreTipTap }) {
   const sotto = useRef<number | null>(null)
+  const posizione = useMemo(() => ({ middleware: [inCorsia(editor)] }), [editor])
   return (
     <DragHandle
       editor={editor}
       nested
+      computePositionConfig={posizione}
       onNodeChange={({ pos }) => { sotto.current = pos }}
     >
       <button

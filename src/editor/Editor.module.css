@@ -57,6 +57,7 @@
 
 /* ── la maniglia per spostare i blocchi ────────────────────── */
 .maniglia {
+  position: relative;
   display: grid;
   place-items: center;
   width: calc(var(--u) * 2.25);
@@ -66,5 +67,16 @@
   color: var(--tenue);
   cursor: grab;
 }
+/*  L'area sensibile arriva fino al bordo del testo. La maniglia sta
+ *  fuori dall'editor, e TipTap la nasconde appena il mouse esce
+ *  dall'editor: senza questo ponte, muovendo il mouse verso di lei si
+ *  attraversa un paio di pixel di terra di nessuno e sparisce un
+ *  momento prima di arrivarci. */
+.maniglia::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--u) * -0.5) calc(var(--u) * -0.5) calc(var(--u) * -0.5) calc(var(--u) * -1);
+}
+
 .maniglia:hover { background: var(--sfiorata); color: var(--inchiostro-tenue); opacity: 1; }
 .maniglia:active { cursor: grabbing; }
