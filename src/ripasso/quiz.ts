@@ -46,7 +46,8 @@ Regole:
 - "spiegazione": una frase che dice perché la risposta giusta è giusta.
 - Se il materiale basta per meno domande di quelle chieste, fanne meno.
   Mai inventare fatti che nel materiale non ci sono.
-- Scrivi in modo semplice.
+- Scrivi in modo semplice. Per dare risalto hai **grassetto** e
+  $formule$, e nient'altro.
 
 Rispondi SOLO con un oggetto JSON:
 {"domande":[

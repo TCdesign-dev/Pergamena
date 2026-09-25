@@ -81,7 +81,6 @@
   color: var(--inchiostro);
   font-size: calc(var(--t-ui) * 14 / 13);
   line-height: 1.6;
-  white-space: pre-wrap;
 }
 
 .quando, .attesa {

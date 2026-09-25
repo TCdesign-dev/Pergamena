@@ -10,6 +10,7 @@ import { Icona } from '../lib/Icona'
 import s from './PannelloDomande.module.css'
 import { tr } from '../lingua/lingua'
 import { Tr } from '../lingua/Tr'
+import { Marcato } from '../lib/Marcato'
 
 /*  «Chiedi alla lezione»: le domande su questa pagina, con le risposte,
  *  in fila come una conversazione.
@@ -107,7 +108,7 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
                 <Icona nome="chiudi" dimensione={12} />
               </button>
             </div>
-            <p className={s.risposta}>{d.risposta}</p>
+            <div className={s.risposta}><Marcato testo={d.risposta} /></div>
             <p className={s.quando}>
               {quandoFa(d.quando)}
               {d.lezioni > 0 && ` · ${tr('{n} lezione | {n} lezioni', { n: d.lezioni })}`}

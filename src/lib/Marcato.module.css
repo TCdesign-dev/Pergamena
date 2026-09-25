@@ -1,0 +1,36 @@
+/*  La prosa dei modelli fuori dagli appunti: stessa misura del testo
+ *  che la circonda, nessun colore proprio. Deve sembrare parte del
+ *  pannello in cui sta, non un blocco incollato. */
+
+.riga { margin: 0; }
+.riga + .riga { margin-top: calc(var(--u) * 0.75); }
+
+.elenco {
+  margin: calc(var(--u) * 0.5) 0 0;
+  padding-left: calc(var(--u) * 2.25);
+}
+.elenco li + li { margin-top: calc(var(--u) * 0.375); }
+.riga + .elenco { margin-top: calc(var(--u) * 0.5); }
+.elenco + .riga { margin-top: calc(var(--u) * 0.75); }
+
+/*  KaTeX porta i suoi stili; qui serve solo che non sfondi la riga. */
+.formula { display: inline-block; max-width: 100%; overflow-x: auto; vertical-align: middle; }
+
+/*  Evidenziatore e codice come dentro gli appunti: la stessa parola
+ *  deve avere lo stesso aspetto da una parte e dall'altra. */
+.evidenziato {
+  background: var(--evidenziatore);
+  color: inherit;
+  padding: 0.08em 0.15em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+}
+
+.codice {
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--linea);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}

@@ -8,6 +8,7 @@ import { Icona } from '../lib/Icona'
 import s from './Quiz.module.css'
 import { tr } from '../lingua/lingua'
 import { Tr } from '../lingua/Tr'
+import { Marcato } from '../lib/Marcato'
 
 /*  Il quiz: una domanda alla volta, e subito la risposta giusta col suo
  *  perché. Tutto da tastiera: 1-4 sceglie, Invio va avanti, Esc chiude.
@@ -161,7 +162,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                 />
               ))}
             </ol>
-            <p className={s.domanda}>{d.testo}</p>
+            <p className={s.domanda}><Marcato testo={d.testo} blocchi={false} /></p>
 
             {d.tipo === 'scelta' ? (
               <>
@@ -172,7 +173,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                       <li key={k}>
                         <button className={`${s.opzione} ${stato}`} onClick={() => rispondi(k)} disabled={risposto}>
                           <span className={s.lettera}>{LETTERE[k]}</span>
-                          <span>{o}</span>
+                          <span><Marcato testo={o} blocchi={false} /></span>
                         </button>
                       </li>
                     )
@@ -180,7 +181,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                 </ol>
                 {risposto && (
                   <p className={s.spiegazione}>
-                    <strong>{risposta === d.giusta ? tr('Giusto.') : tr('Era la {lettera}.', { lettera: LETTERE[d.giusta] })}</strong> {d.spiegazione}
+                    <strong>{risposta === d.giusta ? tr('Giusto.') : tr('Era la {lettera}.', { lettera: LETTERE[d.giusta] })}</strong> <Marcato testo={d.spiegazione} blocchi={false} />
                   </p>
                 )}
               </>
@@ -190,7 +191,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
               </button>
             ) : (
               <>
-                <p className={s.risposta}>{d.risposta}</p>
+                <p className={s.risposta}><Marcato testo={d.risposta} blocchi={false} /></p>
                 <div className={s.valuta}>
                   <button className={`${s.opzione} ${risposta === true ? s.giusta : risposto ? s.spenta : ''}`} onClick={() => rispondi(true)} disabled={risposto}>
                     <span className={s.lettera}>S</span> {tr('La sapevo')}

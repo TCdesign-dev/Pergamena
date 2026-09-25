@@ -13,6 +13,7 @@ import { Icona } from '../lib/Icona'
 import s from './Ripasso.module.css'
 import { locale, tr } from '../lingua/lingua'
 import { Tr } from '../lingua/Tr'
+import { Marcato } from '../lib/Marcato'
 
 /*  Il ripasso di una materia.
  *
@@ -136,7 +137,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
                     {new Date(l.quando).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })}
                     <span className={s.pagine}>{l.pagine.join(' · ')}</span>
                   </h3>
-                  <ul>{l.punti.map((p, k) => <li key={k}>{p}</li>)}</ul>
+                  <ul>{l.punti.map((p, k) => <li key={k}><Marcato testo={p} blocchi={false} /></li>)}</ul>
                 </article>
               ))}
             </section>

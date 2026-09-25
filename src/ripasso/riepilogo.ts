@@ -72,6 +72,9 @@ cui le cose sono state spiegate. Concetti, definizioni, dati e regole che
 contano; niente saluti, niente battute, niente organizzazione del corso —
 tranne ciò che riguarda l'esame. Mai inventare quello che non c'è.
 
+Ogni punto è una riga sola. Per dare risalto hai **grassetto** e
+$formule$, e nient'altro.
+
 Rispondi SOLO con un oggetto JSON:
 {"lezioni":[{"chiave":"...","punti":["...","..."]}]}`
 
