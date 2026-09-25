@@ -334,9 +334,8 @@ export function App() {
           dettaglio={
             daEliminare.tipo === 'pagina'
               ? tr('Spariscono il testo e le immagini della pagina, qui e sul server. Non si torna indietro.')
-              : `Spariscono la materia, le sue ${
-                  documenti.filter((d) => d.quadernoId === daEliminare.quaderno.id).length
-                } pagine e tutte le loro immagini, qui e sul server. Non si torna indietro.`
+              : tr('Spariscono la materia, la sua {n} pagina e le sue immagini, qui e sul server. Non si torna indietro. | Spariscono la materia, le sue {n} pagine e tutte le loro immagini, qui e sul server. Non si torna indietro.',
+                  { n: documenti.filter((d) => d.quadernoId === daEliminare.quaderno.id).length })
           }
           onConferma={() => void eliminaDavvero()}
           onAnnulla={() => setDaEliminare(null)}

@@ -1,4 +1,5 @@
 import { schedeDiFile, type Trovata } from './commons'
+import { tr } from '../lingua/lingua'
 
 /*  Wikipedia come ponte fra la tua lingua e le immagini.
  *
@@ -47,7 +48,7 @@ async function cercaArticoli(query: string, quanti: number): Promise<Pagina[]> {
     origin: '*',
   })
   const r = await fetch(`${API}?${p}`)
-  if (!r.ok) throw new Error(`Wikipedia ha risposto ${r.status}`)
+  if (!r.ok) throw new Error(tr('Wikipedia ha risposto {stato}', { stato: r.status }))
   const j = await r.json()
   const pagine = Object.values(j.query?.pages ?? {}) as Pagina[]
   // le pagine tornano sparpagliate: «index» è l'ordine della ricerca

@@ -24,13 +24,13 @@ import { Tr } from '../lingua/Tr'
  *  cambia solo dove si vedono. */
 
 const SEZIONI: { id: Sezione; nome: string; icona: NomeIcona }[] = [
-  { id: 'aspetto', nome: 'Aspetto', icona: 'chiaro' },
-  { id: 'registrazione', nome: 'Registrazione', icona: 'microfono' },
-  { id: 'integratore', nome: 'Integratore', icona: 'ai' },
-  { id: 'chiavi', nome: 'Chiavi', icona: 'chiave' },
-  { id: 'immagini', nome: 'Immagini', icona: 'immagini' },
-  { id: 'tastiera', nome: 'Tastiera', icona: 'tastiera' },
-  { id: 'archivio', nome: 'Archivio', icona: 'archivio' },
+  { id: 'aspetto', nome: tr('Aspetto'), icona: 'chiaro' },
+  { id: 'registrazione', nome: tr('Registrazione'), icona: 'microfono' },
+  { id: 'integratore', nome: tr('Integratore'), icona: 'ai' },
+  { id: 'chiavi', nome: tr('Chiavi'), icona: 'chiave' },
+  { id: 'immagini', nome: tr('Immagini'), icona: 'immagini' },
+  { id: 'tastiera', nome: tr('Tastiera'), icona: 'tastiera' },
+  { id: 'archivio', nome: tr('Archivio'), icona: 'archivio' },
 ]
 
 export function Impostazioni({ onArchivio }: { onArchivio: () => void }) {
@@ -178,9 +178,9 @@ function Interruttore({ acceso, onCambia, etichetta }: { acceso: boolean; onCamb
 // ── le sezioni ─────────────────────────────────────────────────────
 
 const TEMI: { id: Tema; nome: string; icona: NomeIcona }[] = [
-  { id: 'sistema', nome: 'Sistema', icona: 'impostazioni' },
-  { id: 'chiaro', nome: 'Chiaro', icona: 'chiaro' },
-  { id: 'scuro', nome: 'Scuro', icona: 'scuro' },
+  { id: 'sistema', nome: tr('Sistema'), icona: 'impostazioni' },
+  { id: 'chiaro', nome: tr('Chiaro'), icona: 'chiaro' },
+  { id: 'scuro', nome: tr('Scuro'), icona: 'scuro' },
 ]
 
 function Aspetto() {
@@ -311,10 +311,11 @@ function Chiavi() {
     try {
       const r = await fetch('/api/llm/prova', { headers: intestazioniChiavi() })
       const j = await r.json()
-      if (!j.ok) setProva(`non va: ${j.errore ?? 'chiave rifiutata'}`)
+      if (!j.ok) setProva(tr('non va: {motivo}', { motivo: j.errore ?? tr('chiave rifiutata') }))
       else {
-        const soldi = typeof j.residuo === 'number' ? `, ${j.residuo.toFixed(2)} $ residui` : ''
-        setProva(`la chiave risponde${soldi}`)
+        setProva(typeof j.residuo === 'number'
+          ? tr('la chiave risponde, {soldi} $ residui', { soldi: j.residuo.toFixed(2) })
+          : tr('la chiave risponde'))
       }
     } catch {
       setProva(tr('il server locale non risponde'))
@@ -331,7 +332,7 @@ function Chiavi() {
         spiega={<Tr frase="Serve all’integratore, ai quiz e alle correzioni in diretta. Si prende su <code>openrouter.ai/keys</code>: qualche centesimo al mese ai ritmi di una persona che studia." />}
       >
         <button className={s.secondario} disabled={inProva || (!dalFile && !chiavi.openrouter)} onClick={() => void provaChiave()}>
-          {inProva ? tr('Provo…') : 'Prova'}
+          {inProva ? tr('Provo…') : tr('Prova')}
         </button>
       </CampoChiave>
       {prova && <p className={s.esitoChiave}>{prova}</p>}
@@ -472,7 +473,7 @@ function Tastiera({ stretta }: { stretta: boolean }) {
       const combinazione = combinazioneDa(e)
       if (!combinazione) return   // solo modificatori, o un tasto da solo: si aspetta
       const presa = giaPresa(combinazione, inAscolto)
-      if (presa) { setAvviso(`${scrittaDi(combinazione)} è già di «${presa.nome}»`); return }
+      if (presa) { setAvviso(tr('{tasti} è già di «{comando}»', { tasti: scrittaDi(combinazione), comando: presa.nome })); return }
       impostaScorciatoia(inAscolto, combinazione)
       setInAscolto(null)
       setAvviso(null)
@@ -491,7 +492,7 @@ function Tastiera({ stretta }: { stretta: boolean }) {
           <dd>
             <button
               className={`${s.tastoCambia} ${inAscolto === c.id ? s.inAscolto : ''}`}
-              aria-label={`Cambia la scorciatoia di ${c.nome}`}
+              aria-label={tr('Cambia la scorciatoia di {comando}', { comando: c.nome })}
               onClick={() => { setAvviso(null); setInAscolto(inAscolto === c.id ? null : c.id) }}
             >
               {inAscolto === c.id ? tr('premi i tasti…') : scrittaDi(combinazioneDi(c.id))}
@@ -526,7 +527,7 @@ function Tastiera({ stretta }: { stretta: boolean }) {
       <Riga titolo={tr('Quelle che non si cambiano')} spiega={tr('Sintassi che scrivi, e i tasti della revisione.')}>
         <button className={s.secondario} aria-expanded={mostraFisse} onClick={() => setMostraFisse((v) => !v)}>
           <Icona nome="tastiera" dimensione={14} />
-          {mostraFisse ? 'Nascondi' : 'Mostra'}
+          {mostraFisse ? tr('Nascondi') : tr('Mostra')}
         </button>
       </Riga>
       {mostraFisse && (

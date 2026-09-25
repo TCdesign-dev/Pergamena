@@ -1,5 +1,6 @@
 import { esponi } from './dev'
 import { intestazioniChiavi } from '../chiavi'
+import { tr } from '../lingua/lingua'
 
 /*  Le domande a Jev (vedi server/decisioni.ts).
  *
@@ -37,7 +38,7 @@ export async function decidi(stato: unknown, domande: Record<string, Domanda>) {
   })
   const dati = await r.json().catch(() => ({}))
   if (!r.ok || dati.error) {
-    const messaggio = String(dati.error?.message ?? dati.errore ?? `Jev non risponde (${r.status})`)
+    const messaggio = String(dati.error?.message ?? dati.errore ?? tr('Jev non risponde ({stato})', { stato: r.status }))
     if (eCreditoFinito(r.status, messaggio)) throw new CreditoFinito(messaggio)
     throw new Error(messaggio)
   }

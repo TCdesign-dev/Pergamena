@@ -68,7 +68,7 @@ export function PannelloCommenti({ doc, rifEditore, modo, onChiudi }: {
   return (
     <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>{modo === 'lato' ? 'Commenti' : tr('Commenti di questa pagina')}</span>
+        <span className={s.titolo}>{modo === 'lato' ? tr('Commenti') : tr('Commenti di questa pagina')}</span>
         <span className={s.numero}>{elenco.length}</span>
         <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello dei commenti')} onClick={onChiudi}>
           <Icona nome="chiudi" />

@@ -115,7 +115,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       return (
         <button
           className={s.registra}
-          title={`Registra la lezione e trascrivila sul Mac  ${scrittaDiComando('registra')}`}
+          title={tr('Registra la lezione e trascrivila sul Mac  {tasti}', { tasti: scrittaDiComando('registra') })}
           onClick={() => void registra(documentoId, materia, rifEditore)}
         >
           <span className={s.pallino} />

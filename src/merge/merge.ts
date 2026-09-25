@@ -77,7 +77,7 @@ export async function integraTutto(
   if (lezioni.length === 1) return integraLezione(editor, doc, lezioni[0].id, materia, avanza)
 
   avanza('preparo')
-  const tratti = lezioni.flatMap((r) => trattiDi(editor, r, `lezione del ${giorno(r.inizio)}`))
+  const tratti = lezioni.flatMap((r) => trattiDi(editor, r, tr('lezione del {giorno}', { giorno: giorno(r.inizio) })))
   const esito = await integra(editor, doc, materia, tratti, lezioni.length, MASSIMO_INSIEME, avanza)
   const adesso = Date.now()
   for (const r of lezioni) mappaRegistrazioni(doc).get(r.id)?.set('insieme', adesso)

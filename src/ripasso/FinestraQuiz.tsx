@@ -180,7 +180,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                 </ol>
                 {risposto && (
                   <p className={s.spiegazione}>
-                    <strong>{risposta === d.giusta ? 'Giusto.' : `Era la ${LETTERE[d.giusta]}.`}</strong> {d.spiegazione}
+                    <strong>{risposta === d.giusta ? tr('Giusto.') : tr('Era la {lettera}.', { lettera: LETTERE[d.giusta] })}</strong> {d.spiegazione}
                   </p>
                 )}
               </>
@@ -218,7 +218,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                     </button>
                   )}
                   <button className={s.principale} onClick={avanti} autoFocus>
-                    {i + 1 < domande.length ? 'Avanti' : tr('Com’è andata')} <kbd className={s.tasto}>↵</kbd>
+                    {i + 1 < domande.length ? tr('Avanti') : tr('Com’è andata')} <kbd className={s.tasto}>↵</kbd>
                   </button>
                 </span>
               )}

@@ -23,22 +23,22 @@ const pulisci = (editor: Editor, range: Range) => editor.chain().focus().deleteR
 
 export const COMANDI_BLOCCO: ComandoBlocco[] = [
   {
-    chiave: 'testo', nome: 'Testo', descrizione: tr('Paragrafo normale'), segno: '¶',
+    chiave: 'testo', nome: tr('Testo'), descrizione: tr('Paragrafo normale'), segno: '¶',
     alias: ['paragrafo', 'normale', 'p'],
     esegui: (e, r) => pulisci(e, r).setParagraph().run(),
   },
   {
-    chiave: 'h1', nome: 'Titolo 1', descrizione: tr('Apre un argomento'), segno: 'H1',
+    chiave: 'h1', nome: tr('Titolo 1'), descrizione: tr('Apre un argomento'), segno: 'H1',
     alias: ['titolo', 'argomento', 'heading'],
     esegui: (e, r) => pulisci(e, r).setNode('heading', { level: 1 }).run(),
   },
   {
-    chiave: 'h2', nome: 'Titolo 2', descrizione: 'Sottotitolo', segno: 'H2',
+    chiave: 'h2', nome: tr('Titolo 2'), descrizione: tr('Sottotitolo'), segno: 'H2',
     alias: ['titolo', 'sottotitolo', 'heading'],
     esegui: (e, r) => pulisci(e, r).setNode('heading', { level: 2 }).run(),
   },
   {
-    chiave: 'h3', nome: 'Titolo 3', descrizione: 'Sotto-sottotitolo', segno: 'H3',
+    chiave: 'h3', nome: tr('Titolo 3'), descrizione: 'Sotto-sottotitolo', segno: 'H3',
     alias: ['titolo', 'heading'],
     esegui: (e, r) => pulisci(e, r).setNode('heading', { level: 3 }).run(),
   },
@@ -53,7 +53,7 @@ export const COMANDI_BLOCCO: ComandoBlocco[] = [
     esegui: (e, r) => pulisci(e, r).toggleOrderedList().run(),
   },
   {
-    chiave: 'quote', nome: 'Citazione', descrizione: tr('Testo rientrato'), segno: '❝',
+    chiave: 'quote', nome: tr('Citazione'), descrizione: tr('Testo rientrato'), segno: '❝',
     alias: ['citazione', 'blockquote'],
     esegui: (e, r) => pulisci(e, r).toggleBlockquote().run(),
   },
@@ -63,7 +63,7 @@ export const COMANDI_BLOCCO: ComandoBlocco[] = [
     esegui: (e, r) => pulisci(e, r).toggleCodeBlock().run(),
   },
   {
-    chiave: 'hr', nome: 'Separatore', descrizione: tr('Linea orizzontale'), segno: '—',
+    chiave: 'hr', nome: tr('Separatore'), descrizione: tr('Linea orizzontale'), segno: '—',
     alias: ['linea', 'divisore', 'hr'],
     esegui: (e, r) => pulisci(e, r).setHorizontalRule().run(),
   },

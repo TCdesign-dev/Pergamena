@@ -65,7 +65,7 @@ export function BarraSuperiore({
   const rifDomande = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
-    ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
+    ...(largo ? [] : [{ etichetta: tr('Immagini'), icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
     { etichetta: tr('Elimina pagina…'), icona: 'elimina', pericolo: true, azione: onElimina },
   ]
 

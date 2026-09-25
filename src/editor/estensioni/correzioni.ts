@@ -72,7 +72,7 @@ function decora(doc: NodoPM, mappa: Y.Map<Correzione>) {
       quante++
       decorazioni.push(Decoration.inline(posto.sottolinea[0], posto.sottolinea[1], {
         class: 'correzione-da-vedere',
-        title: `Il professore: «${c.detto}»`,
+        title: tr('Il professore: «{detto}»', { detto: c.detto }),
       }))
       // subito dopo il pezzo, attaccato a lui: se la riga va a capo lì, resta sulla sua
       decorazioni.push(Decoration.widget(posto.sottolinea[1], () => pallino(c.id), {

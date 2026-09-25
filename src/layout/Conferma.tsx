@@ -15,7 +15,7 @@ import { tr } from '../lingua/lingua'
  *  rispetto a lei, non allo schermo. */
 
 export function Conferma({
-  titolo, dettaglio, azione = 'Elimina', onConferma, onAnnulla,
+  titolo, dettaglio, azione = tr('Elimina'), onConferma, onAnnulla,
 }: {
   titolo: string
   dettaglio?: string

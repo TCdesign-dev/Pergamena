@@ -146,7 +146,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
         fase: 'fatto',
         inizio,
         messaggio: esito.proposte
-          ? `${esito.proposte} ${esito.proposte === 1 ? 'proposta' : 'proposte'} negli appunti`
+          ? tr('{n} proposta negli appunti | {n} proposte negli appunti', { n: esito.proposte })
           : tr('Non manca niente di importante.'),
       })
       /*  Dopo un merge si è già in modalità «sistemo gli appunti»:
@@ -195,7 +195,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   return (
     <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>{modo === 'lato' ? 'Lezioni' : tr('Lezioni di questa pagina')}</span>
+        <span className={s.titolo}>{modo === 'lato' ? tr('Lezioni') : tr('Lezioni di questa pagina')}</span>
         <span className={s.numero}>{lezioni.length}</span>
         <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello delle lezioni')} onClick={onChiudi}>
           <Icona nome="chiudi" />
@@ -341,8 +341,10 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
 
       {daEliminare && (
         <Conferma
-          titolo={`Eliminare la lezione di ${quando(daEliminare.inizio)}?`}
-          dettaglio={`Spariscono la trascrizione${daEliminare.audio ? ', l’audio' : ''} e le correzioni ancora aperte di questa lezione. Gli appunti restano come sono.`}
+          titolo={tr('Eliminare la lezione di {quando}?', { quando: quando(daEliminare.inizio) })}
+          dettaglio={daEliminare.audio
+            ? tr('Spariscono la trascrizione, l’audio e le correzioni ancora aperte di questa lezione. Gli appunti restano come sono.')
+            : tr('Spariscono la trascrizione e le correzioni ancora aperte di questa lezione. Gli appunti restano come sono.')}
           onConferma={() => { const r = daEliminare; setDaEliminare(null); void eliminaRegistrazione(doc, r.id) }}
           onAnnulla={() => setDaEliminare(null)}
         />

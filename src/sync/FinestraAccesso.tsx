@@ -55,7 +55,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
           {passo === 'email' &&
             tr('Ti mandiamo un link (o un codice) per entrare senza password.')}
           {passo === 'codice' &&
-            `Abbiamo scritto a ${email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.`}
+            tr('Abbiamo scritto a {email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.', { email })}
         </p>
 
         {passo !== 'codice' && (
@@ -110,7 +110,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
             </button>
           )}
           <button type="submit" className={s.principale} disabled={inCorso}>
-            {inCorso ? '…' : passo === 'email' ? tr('Mandami il link') : 'Entra'}
+            {inCorso ? '…' : passo === 'email' ? tr('Mandami il link') : tr('Entra')}
           </button>
         </div>
       </form>

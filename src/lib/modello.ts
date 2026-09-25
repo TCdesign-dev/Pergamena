@@ -59,7 +59,7 @@ export async function chiediJson(compito: Compito, messaggi: Messaggio[], opzion
     })
     const dati = await r.json().catch(() => ({}))
     // gli errori del servizio il server li ha già riprovati: inutile insistere
-    if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? `il modello non risponde (${r.status})`)
+    if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? tr('il modello non risponde ({stato})', { stato: r.status }))
 
     costo += Number(dati.usage?.cost) || 0
     const scelta = dati.choices?.[0]
@@ -74,7 +74,7 @@ export async function chiediJson(compito: Compito, messaggi: Messaggio[], opzion
     console.warn(`[modello] ${compito}: ${motivo} (tentativo ${tentativo})`, grezzo.slice(0, 500))
   }
 
-  throw new Error(`il modello ${motivo}, due volte di fila. Riprova fra poco.`)
+  throw new Error(tr('il modello {motivo}, due volte di fila. Riprova fra poco.', { motivo }))
 }
 
 /*  Una risposta in prosa, non in JSON: per le domande alla lezione.
@@ -93,7 +93,7 @@ export async function chiediTesto(compito: Compito, messaggi: Messaggio[], opzio
     }),
   })
   const dati = await r.json().catch(() => ({}))
-  if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? `il modello non risponde (${r.status})`)
+  if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? tr('il modello non risponde ({stato})', { stato: r.status }))
   const testo = String(dati.choices?.[0]?.message?.content ?? '').trim()
   if (!testo) throw new Error(tr('il modello ha risposto vuoto. Riprova.'))
   return { testo, costo: Number(dati.usage?.cost) || 0 }

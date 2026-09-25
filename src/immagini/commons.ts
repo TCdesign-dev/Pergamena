@@ -62,7 +62,7 @@ function scheda(p: Record<string, unknown>): Trovata | null {
 
 const pagineDi = async (parametri: URLSearchParams) => {
   const risposta = await fetch(`${API}?${parametri}`)
-  if (!risposta.ok) throw new Error(`Commons ha risposto ${risposta.status}`)
+  if (!risposta.ok) throw new Error(tr('Commons ha risposto {stato}', { stato: risposta.status }))
   const dati = await risposta.json()
   return Object.values(dati.query?.pages ?? {}) as Array<Record<string, unknown>>
 }
@@ -124,7 +124,7 @@ export async function scarica(t: Trovata) {
     throw new Error(tr('il sito non lascia scaricare l’immagine: provane un’altra'))
   }
   const risposta = await fetch(t.miniatura)
-  if (!risposta.ok) throw new Error(`Scaricamento fallito (${risposta.status})`)
+  if (!risposta.ok) throw new Error(tr('Scaricamento fallito ({stato})', { stato: risposta.status }))
   return risposta.blob()
 }
 

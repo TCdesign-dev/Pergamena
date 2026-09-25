@@ -16,7 +16,7 @@ export async function cercaSulWeb(query: string, n = 12, inglese?: string | null
   const en = inglese ? `&en=${encodeURIComponent(inglese)}` : ''
   const r = await fetch(`/api/immagini/cerca?q=${encodeURIComponent(query.trim())}&n=${n}${en}`, { headers: intestazioniChiavi() })
   const j = await r.json().catch(() => ({}))
-  if (!r.ok) throw new Error(j.errore ?? `ricerca fallita (${r.status})`)
+  if (!r.ok) throw new Error(j.errore ?? tr('ricerca fallita ({stato})', { stato: r.status }))
   return j
 }
 

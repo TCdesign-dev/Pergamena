@@ -135,7 +135,7 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
           <button
             className={s.foto}
             draggable
-            title={`${c.risultati[0].autore} · ${c.risultati[0].licenza}\nTrascinala, o usa il pulsante qui sotto`}
+            title={tr('{autore} · {licenza}\nTrascinala, o usa il pulsante qui sotto', { autore: c.risultati[0].autore, licenza: c.risultati[0].licenza })}
             onDragStart={(e) => {
               e.dataTransfer.setData(TIPO_TRASCINAMENTO, JSON.stringify(c.risultati[0]))
               e.dataTransfer.effectAllowed = 'copy'
@@ -252,7 +252,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
                 <button
                   key={t.chiave}
                   className={s.scheda}
-                  title={`${t.titolo}\n${t.autore} · ${t.licenza}\n\nTrascina negli appunti, o clicca per inserirla al cursore`}
+                  title={tr('{titolo}\n{autore} · {licenza}\n\nTrascina negli appunti, o clicca per inserirla al cursore', { titolo: t.titolo, autore: t.autore, licenza: t.licenza })}
                   draggable
                   onDragStart={(e) => {
                     e.dataTransfer.setData(TIPO_TRASCINAMENTO, JSON.stringify(t))

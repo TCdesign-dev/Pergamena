@@ -105,7 +105,7 @@ export function BarraLaterale({
                 <button
                   className={s.piega}
                   onClick={() => piega(q.id)}
-                  title={chiuso ? 'Apri' : 'Chiudi'}
+                  title={chiuso ? tr('Apri') : tr('Chiudi')}
                   aria-label={chiuso ? `Apri ${nome}` : `Chiudi ${nome}`}
                   aria-expanded={!chiuso}
                 >

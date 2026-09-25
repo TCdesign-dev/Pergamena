@@ -28,9 +28,9 @@ import { Tr } from '../lingua/Tr'
 
 function quandoFa(ms: number) {
   const giorni = Math.floor((Date.now() - ms) / 86_400_000)
-  if (giorni <= 0) return 'oggi'
-  if (giorni === 1) return 'ieri'
-  if (giorni < 7) return `${giorni} giorni fa`
+  if (giorni <= 0) return tr('oggi')
+  if (giorni === 1) return tr('ieri')
+  if (giorni < 7) return tr('{n} giorno fa | {n} giorni fa', { n: giorni })
   return new Date(ms).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }
 
@@ -104,7 +104,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
             <h1 className={s.titolo}>{tr('Ripasso')}</h1>
             <p className={s.sotto}>
               {quaderno.nome || tr('Senza nome')}
-              {esame && <> · {esame.nome || 'Esame'} {comeDetto(esame.data)}</>}
+              {esame && <> · {esame.nome || tr('Esame')} {comeDetto(esame.data)}</>}
             </p>
 
             {/* ── dove eravamo rimasti ── */}
@@ -113,7 +113,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
                 <h2 className={s.etichetta}>{tr('Dove eravamo rimasti')}</h2>
                 {riepilogo && lavoro !== 'riassumo' && (
                   <button className={s.azione} onClick={() => void riassumi()}>
-                    {vecchio ? tr('Ci sono lezioni nuove · aggiorna') : 'Aggiorna'}
+                    {vecchio ? tr('Ci sono lezioni nuove · aggiorna') : tr('Aggiorna')}
                   </button>
                 )}
               </div>
@@ -153,7 +153,7 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
               <h2 className={s.etichetta}>{tr('Argomenti')}</h2>
               <span className={s.quanti}>
                 {argomenti === null ? tr('leggo gli appunti…')
-                  : quantiDaRipassare ? `${quantiDaRipassare} da ripassare`
+                  : quantiDaRipassare ? tr('{n} da ripassare', { n: quantiDaRipassare })
                   : argomenti.length ? tr('tutti ripassati') : ''}
               </span>
             </div>

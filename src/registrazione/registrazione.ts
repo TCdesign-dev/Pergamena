@@ -342,7 +342,7 @@ function concludi(voce: Y.Map<unknown>, errore: string | null, interrotta: boole
   const id = leggiRegistrazione().id
   chiudi()
   if (interrotta) {
-    azzera(`${errore ?? 'si è interrotta'}. Quello che era già trascritto è salvo.`)
+    azzera(tr('{motivo}. Quello che era già trascritto è salvo.', { motivo: errore ?? tr('si è interrotta') }))
     void (id ? recuperaSospese(voce, id) : Promise.resolve()).then(() => chiudiVoce(voce, true))
     return
   }

@@ -86,8 +86,8 @@ export function Telefono() {
             }
           >
             ‹ {dove.vista === 'lettura'
-              ? (quaderni.find((k) => k.id === dove.documento.quadernoId)?.nome || 'Indietro')
-              : dove.vista === 'scheda' ? (dove.quaderno.nome || 'Indietro') : 'Materie'}
+              ? (quaderni.find((k) => k.id === dove.documento.quadernoId)?.nome || tr('Indietro'))
+              : dove.vista === 'scheda' ? (dove.quaderno.nome || tr('Indietro')) : tr('Materie')}
           </button>
         ) : (
           <span className={s.marchio}>Pergamena</span>
@@ -197,8 +197,8 @@ function SchedaMateria({ quaderno, pagine, onApri }: { quaderno: Quaderno; pagin
 
 function quando(t: number) {
   const g = Math.floor((Date.now() - t) / 86400000)
-  if (g < 1) return 'oggi'
+  if (g < 1) return tr('oggi')
   if (g === 1) return 'ieri'
-  if (g < 7) return `${g} giorni fa`
+  if (g < 7) return tr('{n} giorno fa | {n} giorni fa', { n: g })
   return new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

@@ -169,7 +169,7 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
         onKeyDown={tasti}
         tabIndex={-1}
         role="dialog"
-        aria-label={aperta.tipo === 'nuovo' ? tr('Nuovo commento') : 'Commento'}
+        aria-label={aperta.tipo === 'nuovo' ? tr('Nuovo commento') : tr('Commento')}
       >
         <p className={s.citazione}>«{citazione}»</p>
 

@@ -57,7 +57,7 @@ const VOCI: Voce[] = [
   sep('a'),
   titolo(1), titolo(2), titolo(3),
   sep('b'),
-  { chiave: 'q', etichetta: '❝', titolo: 'Citazione',
+  { chiave: 'q', etichetta: '❝', titolo: tr('Citazione'),
     attivo: (e) => e.isActive('blockquote'),
     azione: (e) => e.chain().focus().toggleBlockquote().run() },
   { chiave: 'ul', etichetta: '•', titolo: tr('Elenco puntato'),

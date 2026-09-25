@@ -186,7 +186,7 @@ function Scheda({
         {esame && (
           <button className={`${s.esame} ${vicino ? s.vicino : ''}`} onClick={onScheda} title={tr('Apri la scheda della materia')}>
             <Icona nome="esame" dimensione={12} />
-            {esame.nome || 'Esame'} {comeDetto(esame.data)}
+            {esame.nome || tr('Esame')} {comeDetto(esame.data)}
           </button>
         )}
       </div>
