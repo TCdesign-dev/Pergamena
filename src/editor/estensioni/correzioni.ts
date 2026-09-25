@@ -11,6 +11,7 @@ import { apriScheda, iscrivitiScheda, leggiScheda } from '../../correzioni/stato
 import { vaiAllaSegnalazione } from '../../correzioni/naviga'
 import type { Correzione } from '../../correzioni/tipi'
 import { esponi } from '../../lib/dev'
+import { tr } from '../../lingua/lingua'
 
 /*  Le correzioni in diretta, dentro all'editor. Tre cose:
  *
@@ -33,8 +34,8 @@ function pallino(id: string) {
   const el = document.createElement('span')
   el.className = 'correzione-pallino'
   el.setAttribute('role', 'button')
-  el.setAttribute('aria-label', 'Correzione dalla lezione (⌥⌘↓)')
-  el.title = 'Il professore ha detto un’altra cosa  ⌥⌘↓'
+  el.setAttribute('aria-label', tr('Correzione dalla lezione (⌥⌘↓)'))
+  el.title = tr('Il professore ha detto un’altra cosa  ⌥⌘↓')
   el.dataset.id = id
   el.addEventListener('mousedown', (e) => {
     e.preventDefault()

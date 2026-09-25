@@ -7,6 +7,8 @@ import type { RifEditore } from '../editor/Editor'
 import { avviaRevisione, chiudiRevisione, iscrivitiRevisione, revisioneAttiva } from './statoRevisione'
 import { Icona } from '../lib/Icona'
 import s from './Revisione.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  La revisione delle proposte del merge.
  *
@@ -248,29 +250,29 @@ export function Revisione({ rifEditore }: { rifEditore: RifEditore }) {
           {proposte.length} {proposte.length === 1 ? 'proposta' : 'proposte'} dalla lezione · rivedi
         </button>
       ) : (
-        <div className={s.barra} role="toolbar" aria-label="Revisione delle proposte">
+        <div className={s.barra} role="toolbar" aria-label={tr('Revisione delle proposte')}>
           <span className={s.conto}>
             <Icona nome="ai" dimensione={14} className={s.scintilla} />
             <b>{Math.min(indice, proposte.length - 1) + 1} di {proposte.length}</b>
-            <span className={s.quali}>proposte dalla lezione</span>
+            <span className={s.quali}>{tr('proposte dalla lezione')}</span>
           </span>
-          <button className={s.icona} aria-label="Precedente (K)" title="Precedente  K" onClick={() => setIndice((i) => (i - 1 + proposte.length) % proposte.length)}>
+          <button className={s.icona} aria-label={tr('Precedente (K)')} title={tr('Precedente  K')} onClick={() => setIndice((i) => (i - 1 + proposte.length) % proposte.length)}>
             <Icona nome="sinistra" />
           </button>
-          <button className={s.icona} aria-label="Successiva (J)" title="Successiva  J" onClick={() => setIndice((i) => (i + 1) % proposte.length)}>
+          <button className={s.icona} aria-label={tr('Successiva (J)')} title={tr('Successiva  J')} onClick={() => setIndice((i) => (i + 1) % proposte.length)}>
             <Icona nome="destra" />
           </button>
           <span className={s.separatore} />
           <button className={s.trasparente} onClick={() => editor && corrente && rifiuta(editor, corrente)}>
-            Rifiuta <kbd className={s.tasto}>X</kbd>
+            <Tr frase="Rifiuta <kbd>X</kbd>" classi={{ kbd: s.tasto }} />
           </button>
           <button className={s.secondario} onClick={() => editor && corrente && accetta(editor, corrente)}>
-            Accetta <kbd className={s.tasto}>↵</kbd>
+            <Tr frase="Accetta <kbd>↵</kbd>" classi={{ kbd: s.tasto }} />
           </button>
           <button className={s.principale} onClick={accettaTutte}>
             Accetta tutte <kbd className={s.tasto}>⌘↵</kbd>
           </button>
-          <button className={s.icona} aria-label="Chiudi la revisione (Esc)" title="Chiudi  esc" onClick={chiudiRevisione}>
+          <button className={s.icona} aria-label={tr('Chiudi la revisione (Esc)')} title={tr('Chiudi  esc')} onClick={chiudiRevisione}>
             <Icona nome="chiudi" />
           </button>
         </div>

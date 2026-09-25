@@ -6,6 +6,7 @@
  *  Commons è un obbligo della licenza, non un vezzo. */
 
 import { carica, scaricaRemota, eliminaRemota } from './deposito-remoto'
+import { tr } from '../lingua/lingua'
 
 const DB = 'pergamena:immagini'
 const DEPOSITO = 'file'
@@ -45,7 +46,7 @@ function apri(): Promise<IDBDatabase> {
       connessione = null          // il prossimo tentativo riparte pulito
       rifiuta(new Error(motivo))
     }
-    const scadenza = setTimeout(() => arrenditi('IndexedDB non risponde'), ATTESA_APERTURA)
+    const scadenza = setTimeout(() => arrenditi(tr('IndexedDB non risponde')), ATTESA_APERTURA)
 
     req.onupgradeneeded = () => {
       if (!req.result.objectStoreNames.contains(DEPOSITO)) {
@@ -54,7 +55,7 @@ function apri(): Promise<IDBDatabase> {
     }
     req.onsuccess = () => { clearTimeout(scadenza); risolvi(req.result) }
     req.onerror = () => { clearTimeout(scadenza); arrenditi(String(req.error)) }
-    req.onblocked = () => { clearTimeout(scadenza); arrenditi('IndexedDB bloccato') }
+    req.onblocked = () => { clearTimeout(scadenza); arrenditi(tr('IndexedDB bloccato')) }
   })
 
   return connessione
@@ -91,7 +92,7 @@ export async function salva(blob: Blob, meta: Omit<MetaImmagine, 'id' | 'creato'
 
   if (!inLocale) {
     // senza copia locale il server è l'unica: qui si aspetta davvero
-    if (!(await caricamento)) throw new Error('Impossibile salvare l’immagine')
+    if (!(await caricamento)) throw new Error(tr('Impossibile salvare l’immagine'))
   }
 
   return id

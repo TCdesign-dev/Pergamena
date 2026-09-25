@@ -3,6 +3,7 @@ import type { Collegamento, Quaderno } from '../documento/tipi'
 import { aggiornaQuaderno } from '../documento/archivio'
 import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
+import { tr } from '../lingua/lingua'
 
 /** «moodle.unito.it» diventa un indirizzo che si apre davvero. */
 export function indirizzo(url: string) {
@@ -28,20 +29,20 @@ export function Collegamenti({ quaderno, nuovo, onNuovo }: {
           <input
             className={s.campo}
             value={c.titolo}
-            placeholder="Moodle, sito del corso…"
+            placeholder={tr('Moodle, sito del corso…')}
             autoFocus={c.id === nuovo}
             onChange={(e) => cambia(c.id, { titolo: e.target.value })}
           />
           <input
             className={`${s.campo} ${s.url}`}
             value={c.url}
-            placeholder="indirizzo"
+            placeholder={tr('indirizzo')}
             onChange={(e) => cambia(c.id, { url: e.target.value })}
           />
           {c.url.trim() && (
-            <a className={s.apri} href={indirizzo(c.url)} target="_blank" rel="noreferrer" title="Apri il link" aria-label="Apri il link"><Icona nome="apri-fuori" dimensione={14} /></a>
+            <a className={s.apri} href={indirizzo(c.url)} target="_blank" rel="noreferrer" title={tr('Apri il link')} aria-label={tr('Apri il link')}><Icona nome="apri-fuori" dimensione={14} /></a>
           )}
-          <button className={s.togli} title="Togli questo link" aria-label="Togli questo link" onClick={() => salva(elenco.filter((x) => x.id !== c.id))}><Icona nome="chiudi" dimensione={14} /></button>
+          <button className={s.togli} title={tr('Togli questo link')} aria-label={tr('Togli questo link')} onClick={() => salva(elenco.filter((x) => x.id !== c.id))}><Icona nome="chiudi" dimensione={14} /></button>
         </div>
       ))}
       <button

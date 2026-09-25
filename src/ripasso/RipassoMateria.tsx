@@ -11,6 +11,8 @@ import { prossimoEsame, comeDetto } from '../lib/esami'
 import { Barra, Rotella, Tessere } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
 import s from './Ripasso.module.css'
+import { locale, tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  Il ripasso di una materia.
  *
@@ -29,11 +31,11 @@ function quandoFa(ms: number) {
   if (giorni <= 0) return 'oggi'
   if (giorni === 1) return 'ieri'
   if (giorni < 7) return `${giorni} giorni fa`
-  return new Date(ms).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
+  return new Date(ms).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }
 
 function comeEAndato(e: Esito | undefined) {
-  if (!e) return 'mai fatto'
+  if (!e) return tr('mai fatto')
   return `${e.giuste} su ${e.totale} · ${quandoFa(e.quando)}`
 }
 
@@ -69,9 +71,9 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
     setLavoro('riassumo')
     try {
       const r = await faiRiepilogo(quaderno.id, quaderno.nome)
-      setLavoro(r ? 'fermo' : 'Ancora niente da riassumere: registra una lezione o scrivi qualche appunto.')
+      setLavoro(r ? 'fermo' : tr('Ancora niente da riassumere: registra una lezione o scrivi qualche appunto.'))
     } catch (e) {
-      setLavoro(e instanceof Error ? e.message : 'non è andata')
+      setLavoro(e instanceof Error ? e.message : tr('non è andata'))
     }
   }
 
@@ -90,48 +92,48 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
 
   return (
     <div className={s.vista}>
-      <nav className={s.percorso} aria-label="Percorso">
-        <button className={s.passo} onClick={onHome}>Materie</button>
+      <nav className={s.percorso} aria-label={tr('Percorso')}>
+        <button className={s.passo} onClick={onHome}>{tr('Materie')}</button>
         <span className={s.sbarra}>/</span>
-        <span className={s.qui}>{quaderno.nome || 'Senza nome'} · ripasso</span>
+        <span className={s.qui}>{quaderno.nome || tr('Senza nome')} · ripasso</span>
       </nav>
 
       <div className={s.scorre}>
         <div className={s.impianto} data-largo={largo || undefined}>
           <div className={s.principale}>
-            <h1 className={s.titolo}>Ripasso</h1>
+            <h1 className={s.titolo}>{tr('Ripasso')}</h1>
             <p className={s.sotto}>
-              {quaderno.nome || 'Senza nome'}
+              {quaderno.nome || tr('Senza nome')}
               {esame && <> · {esame.nome || 'Esame'} {comeDetto(esame.data)}</>}
             </p>
 
             {/* ── dove eravamo rimasti ── */}
             <section className={s.sezione}>
               <div className={s.intestazione}>
-                <h2 className={s.etichetta}>Dove eravamo rimasti</h2>
+                <h2 className={s.etichetta}>{tr('Dove eravamo rimasti')}</h2>
                 {riepilogo && lavoro !== 'riassumo' && (
                   <button className={s.azione} onClick={() => void riassumi()}>
-                    {vecchio ? 'Ci sono lezioni nuove · aggiorna' : 'Aggiorna'}
+                    {vecchio ? tr('Ci sono lezioni nuove · aggiorna') : 'Aggiorna'}
                   </button>
                 )}
               </div>
 
               {lavoro === 'riassumo' && (
-                <div className={s.attesa}><Barra /><span><Rotella /> Rileggo le ultime lezioni…</span></div>
+                <div className={s.attesa}><Barra /><span><Rotella /> {tr('Rileggo le ultime lezioni…')}</span></div>
               )}
               {lavoro !== 'fermo' && lavoro !== 'riassumo' && <p className={s.nota}>{lavoro}</p>}
 
               {!riepilogo && lavoro === 'fermo' && (
                 <div className={s.vuoto}>
-                  <p>Il punto sulle ultime due lezioni, da rileggere prima di entrare in aula.</p>
-                  <button className={s.secondario} onClick={() => void riassumi()}>Fammi il punto</button>
+                  <p>{tr('Il punto sulle ultime due lezioni, da rileggere prima di entrare in aula.')}</p>
+                  <button className={s.secondario} onClick={() => void riassumi()}>{tr('Fammi il punto')}</button>
                 </div>
               )}
 
               {riepilogo && lavoro !== 'riassumo' && riepilogo.lezioni.map((l) => (
                 <article key={l.chiave} className={s.lezione}>
                   <h3>
-                    {new Date(l.quando).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    {new Date(l.quando).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })}
                     <span className={s.pagine}>{l.pagine.join(' · ')}</span>
                   </h3>
                   <ul>{l.punti.map((p, k) => <li key={k}>{p}</li>)}</ul>
@@ -141,26 +143,25 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
           </div>
 
           {/* ── la colonna dei quiz ── */}
-          <aside className={s.lato} aria-label="Argomenti e quiz">
+          <aside className={s.lato} aria-label={tr('Argomenti e quiz')}>
             <button className={s.quizMateria} onClick={quizMateria} disabled={!ordinati?.length}>
               <Icona nome="ripasso" dimensione={14} />
               Quiz su tutta la materia
             </button>
 
             <div className={s.intestazione}>
-              <h2 className={s.etichetta}>Argomenti</h2>
+              <h2 className={s.etichetta}>{tr('Argomenti')}</h2>
               <span className={s.quanti}>
-                {argomenti === null ? 'leggo gli appunti…'
+                {argomenti === null ? tr('leggo gli appunti…')
                   : quantiDaRipassare ? `${quantiDaRipassare} da ripassare`
-                  : argomenti.length ? 'tutti ripassati' : ''}
+                  : argomenti.length ? tr('tutti ripassati') : ''}
               </span>
             </div>
 
             {ordinati === null && <div className={s.righeAttesa}><Tessere quante={4} classe={s.rigaAttesa} /></div>}
             {ordinati?.length === 0 && (
               <p className={s.nota}>
-                Ancora nessun argomento. Un <b>titolo 1</b> negli appunti apre un argomento; dopo una lezione integrata
-                l'AI propone quelli che mancano.
+                <Tr frase="Ancora nessun argomento. Un <b>titolo 1</b> negli appunti apre un argomento; dopo una lezione integrata l'AI propone quelli che mancano." />
               </p>
             )}
 
@@ -170,8 +171,8 @@ export function RipassoMateria({ quaderno, onHome }: { quaderno: Quaderno; onHom
                 const ripassare = daRipassare(esito)
                 return (
                   <li key={a.chiave} className={s.argomento}>
-                    <span className={`${s.pallino} ${ripassare ? s.daRipassare : ''}`} title={ripassare ? 'da ripassare' : 'ripassato'} />
-                    <button className={s.nomeArgomento} onClick={() => vaiA(a.documentoId, a.idTitolo ?? a.blocchi[0]?.id)} title="Apri negli appunti">
+                    <span className={`${s.pallino} ${ripassare ? s.daRipassare : ''}`} title={ripassare ? tr('da ripassare') : 'ripassato'} />
+                    <button className={s.nomeArgomento} onClick={() => vaiA(a.documentoId, a.idTitolo ?? a.blocchi[0]?.id)} title={tr('Apri negli appunti')}>
                       {a.titolo}
                     </button>
                     <button

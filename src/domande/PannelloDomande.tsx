@@ -8,6 +8,8 @@ import { quandoFa } from '../lib/quando'
 import { Rotella } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
 import s from './PannelloDomande.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  «Chiedi alla lezione»: le domande su questa pagina, con le risposte,
  *  in fila come una conversazione.
@@ -18,9 +20,9 @@ import s from './PannelloDomande.module.css'
  *  ottobre vale quanto gli appunti. */
 
 const ESEMPI = [
-  'Cosa ho perso mentre scrivevo?',
-  'Riassumimi la lezione in cinque punti',
-  'Su cosa ha insistito il professore?',
+  tr('Cosa ho perso mentre scrivevo?'),
+  tr('Riassumimi la lezione in cinque punti'),
+  tr('Su cosa ha insistito il professore?'),
 ]
 
 export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
@@ -56,7 +58,7 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
     try {
       await chiediAllaLezione(editor, doc, materia, testo)
     } catch (e) {
-      setErrore(e instanceof Error ? e.message : 'non ha risposto')
+      setErrore(e instanceof Error ? e.message : tr('non ha risposto'))
       setBozza(testo)
     }
     setInCorso(null)
@@ -72,13 +74,13 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
   return (
     <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>Chiedi alla lezione</span>
+        <span className={s.titolo}>{tr('Chiedi alla lezione')}</span>
         {domande.length > 0 && (
-          <button className={s.svuota} title="Cancella tutte le domande" onClick={() => svuotaDomande(doc)}>
+          <button className={s.svuota} title={tr('Cancella tutte le domande')} onClick={() => svuotaDomande(doc)}>
             Svuota
           </button>
         )}
-        <button className={s.chiudi} title="Chiudi  esc" aria-label="Chiudi il pannello delle domande" onClick={onChiudi}>
+        <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello delle domande')} onClick={onChiudi}>
           <Icona nome="chiudi" />
         </button>
       </header>
@@ -88,8 +90,8 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
           <div className={s.vuoto}>
             <p className={s.spiega}>
               {frasi > 0
-                ? <>Legge i tuoi appunti e le <b>{frasi}</b> frasi trascritte di questa pagina, e risponde solo con quello che c’è lì dentro.</>
-                : <>Qui non ci sono lezioni registrate: risponderà solo su quello che hai scritto tu.</>}
+                ? <Tr frase="Legge i tuoi appunti e le {frasi} frasi trascritte di questa pagina, e risponde solo con quello che c’è lì dentro." valori={{ frasi: <b>{frasi}</b> }} />
+                : tr('Qui non ci sono lezioni registrate: risponderà solo su quello che hai scritto tu.')}
             </p>
             {ESEMPI.map((e) => (
               <button key={e} className={s.esempio} onClick={() => void chiedi(e)}>{e}</button>
@@ -101,14 +103,14 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
           <article key={d.id} className={s.scambio}>
             <div className={s.domanda}>
               <p className={s.testoDomanda}>{d.domanda}</p>
-              <button className={s.togli} title="Togli questa domanda" aria-label="Togli questa domanda" onClick={() => togliDomanda(doc, d.id)}>
+              <button className={s.togli} title={tr('Togli questa domanda')} aria-label={tr('Togli questa domanda')} onClick={() => togliDomanda(doc, d.id)}>
                 <Icona nome="chiudi" dimensione={12} />
               </button>
             </div>
             <p className={s.risposta}>{d.risposta}</p>
             <p className={s.quando}>
               {quandoFa(d.quando)}
-              {d.lezioni > 0 && ` · ${d.lezioni} ${d.lezioni === 1 ? 'lezione' : 'lezioni'}`}
+              {d.lezioni > 0 && ` · ${tr('{n} lezione | {n} lezioni', { n: d.lezioni })}`}
             </p>
           </article>
         ))}
@@ -116,7 +118,7 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
         {inCorso && (
           <article className={s.scambio}>
             <div className={s.domanda}><p className={s.testoDomanda}>{inCorso}</p></div>
-            <p className={s.attesa}><Rotella /> legge la lezione…</p>
+            <p className={s.attesa}><Rotella /> {tr('legge la lezione…')}</p>
           </article>
         )}
 
@@ -130,7 +132,7 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
           className={s.campo}
           rows={2}
           value={bozza}
-          placeholder="Chiedi qualcosa su questa lezione…"
+          placeholder={tr('Chiedi qualcosa su questa lezione…')}
           disabled={!!inCorso}
           onChange={(e) => setBozza(e.target.value)}
           onKeyDown={tasti}
@@ -138,8 +140,8 @@ export function PannelloDomande({ doc, rifEditore, materia, modo, onChiudi }: {
         <button
           className={s.manda}
           disabled={!bozza.trim() || !!inCorso}
-          title="Chiedi  ↵"
-          aria-label="Chiedi"
+          title={tr('Chiedi  ↵')}
+          aria-label={tr('Chiedi')}
           onClick={() => void chiedi(bozza.trim())}
         >
           {inCorso ? <Rotella /> : <Icona nome="invio" dimensione={14} />}

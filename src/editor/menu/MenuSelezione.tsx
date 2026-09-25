@@ -11,6 +11,7 @@ import type { BloccoTesto } from '../../ripasso/argomenti'
 import { scrittaDiComando } from '../../tastiera/scorciatoie'
 import { Icona } from '../../lib/Icona'
 import s from './MenuSelezione.module.css'
+import { tr } from '../../lingua/lingua'
 
 /*  Compare solo quando selezioni del testo.
  *  È il motivo per cui in cima all'app non c'è nessuna barra
@@ -32,7 +33,7 @@ const sep = (k: string): Voce => ({
 const titolo = (n: 1 | 2 | 3): Voce => ({
   chiave: `h${n}`,
   etichetta: `H${n}`,
-  titolo: n === 1 ? 'Titolo — apre un argomento' : `Titolo di livello ${n}`,
+  titolo: n === 1 ? tr('Titolo — apre un argomento') : tr('Titolo di livello {n}', { n }),
   attivo: (e) => e.isActive('heading', { level: n }),
   azione: (e) => e.chain().focus().toggleHeading({ level: n }).run(),
 })
@@ -59,10 +60,10 @@ const VOCI: Voce[] = [
   { chiave: 'q', etichetta: '❝', titolo: 'Citazione',
     attivo: (e) => e.isActive('blockquote'),
     azione: (e) => e.chain().focus().toggleBlockquote().run() },
-  { chiave: 'ul', etichetta: '•', titolo: 'Elenco puntato',
+  { chiave: 'ul', etichetta: '•', titolo: tr('Elenco puntato'),
     attivo: (e) => e.isActive('bulletList'),
     azione: (e) => e.chain().focus().toggleBulletList().run() },
-  { chiave: 'ol', etichetta: '1.', titolo: 'Elenco numerato',
+  { chiave: 'ol', etichetta: '1.', titolo: tr('Elenco numerato'),
     attivo: (e) => e.isActive('orderedList'),
     azione: (e) => e.chain().focus().toggleOrderedList().run() },
 ]
@@ -84,7 +85,7 @@ function quizSullaSelezione(editor: Editor, documentoId: string) {
   const quadernoId = mappaDocumenti.get(documentoId)?.quadernoId
   apriQuiz({
     tipo: 'selezione',
-    titolo: 'Il passaggio selezionato',
+    titolo: tr('Il passaggio selezionato'),
     materia: (quadernoId && mappaQuaderni.get(quadernoId)?.nome) || '',
     documentoId,
     blocchi,
@@ -142,8 +143,8 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           )}
           <span className={s.separatore} />
           <button
-            title={`Colore del testo — ⌘⇧C applica ${ETICHETTE[coloreMostrato]}`}
-            aria-label="Colore del testo"
+            title={tr('Colore del testo — ⌘⇧C applica {colore}', { colore: ETICHETTE[coloreMostrato] })}
+            aria-label={tr('Colore del testo')}
             className={`${s.bottone} ${s.apriColori} ${coloreAttivo ? s.attivo : ''}`}
             onClick={() => setPannello('colori')}
           >
@@ -159,7 +160,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           <span className={s.separatore} />
           <button
             title={`Commenta  ${scrittaDiComando('commenta')}`}
-            aria-label="Commenta"
+            aria-label={tr('Commenta')}
             className={s.bottone}
             onClick={() => {
               const { from, to } = editor.state.selection
@@ -170,7 +171,7 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           </button>
           <span className={s.separatore} />
           <button
-            title="Un quiz su questo passaggio"
+            title={tr('Un quiz su questo passaggio')}
             className={`${s.bottone} ${s.quiz}`}
             onClick={() => quizSullaSelezione(editor, documentoId)}
           >
@@ -180,8 +181,8 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
       ) : (
         <>
           <button
-            title="Indietro"
-            aria-label="Indietro"
+            title={tr('Indietro')}
+            aria-label={tr('Indietro')}
             className={s.bottone}
             onClick={() => setPannello('principale')}
           >
@@ -203,8 +204,8 @@ export function MenuSelezione({ editor, documentoId }: { editor: Editor; documen
           ))}
           <span className={s.separatore} />
           <button
-            title="Togli il colore  ⌘⇧0"
-            aria-label="Togli il colore"
+            title={tr('Togli il colore  ⌘⇧0')}
+            aria-label={tr('Togli il colore')}
             className={s.bottone}
             onClick={() => {
               editor.chain().focus().scoloraTesto().run()

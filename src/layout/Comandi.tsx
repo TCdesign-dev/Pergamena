@@ -5,6 +5,7 @@ import type { Fuoco } from '../editor/Editor'
 import { useRicerca } from '../ricerca/useRicerca'
 import { normalizza } from '../lib/testo'
 import s from './Comandi.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  ⌘K: l'unico punto d'ingresso.
  *  Cerca nei titoli, poi DENTRO agli appunti, poi offre le azioni.
@@ -31,7 +32,7 @@ export function Comandi({
   const nelContenuto = useRicerca(query, documenti, quaderni)
 
   const righe = useMemo<Riga[]>(() => {
-    const nomeMateria = (id: string) => quaderni.find((q) => q.id === id)?.nome || 'Senza nome'
+    const nomeMateria = (id: string) => quaderni.find((q) => q.id === id)?.nome || tr('Senza nome')
     const q = normalizza(query.trim())
 
     const perTitolo = documenti
@@ -39,7 +40,7 @@ export function Comandi({
         tipo: 'documento' as const,
         chiave: `d-${d.id}`,
         id: d.id,
-        titolo: d.titolo || 'Senza titolo',
+        titolo: d.titolo || tr('Senza titolo'),
         materia: nomeMateria(d.quadernoId),
       }))
       .filter((r) => !q || normalizza(r.titolo).includes(q) || normalizza(r.materia).includes(q))
@@ -61,25 +62,25 @@ export function Comandi({
       ...quaderni.map((k) => ({
         tipo: 'azione' as const,
         chiave: `r-${k.id}`,
-        titolo: `Ripasso di ${k.nome || 'Senza nome'}: dove eravamo rimasti, quiz`,
+        titolo: tr('Ripasso di {nome}: dove eravamo rimasti, quiz', { nome: k.nome || tr('Senza nome') }),
         esegui: () => onRipasso(k.id),
       })),
       ...quaderni.map((k) => ({
         tipo: 'azione' as const,
         chiave: `n-${k.id}`,
-        titolo: `Nuovo documento in ${k.nome || 'Senza nome'}`,
+        titolo: tr('Nuovo documento in {nome}', { nome: k.nome || tr('Senza nome') }),
         esegui: () => onApri(creaDocumento(k.id).id, 'titolo'),
       })),
       {
         tipo: 'azione' as const,
         chiave: 'archivio',
-        titolo: 'Archivio: quanto occupa cosa, e cosa togliere',
+        titolo: tr('Archivio: quanto occupa cosa, e cosa togliere'),
         esegui: onArchivio,
       },
       {
         tipo: 'azione' as const,
         chiave: 'nuova-materia',
-        titolo: 'Nuova materia',
+        titolo: tr('Nuova materia'),
         esegui: () => onApri(creaDocumento(creaQuaderno('').id).id, 'titolo'),
       },
     ].filter((r) => !q || normalizza(r.titolo).includes(q))
@@ -109,7 +110,7 @@ export function Comandi({
           className={s.campo}
           autoFocus
           value={query}
-          placeholder="Cerca nei titoli e negli appunti, o crea…"
+          placeholder={tr('Cerca nei titoli e negli appunti, o crea…')}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') { e.preventDefault(); muovi(1) }
@@ -120,7 +121,7 @@ export function Comandi({
         />
 
         <div className={s.elenco}>
-          {righe.length === 0 && <p className={s.nulla}>Nessun risultato</p>}
+          {righe.length === 0 && <p className={s.nulla}>{tr('Nessun risultato')}</p>}
           {righe.map((r, i) => (
             <button
               key={r.chiave}

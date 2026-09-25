@@ -9,6 +9,7 @@ import { AvvisoInCorso, PallinoInCorso, usePaginaRegistrata } from '../registraz
 import { Miniatura } from './Miniatura'
 import { Icona } from '../lib/Icona'
 import s from './Home.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  La prima cosa che vedi quando non stai scrivendo: le materie, con
  *  la loro copertina. Non è una dashboard — non ci sono numeri da
@@ -19,9 +20,9 @@ import s from './Home.module.css'
 function quando(t: number) {
   const d = new Date(t)
   if (d.toDateString() === new Date().toDateString()) {
-    return `oggi, ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`
+    return tr('oggi, {ora}', { ora: d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) })
   }
-  return d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' })
+  return d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 export function Home({
@@ -53,11 +54,11 @@ export function Home({
   return (
     <div className={s.pagina}>
       <div className={s.contenuto} data-largo={largo || undefined}>
-        <h1 className={s.titolo}>Le tue materie</h1>
+        <h1 className={s.titolo}>{tr('Le tue materie')}</h1>
         <div className={s.riga}>
           <span className={s.conto}>
             {quaderni.length === 0
-              ? 'Non ce n’è ancora nessuna.'
+              ? tr('Non ce n’è ancora nessuna.')
               : `${quaderni.length} ${quaderni.length === 1 ? 'materia' : 'materie'} · ${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
           </span>
           {inRegistrazione && (
@@ -89,12 +90,12 @@ export function Home({
 
         {largo && ultime.length > 0 && (
           <>
-            <h2 className={s.etichetta}>Ultime pagine</h2>
+            <h2 className={s.etichetta}>{tr('Ultime pagine')}</h2>
             <div className={s.ultime}>
               {ultime.map((d) => (
                 <button key={d.id} className={s.ultima} onClick={() => onApri(d.id)}>
                   <span className={s.pallino} data-colore={materie.get(d.quadernoId)?.colore} />
-                  <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                  <span className={s.titoloPagina}>{d.titolo || tr('Senza titolo')}</span>
                   <PallinoInCorso documentoId={d.id} />
                   <span className={s.materia}>{materie.get(d.quadernoId)?.nome}</span>
                   <span className={s.spazio} />
@@ -130,7 +131,7 @@ function Scheda({
   const quiSiRegistra = !!registrata && pagine.some((d) => d.id === registrata)
   const esame = prossimoEsame(quaderno)
   const vicino = esame ? mancano(esame.data) <= 14 : false
-  const nome = quaderno.nome || 'Senza nome'
+  const nome = quaderno.nome || tr('Senza nome')
   const apri = () => onApri(recente ? recente.id : creaDocumento(quaderno.id, '').id)
 
   return (
@@ -144,16 +145,16 @@ function Scheda({
         {/*  Sempre visibili, non solo al passaggio del mouse: su un
          *  portatile senza mouse le azioni nascoste non esistono. */}
         <div className={s.comandi}>
-          <button className={s.comando} title="Ripasso e quiz" aria-label={`Ripasso di ${nome}`} onClick={onRipasso}>
+          <button className={s.comando} title={tr('Ripasso e quiz')} aria-label={tr('Ripasso di {nome}', { nome })} onClick={onRipasso}>
             <Icona nome="ripasso" />
           </button>
           <MenuPagina
-            etichetta={`Altre azioni su ${nome}`}
+            etichetta={tr('Altre azioni su {nome}', { nome })}
             voci={[
-              { etichetta: 'Scheda della materia', icona: 'materia', azione: onScheda },
-              { etichetta: 'Cambia copertina', icona: 'immagini', azione: onCopertina },
-              { etichetta: 'Cambia nome', icona: 'testo', azione: onRinomina },
-              { etichetta: 'Elimina la materia…', icona: 'elimina', pericolo: true, staccata: true, azione: onElimina },
+              { etichetta: tr('Scheda della materia'), icona: 'materia', azione: onScheda },
+              { etichetta: tr('Cambia copertina'), icona: 'immagini', azione: onCopertina },
+              { etichetta: tr('Cambia nome'), icona: 'testo', azione: onRinomina },
+              { etichetta: tr('Elimina la materia…'), icona: 'elimina', pericolo: true, staccata: true, azione: onElimina },
             ]}
           />
         </div>
@@ -165,7 +166,7 @@ function Scheda({
             className={s.campoNome}
             autoFocus
             defaultValue={quaderno.nome}
-            placeholder="Nome materia"
+            placeholder={tr('Nome materia')}
             onChange={(e) => rinominaQuaderno(quaderno.id, e.target.value)}
             onBlur={onFineRinomina}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur() }}
@@ -178,12 +179,12 @@ function Scheda({
         )}
         <div className={s.conteggio}>
           {quiSiRegistra
-            ? <span className={s.registra}><span className={s.pallinoRosso} />si sta registrando</span>
-            : pagine.length === 0 ? 'vuota' : `${pagine.length} ${pagine.length === 1 ? 'pagina' : 'pagine'}`}
+            ? <span className={s.registra}><span className={s.pallinoRosso} />{tr('si sta registrando')}</span>
+            : pagine.length === 0 ? tr('vuota') : tr('{n} pagina | {n} pagine', { n: pagine.length })}
         </div>
         {/* il prossimo esame: è il motivo per cui la data è un campo e non testo */}
         {esame && (
-          <button className={`${s.esame} ${vicino ? s.vicino : ''}`} onClick={onScheda} title="Apri la scheda della materia">
+          <button className={`${s.esame} ${vicino ? s.vicino : ''}`} onClick={onScheda} title={tr('Apri la scheda della materia')}>
             <Icona nome="esame" dimensione={12} />
             {esame.nome || 'Esame'} {comeDetto(esame.data)}
           </button>

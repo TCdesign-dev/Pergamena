@@ -16,6 +16,7 @@ import { soloPagine, schedaEsistente } from '../documento/archivio'
 import { prossimoEsame, comeDetto } from '../lib/esami'
 import { Miniatura } from '../layout/Miniatura'
 import s from './Telefono.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Sul telefono si consulta, non si scrive.
  *
@@ -51,7 +52,7 @@ export function Telefono() {
       <div className={s.telefono}>
         <div className={s.benvenuto}>
           <h1>Pergamena</h1>
-          <p>Entra per vedere gli appunti che hai preso sul Mac.</p>
+          <p>{tr('Entra per vedere gli appunti che hai preso sul Mac.')}</p>
         </div>
         <FinestraAccesso onChiudi={() => { /* resta finché non entra */ }} />
       </div>
@@ -61,7 +62,7 @@ export function Telefono() {
   const q = normalizza(query.trim())
   const perTitolo = q
     ? documenti.filter((d) =>
-        normalizza(d.titolo || 'Senza titolo').includes(q) ||
+        normalizza(d.titolo || tr('Senza titolo')).includes(q) ||
         normalizza(quaderni.find((k) => k.id === d.quadernoId)?.nome ?? '').includes(q),
       )
     : []
@@ -99,7 +100,7 @@ export function Telefono() {
           <input
             className={s.cerca}
             value={query}
-            placeholder="Cerca negli appunti…"
+            placeholder={tr('Cerca negli appunti…')}
             onChange={(e) => setQuery(e.target.value)}
           />
 
@@ -111,14 +112,14 @@ export function Telefono() {
                   const k = quaderni.find((x) => x.id === d.quadernoId)
                   setDove(d.scheda && k ? { vista: 'scheda', quaderno: k } : { vista: 'lettura', documento: d })
                 }}>
-                  <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
+                  <span className={s.voceTitolo}>{d.titolo || tr('Senza titolo')}</span>
                   <span className={s.voceMateria}>
-                    {quaderni.find((k) => k.id === d.quadernoId)?.nome || 'Senza nome'}
+                    {quaderni.find((k) => k.id === d.quadernoId)?.nome || tr('Senza nome')}
                   </span>
                 </button>
               ))}
               {perTitolo.length === 0 && nelContenuto.length === 0 && (
-                <p className={s.nulla}>Nessun risultato.</p>
+                <p className={s.nulla}>{tr('Nessun risultato.')}</p>
               )}
             </div>
           ) : (
@@ -133,7 +134,7 @@ export function Telefono() {
               ))}
               {quaderni.length === 0 && (
                 <p className={s.nulla}>
-                  {sync === 'allineato' ? 'Nessuna materia ancora.' : 'Sto scaricando gli appunti…'}
+                  {sync === 'allineato' ? tr('Nessuna materia ancora.') : tr('Sto scaricando gli appunti…')}
                 </p>
               )}
             </div>
@@ -143,17 +144,17 @@ export function Telefono() {
 
       {dove.vista === 'pagine' && (
         <>
-          <h1 className={s.titoloMateria}>{dove.quaderno.nome || 'Senza nome'}</h1>
+          <h1 className={s.titoloMateria}>{dove.quaderno.nome || tr('Senza nome')}</h1>
           <div className={s.elenco}>
             <button className={`${s.voce} ${s.voceScheda}`} onClick={() => setDove({ vista: 'scheda', quaderno: dove.quaderno })}>
-              <span className={s.voceTitolo}>Scheda della materia</span>
+              <span className={s.voceTitolo}>{tr('Scheda della materia')}</span>
               <span className={s.voceMateria}>
                 {(() => { const e = prossimoEsame(dove.quaderno); return e ? `${e.nome || 'esame'} ${comeDetto(e.data)}` : 'esami, docente, programma' })()}
               </span>
             </button>
             {ordina(documenti.filter((d) => d.quadernoId === dove.quaderno.id && soloPagine(d)), 'modifica').map((d) => (
               <button key={d.id} className={s.voce} onClick={() => setDove({ vista: 'lettura', documento: d })}>
-                <span className={s.voceTitolo}>{d.titolo || 'Senza titolo'}</span>
+                <span className={s.voceTitolo}>{d.titolo || tr('Senza titolo')}</span>
                 <span className={s.voceMateria}>{quando(d.modificato)}</span>
               </button>
             ))}
@@ -169,10 +170,10 @@ export function Telefono() {
         const pagina = schedaEsistente(k.id)
         // senza note libere si mostrano solo i campi: guardare non crea niente
         return pagina ? (
-          <Lettore documento={pagina} titolo={k.nome || 'Senza nome'} intestazione={<SchedaLettura quaderno={k} />} />
+          <Lettore documento={pagina} titolo={k.nome || tr('Senza nome')} intestazione={<SchedaLettura quaderno={k} />} />
         ) : (
           <article className={s.lettura}>
-            <h1 className={s.titoloPagina}>{k.nome || 'Senza nome'}</h1>
+            <h1 className={s.titoloPagina}>{k.nome || tr('Senza nome')}</h1>
             <SchedaLettura quaderno={k} />
           </article>
         )
@@ -188,7 +189,7 @@ function SchedaMateria({ quaderno, pagine, onApri }: { quaderno: Quaderno; pagin
       <span className={s.copertina} data-colore={quaderno.colore}>
         {copertina ? <Miniatura src={copertina} alt="" /> : <span>{(quaderno.nome || '?').charAt(0).toUpperCase()}</span>}
       </span>
-      <span className={s.nomeMateria}>{quaderno.nome || 'Senza nome'}</span>
+      <span className={s.nomeMateria}>{quaderno.nome || tr('Senza nome')}</span>
       <span className={s.contoPagine}>{pagine} {pagine === 1 ? 'pagina' : 'pagine'}</span>
     </button>
   )
@@ -199,5 +200,5 @@ function quando(t: number) {
   if (g < 1) return 'oggi'
   if (g === 1) return 'ieri'
   if (g < 7) return `${g} giorni fa`
-  return new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
+  return new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

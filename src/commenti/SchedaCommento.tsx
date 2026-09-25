@@ -11,6 +11,8 @@ import { bloccoDi, elementoDi, segnaTratto, testoDi, togliSegno } from './posizi
 import { quandoFa } from '../lib/quando'
 import { Icona } from '../lib/Icona'
 import s from './SchedaCommento.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  La scheda di un commento: si apre scrivendone uno nuovo sul testo
  *  selezionato (⌘⇧M o «Commenta» nel menu della selezione), oppure
@@ -167,7 +169,7 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
         onKeyDown={tasti}
         tabIndex={-1}
         role="dialog"
-        aria-label={aperta.tipo === 'nuovo' ? 'Nuovo commento' : 'Commento'}
+        aria-label={aperta.tipo === 'nuovo' ? tr('Nuovo commento') : 'Commento'}
       >
         <p className={s.citazione}>«{citazione}»</p>
 
@@ -178,15 +180,15 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
               className={s.campo}
               rows={2}
               value={bozza}
-              placeholder="Scrivi un commento…"
+              placeholder={tr('Scrivi un commento…')}
               onChange={(e) => setBozza(e.target.value)}
             />
             <div className={s.piede}>
-              <span className={s.suggerimento}><kbd className={s.tasto}>↵</kbd> salva · <kbd className={s.tasto}>⇧↵</kbd> a capo</span>
+              <span className={s.suggerimento}><Tr frase="<kbd>↵</kbd> salva · <kbd>⇧↵</kbd> a capo" classi={{ kbd: s.tasto }} /></span>
               <span className={s.azioni}>
-                <button className={s.annulla} onClick={chiudi}>Annulla</button>
+                <button className={s.annulla} onClick={chiudi}>{tr('Annulla')}</button>
                 <button className={s.principale} onClick={salva} disabled={!bozza.trim()}>
-                  {aperta.tipo === 'nuovo' ? 'Commenta' : 'Salva'}
+                  {aperta.tipo === 'nuovo' ? tr('Commenta') : tr('Salva')}
                 </button>
               </span>
             </div>
@@ -195,11 +197,11 @@ function Scheda({ editor, doc, aperta }: { editor: Editor; doc: Y.Doc; aperta: A
           <>
             <p className={s.testo}>{c.testo}</p>
             <div className={s.piede}>
-              <span className={s.data}>{quandoFa(c.modificato ?? c.quando)}{c.modificato ? ' · modificato' : ''}</span>
+              <span className={s.data}>{quandoFa(c.modificato ?? c.quando)}{c.modificato ? ` · ${tr('modificato')}` : ''}</span>
               <span className={s.azioni}>
-                <button className={s.annulla} onClick={() => { setBozza(c.testo); setScrivo(true) }}>Modifica</button>
+                <button className={s.annulla} onClick={() => { setBozza(c.testo); setScrivo(true) }}>{tr('Modifica')}</button>
                 <button className={s.risolvi} onClick={risolvi}>
-                  <Icona nome="accetta" dimensione={14} />Risolvi
+                  <Icona nome="accetta" dimensione={14} />{tr('Risolvi')}
                 </button>
               </span>
             </div>

@@ -4,6 +4,7 @@ import { apriDocumento } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
 import { estensioniLettura } from '../editor/estensioni'
 import s from './Telefono.module.css'
+import { tr } from '../lingua/lingua'
 
 export function Lettore({ documento, titolo, intestazione }: {
   documento: Documento
@@ -37,7 +38,7 @@ function Pagina({ documento, doc, titolo, intestazione }: {
 
   return (
     <article className={s.lettura}>
-      <h1 className={s.titoloPagina}>{titolo ?? (documento.titolo || 'Senza titolo')}</h1>
+      <h1 className={s.titoloPagina}>{titolo ?? (documento.titolo || tr('Senza titolo'))}</h1>
       {intestazione}
       <EditorContent editor={editor} />
     </article>

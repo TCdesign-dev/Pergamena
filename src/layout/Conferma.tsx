@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import s from './Conferma.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Il `confirm()` del browser è brutto, non si può vestire e blocca
  *  tutto. Per un'azione che cancella davvero dei dati vale la pena
@@ -42,7 +43,7 @@ export function Conferma({
         {dettaglio && <p className={s.dettaglio}>{dettaglio}</p>}
         <div className={s.piede}>
           <span className={s.azioni}>
-            <button className={s.annulla} onClick={onAnnulla}>Annulla</button>
+            <button className={s.annulla} onClick={onAnnulla}>{tr('Annulla')}</button>
             <button ref={rif} className={s.pericolo} onClick={onConferma}>{azione} <kbd className={s.tasto}>↵</kbd></button>
           </span>
         </div>

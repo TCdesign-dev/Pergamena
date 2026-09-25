@@ -3,6 +3,7 @@ import { apriDocumento } from '../documento/archivio'
 import { useRegistrazioni } from './useRegistrazioni'
 import { iscrivitiRegistrazione, leggiRegistrazione } from './statoRegistrazione'
 import s from './Striscia.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  La fascia «Ora»: quello che il professore sta dicendo, mentre lo
  *  dice. Galleggia sopra il foglio, in fondo, con una sfumatura che la
@@ -48,7 +49,7 @@ export function Striscia({ documentoId }: { documentoId: string }) {
         </span>
         <p className={s.testo}>
           {r.pausa ? (
-            <span className={s.attesa}>In pausa: il microfono non registra.</span>
+            <span className={s.attesa}>{tr('In pausa: il microfono non registra.')}</span>
           ) : sicuro || provvisorio ? (
             <>
               {spazio > 0 && <span className={s.sicuro}>{coda(sicuro, spazio)} </span>}

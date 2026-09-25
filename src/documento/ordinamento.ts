@@ -1,12 +1,13 @@
 import type { Documento } from './tipi'
+import { tr } from '../lingua/lingua'
 
 export type Ordine = 'modifica' | 'creazione' | 'titolo'
 
 export const ORDINI: Ordine[] = ['modifica', 'creazione', 'titolo']
 
 export const ETICHETTE_ORDINE: Record<Ordine, string> = {
-  modifica: 'ultima modifica',
-  creazione: 'data di creazione',
+  modifica: tr('ultima modifica'),
+  creazione: tr('data di creazione'),
   titolo: 'titolo',
 }
 
@@ -31,7 +32,7 @@ export function salvaOrdine(o: Ordine) {
  *  ridisegno. */
 export function ordina(documenti: Documento[], o: Ordine): Documento[] {
   const copia = [...documenti]
-  const titolo = (d: Documento) => d.titolo || 'Senza titolo'
+  const titolo = (d: Documento) => d.titolo || tr('Senza titolo')
 
   switch (o) {
     case 'creazione':

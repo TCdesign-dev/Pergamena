@@ -6,6 +6,7 @@ import { Miniatura } from './Miniatura'
 import { Rotella, Tessere } from './Attesa'
 import { Icona } from '../lib/Icona'
 import s from './SceltaCopertina.module.css'
+import { tr } from '../lingua/lingua'
 
 export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; onChiudi: () => void }) {
   const [query, setQuery] = useState(quaderno.nome)
@@ -44,15 +45,15 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
     <div className={s.velo} onMouseDown={onChiudi}>
       <div className={s.pannello} onMouseDown={(e) => e.stopPropagation()}>
         <header className={s.testa}>
-          <h2 className={s.titolo}>Copertina di {quaderno.nome || 'questa materia'}</h2>
-          <button className={s.chiudi} title="Chiudi" aria-label="Chiudi" onClick={onChiudi}><Icona nome="chiudi" /></button>
+          <h2 className={s.titolo}>Copertina di {quaderno.nome || tr('questa materia')}</h2>
+          <button className={s.chiudi} title={tr('Chiudi')} aria-label={tr('Chiudi')} onClick={onChiudi}><Icona nome="chiudi" /></button>
         </header>
 
         <form className={s.cerca} onSubmit={(e) => { e.preventDefault(); void cerca(query) }}>
           <input
             className={s.campo}
             value={query}
-            placeholder="Cerca su Wikimedia Commons…"
+            placeholder={tr('Cerca su Wikimedia Commons…')}
             onChange={(e) => setQuery(e.target.value)}
           />
           <button type="button" className={s.secondario} onClick={() => rifFile.current?.click()}>
@@ -69,9 +70,9 @@ export function SceltaCopertina({ quaderno, onChiudi }: { quaderno: Quaderno; on
 
         <div className={s.griglia}>
           {stato === 'cerco' && <Tessere quante={8} classe={s.tesseraAttesa} />}
-          {stato === 'salvo' && <p className={s.stato}><Rotella /> Salvo la copertina…</p>}
+          {stato === 'salvo' && <p className={s.stato}><Rotella /> {tr('Salvo la copertina…')}</p>}
           {stato === 'ferma' && risultati.length === 0 && (
-            <p className={s.stato}>Niente su Commons. Prova un altro termine, o carica un’immagine tua.</p>
+            <p className={s.stato}>{tr('Niente su Commons. Prova un altro termine, o carica un’immagine tua.')}</p>
           )}
           {risultati.map((t) => (
             <button key={t.chiave} className={s.scheda} title={`${t.autore} · ${t.licenza}`} onClick={() => void scegli(t)}>

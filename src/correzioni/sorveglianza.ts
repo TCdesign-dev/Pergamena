@@ -12,6 +12,7 @@ import { sospette } from './triage'
 import { proponi } from './proponi'
 import { aggiungiCorrezione } from './deposito'
 import { annota, contaControllo, leggiStatoCorrezioni, segnaIntoppo } from './statoCorrezioni'
+import { tr } from '../lingua/lingua'
 
 /*  Il sorvegliante: uno per ogni pagina aperta, lavora solo in quella
  *  che si sta registrando, e solo se le correzioni sono accese.
@@ -204,7 +205,7 @@ export class Sorveglianza {
       righe.forEach((x) => this.controllate.delete(x.id))
       const messaggio = e instanceof Error ? e.message : String(e)
       if (e instanceof CreditoFinito || eCreditoFinito(0, messaggio)) {
-        segnaIntoppo(registrazione, 'il credito di OpenRouter è finito', 'credito')
+        segnaIntoppo(registrazione, tr('il credito di OpenRouter è finito'), 'credito')
       } else {
         this.attesa = Math.min(this.attesa * 2, PAZIENZA_MAX)
         segnaIntoppo(registrazione, messaggio)

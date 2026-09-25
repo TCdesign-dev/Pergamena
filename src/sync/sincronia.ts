@@ -2,6 +2,7 @@ import * as Y from 'yjs'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from './cliente'
 import { segnala } from './statoSync'
+import { tr } from '../lingua/lingua'
 
 /*  Sincronizzazione di un documento Yjs attraverso Supabase.
  *
@@ -74,7 +75,7 @@ export class Sincronia {
       segnala('allineato')
     } catch (e) {
       this.viva = false
-      segnala('offline', e instanceof Error ? e.message : 'connessione fallita')
+      segnala('offline', e instanceof Error ? e.message : tr('connessione fallita'))
     }
   }
 

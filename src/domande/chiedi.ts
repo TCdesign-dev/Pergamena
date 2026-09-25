@@ -5,6 +5,7 @@ import { leggiRegistrazioni } from '../registrazione/registrazione'
 import { chiediTesto, type Messaggio } from '../lib/modello'
 import { aggiungiDomanda, domandeDi, type Domanda } from './deposito'
 import { esponi } from '../lib/dev'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Chiedere alla lezione.
  *
@@ -40,7 +41,7 @@ Regole:
 
 const tempo = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
-const giorno = (t: number) => new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })
+const giorno = (t: number) => new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })
 
 /** Gli appunti e le lezioni della pagina, come li legge il modello. */
 export function contesto(editor: Editor, doc: Y.Doc) {
@@ -76,10 +77,10 @@ export async function chiediAllaLezione(
   domanda: string,
 ): Promise<Domanda> {
   const testo = domanda.trim()
-  if (!testo) throw new Error('scrivi una domanda')
+  if (!testo) throw new Error(tr('scrivi una domanda'))
 
   const { appunti, trascrizione, lezioni } = contesto(editor, doc)
-  if (!trascrizione && !appunti) throw new Error('questa pagina è vuota: non c’è niente da chiedere')
+  if (!trascrizione && !appunti) throw new Error(tr('questa pagina è vuota: non c’è niente da chiedere'))
 
   const messaggi: Messaggio[] = [
     { role: 'system', content: SISTEMA },

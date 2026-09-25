@@ -3,6 +3,8 @@ import type { Editor } from '@tiptap/core'
 import katex from 'katex'
 import { apriFormula, iscrivitiFormula, leggiFormula, type FormulaAperta } from './statoFormula'
 import s from './EditorFormula.module.css'
+import { tr } from '../../lingua/lingua'
+import { Tr } from '../../lingua/Tr'
 
 /*  La finestrella della formula: si scrive il LaTeX e sotto si vede
  *  subito com'è. Invio conferma (nel testo; a sé serve ⌘Invio, perché
@@ -75,7 +77,7 @@ function Finestrella({ editor, formula }: { editor: Editor; formula: FormulaAper
         style={{ left: dove.left, top: dove.top }}
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog"
-        aria-label={`Formula ${formula.tipo === 'inline' ? 'nel testo' : 'a sé'}`}
+        aria-label={formula.tipo === 'inline' ? tr('Formula nel testo') : tr('Formula a sé')}
       >
         <textarea
           ref={campo}
@@ -94,12 +96,12 @@ function Finestrella({ editor, formula }: { editor: Editor; formula: FormulaAper
           className={`${s.anteprima} ${formula.tipo === 'blocco' ? s.aSe : ''}`}
           aria-live="polite"
           // katex produce HTML suo, da una formula scritta da te
-          dangerouslySetInnerHTML={{ __html: anteprima || '<span class="vuota">l’anteprima compare qui</span>' }}
+          dangerouslySetInnerHTML={{ __html: anteprima || `<span class="vuota">${tr('l’anteprima compare qui')}</span>` }}
         />
         <div className={s.piede}>
-          <span className={s.aiuto}><kbd className={s.tasto}>esc</kbd> annulla</span>
+          <span className={s.aiuto}><Tr frase="<kbd>esc</kbd> annulla" classi={{ kbd: s.tasto }} /></span>
           <span className={s.azioni}>
-            {!formula.nuova && <button className={s.elimina} onClick={elimina}>Elimina</button>}
+            {!formula.nuova && <button className={s.elimina} onClick={elimina}>{tr('Elimina')}</button>}
             <button className={s.fatto} onClick={conferma}>
               Fatto <kbd className={s.tasto}>{formula.tipo === 'inline' ? '↵' : '⌘↵'}</kbd>
             </button>

@@ -11,6 +11,8 @@ import { PallinoInCorso } from '../registrazione/InCorso'
 import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './BarraLaterale.module.css'
+import { locale, tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  La barra laterale aperta: 248 px da 900 px in su, e sopra il foglio
  *  quando la apri con ⌘\ da una finestra stretta. In alto il nome e il
@@ -60,21 +62,21 @@ export function BarraLaterale({
   const inOrdine = ordina(documenti.filter(soloPagine), ordine)
 
   return (
-    <nav className={s.barra} aria-label="Materie e pagine">
+    <nav className={s.barra} aria-label={tr('Materie e pagine')}>
       <div className={s.testa}>
         <span className={s.marchio}>Pergamena</span>
-        <button className={s.chiudi} onClick={onChiudi} aria-label={`Chiudi la barra laterale (${scrittaDiComando('barra')})`} title={`Chiudi  ${scrittaDiComando('barra')}`}>
+        <button className={s.chiudi} onClick={onChiudi} aria-label={tr('Chiudi la barra laterale ({tasti})', { tasti: scrittaDiComando('barra') })} title={tr('Chiudi  {tasti}', { tasti: scrittaDiComando('barra') })}>
           <Icona nome="barra-laterale" />
         </button>
       </div>
 
-      <button className={s.ordine} title="Cambia l’ordine delle pagine" onClick={cambiaOrdine}>
+      <button className={s.ordine} title={tr('Cambia l’ordine delle pagine')} onClick={cambiaOrdine}>
         {ETICHETTE_ORDINE[ordine]} ⇅
       </button>
 
       <button className={s.cerca} onClick={onCerca}>
         <Icona nome="cerca" dimensione={14} />
-        <span className={s.cercaTesto}>Cerca o dai un comando</span>
+        <span className={s.cercaTesto}>{tr('Cerca o dai un comando')}</span>
         <kbd className={s.tasto}>{scrittaDiComando('cerca')}</kbd>
       </button>
 
@@ -83,11 +85,11 @@ export function BarraLaterale({
         Le tue materie
       </button>
 
-      <div className={s.etichetta}>Materie</div>
+      <div className={s.etichetta}>{tr('Materie')}</div>
 
       <div className={s.elencoMaterie}>
         {quaderni.length === 0 && (
-          <p className={s.vuoto}>Nessuna materia.<br />Creane una dalla Home.</p>
+          <p className={s.vuoto}><Tr frase="Nessuna materia.<br>Creane una dalla Home." /></p>
         )}
 
         {quaderni.map((q) => {
@@ -95,7 +97,7 @@ export function BarraLaterale({
           const chiuso = chiusi.has(q.id)
           const esame = prossimoEsame(q)
           const giorni = esame ? mancano(esame.data) : null
-          const nome = q.nome || 'Senza nome'
+          const nome = q.nome || tr('Senza nome')
 
           return (
             <section key={q.id}>
@@ -113,28 +115,31 @@ export function BarraLaterale({
                 <button className={s.nome} onClick={() => piega(q.id)}>{nome}</button>
                 {/* un esame vicino si vede anche da qui, in piccolo */}
                 {giorni !== null && giorni <= 14 && (
-                  <span className={s.esameVicino} title={`${esame!.nome || 'Esame'}: ${giorni === 0 ? 'oggi' : giorni === 1 ? 'domani' : `fra ${giorni} giorni`}`}>
-                    {giorni === 0 ? 'oggi' : `${giorni}g`}
+                  <span className={s.esameVicino} title={tr('{nome}: {quando}', {
+                    nome: esame!.nome || tr('Esame'),
+                    quando: giorni === 0 ? tr('oggi') : giorni === 1 ? tr('domani') : tr('fra {n} giorno | fra {n} giorni', { n: giorni }),
+                  })}>
+                    {giorni === 0 ? tr('oggi') : tr('{n}g', { n: giorni })}
                   </span>
                 )}
                 <div className={s.azioni}>
-                  <button title="Scheda della materia: esami, docente, programma" aria-label="Scheda della materia" onClick={() => onScheda(q.id)}><Icona nome="materia" dimensione={14} /></button>
-                  <button title="Ripasso: dove eravamo rimasti, argomenti, quiz" aria-label="Ripasso" onClick={() => onRipasso(q.id)}><Icona nome="ripasso" dimensione={14} /></button>
-                  <button title="Nuova pagina" aria-label="Nuova pagina" onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}><Icona nome="nuovo" dimensione={14} /></button>
-                  <button title="Elimina la materia" aria-label="Elimina la materia" onClick={() => onEliminaMateria(q)}><Icona nome="elimina" dimensione={14} /></button>
+                  <button title={tr('Scheda della materia: esami, docente, programma')} aria-label={tr('Scheda della materia')} onClick={() => onScheda(q.id)}><Icona nome="materia" dimensione={14} /></button>
+                  <button title={tr('Ripasso: dove eravamo rimasti, argomenti, quiz')} aria-label={tr('Ripasso')} onClick={() => onRipasso(q.id)}><Icona nome="ripasso" dimensione={14} /></button>
+                  <button title={tr('Nuova pagina')} aria-label={tr('Nuova pagina')} onClick={() => onApri(creaDocumento(q.id).id, 'titolo')}><Icona nome="nuovo" dimensione={14} /></button>
+                  <button title={tr('Elimina la materia')} aria-label={tr('Elimina la materia')} onClick={() => onEliminaMateria(q)}><Icona nome="elimina" dimensione={14} /></button>
                 </div>
               </div>
 
               {!chiuso && (
                 <ul className={s.pagine}>
-                  {pagine.length === 0 && <li className={s.nessuna}>nessuna pagina</li>}
+                  {pagine.length === 0 && <li className={s.nessuna}>{tr('nessuna pagina')}</li>}
                   {pagine.map((d) => (
                     <li key={d.id} className={s.riga}>
                       <button
                         className={`${s.pagina} ${d.id === paginaInVista ? s.corrente : ''}`}
                         onClick={() => onApri(d.id, 'corpo')}
                       >
-                        <span className={s.titoloPagina}>{d.titolo || 'Senza titolo'}</span>
+                        <span className={s.titoloPagina}>{d.titolo || tr('Senza titolo')}</span>
                         <PallinoInCorso documentoId={d.id} />
                         {ordine !== 'titolo' && (
                           <span className={s.data}>
@@ -142,7 +147,7 @@ export function BarraLaterale({
                           </span>
                         )}
                       </button>
-                      <button className={s.cestino} title="Elimina la pagina" aria-label="Elimina la pagina" onClick={() => onEliminaPagina(d)}>
+                      <button className={s.cestino} title={tr('Elimina la pagina')} aria-label={tr('Elimina la pagina')} onClick={() => onEliminaPagina(d)}>
                         <Icona nome="elimina" dimensione={14} />
                       </button>
                     </li>
@@ -187,5 +192,5 @@ function quando(t: number) {
   if (ore < 24) return `${ore} h`
   const giorni = Math.floor(ore / 24)
   if (giorni < 7) return `${giorni} g`
-  return new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
+  return new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

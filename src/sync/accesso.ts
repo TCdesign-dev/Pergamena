@@ -1,5 +1,6 @@
 import type { User } from '@supabase/supabase-js'
 import { supabase, configurato } from './cliente'
+import { tr } from '../lingua/lingua'
 
 /*  Tre strade, in ordine di sensatezza per un'app personale:
  *
@@ -52,7 +53,7 @@ if (supabase) {
 }
 
 export async function entraConPassword(email: string, password: string) {
-  if (!supabase) throw new Error('Supabase non configurato')
+  if (!supabase) throw new Error(tr('Supabase non configurato'))
   const { error } = await supabase.auth.signInWithPassword({
     email: email.trim(),
     password,
@@ -61,7 +62,7 @@ export async function entraConPassword(email: string, password: string) {
 }
 
 export async function inviaCodice(email: string) {
-  if (!supabase) throw new Error('Supabase non configurato')
+  if (!supabase) throw new Error(tr('Supabase non configurato'))
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
     options: {
@@ -74,7 +75,7 @@ export async function inviaCodice(email: string) {
 }
 
 export async function verificaCodice(email: string, codice: string) {
-  if (!supabase) throw new Error('Supabase non configurato')
+  if (!supabase) throw new Error(tr('Supabase non configurato'))
   const { error } = await supabase.auth.verifyOtp({
     email: email.trim(),
     token: codice.trim(),

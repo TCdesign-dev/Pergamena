@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { entraConPassword, inviaCodice, verificaCodice } from './accesso'
 import s from './FinestraAccesso.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  La password è la strada principale: nessuna mail, nessun limite di
  *  invio, nessuna attesa. L'utente si crea una volta sola dal pannello
@@ -35,7 +36,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
         onChiudi()
       }
     } catch (err) {
-      setErrore(traduci(err instanceof Error ? err.message : 'qualcosa è andato storto'))
+      setErrore(traduci(err instanceof Error ? err.message : tr('qualcosa è andato storto')))
     } finally {
       setInCorso(false)
     }
@@ -45,14 +46,14 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
     <div className={s.velo} onMouseDown={onChiudi}>
       <form className={s.pannello} onMouseDown={(e) => e.stopPropagation()} onSubmit={prosegui}>
         <h2 className={s.titolo}>
-          {passo === 'codice' ? 'Controlla la posta' : 'Sincronizza gli appunti'}
+          {passo === 'codice' ? tr('Controlla la posta') : tr('Sincronizza gli appunti')}
         </h2>
 
         <p className={s.spiega}>
           {passo === 'password' &&
-            'Gli appunti restano su questo Mac. L’accesso serve a copiarli al sicuro e a leggerli dal telefono.'}
+            tr('Gli appunti restano su questo Mac. L’accesso serve a copiarli al sicuro e a leggerli dal telefono.')}
           {passo === 'email' &&
-            'Ti mandiamo un link (o un codice) per entrare senza password.'}
+            tr('Ti mandiamo un link (o un codice) per entrare senza password.')}
           {passo === 'codice' &&
             `Abbiamo scritto a ${email}. Clicca il link nel messaggio — torni qui già dentro. Se invece ti è arrivato un codice, scrivilo qui sotto.`}
         </p>
@@ -65,7 +66,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
             required
             autoComplete="username"
             value={email}
-            placeholder="tu@esempio.it"
+            placeholder={tr('tu@esempio.it')}
             onChange={(e) => setEmail(e.target.value)}
           />
         )}
@@ -77,7 +78,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
             required
             autoComplete="current-password"
             value={password}
-            placeholder="password"
+            placeholder={tr('password')}
             onChange={(e) => setPassword(e.target.value)}
           />
         )}
@@ -109,7 +110,7 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
             </button>
           )}
           <button type="submit" className={s.principale} disabled={inCorso}>
-            {inCorso ? '…' : passo === 'email' ? 'Mandami il link' : 'Entra'}
+            {inCorso ? '…' : passo === 'email' ? tr('Mandami il link') : 'Entra'}
           </button>
         </div>
       </form>
@@ -121,16 +122,16 @@ export function FinestraAccesso({ onChiudi }: { onChiudi: () => void }) {
 function traduci(messaggio: string) {
   const m = messaggio.toLowerCase()
   if (m.includes('rate limit') || m.includes('after') && m.includes('seconds')) {
-    return 'Troppe email richieste. Usa la password: si crea in un minuto dal pannello di Supabase, in Authentication › Users.'
+    return tr('Troppe email richieste. Usa la password: si crea in un minuto dal pannello di Supabase, in Authentication › Users.')
   }
   if (m.includes('invalid login credentials')) {
-    return 'Email o password sbagliate. Se non hai ancora una password, creala dal pannello di Supabase in Authentication › Users.'
+    return tr('Email o password sbagliate. Se non hai ancora una password, creala dal pannello di Supabase in Authentication › Users.')
   }
   if (m.includes('email not confirmed')) {
-    return 'Utente non confermato. Nel pannello di Supabase, in Authentication › Users, spunta «Auto Confirm User».'
+    return tr('Utente non confermato. Nel pannello di Supabase, in Authentication › Users, spunta «Auto Confirm User».')
   }
   if (m.includes('token has expired') || m.includes('invalid')) {
-    return 'Codice scaduto o già usato. Chiedine un altro.'
+    return tr('Codice scaduto o già usato. Chiedine un altro.')
   }
   return messaggio
 }

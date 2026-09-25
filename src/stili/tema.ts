@@ -1,13 +1,14 @@
 /*  Il tema vive su `document.documentElement[data-tema]`.
  *  `sistema` toglie l'attributo e lascia decidere a prefers-color-scheme,
  *  che è il comportamento giusto di default su macOS. */
+import { tr } from '../lingua/lingua'
 
 export type Tema = 'sistema' | 'chiaro' | 'scuro'
 
 const CHIAVE = 'pergamena:tema'
 
 export const ETICHETTE_TEMA: Record<Tema, string> = {
-  sistema: 'Tema: come il sistema',
+  sistema: tr('Tema: come il sistema'),
   chiaro: 'Tema: chiaro',
   scuro: 'Tema: scuro',
 }

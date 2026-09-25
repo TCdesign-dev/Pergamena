@@ -7,6 +7,7 @@ import { Collegamenti } from './Collegamenti'
 import { Miniatura } from '../layout/Miniatura'
 import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Copertina, nome e i pochi campi strutturati, in cima alla scheda,
  *  come le proprietà in cima a una pagina di Notion. Sotto, il testo
@@ -22,58 +23,58 @@ export function Testata({ quaderno, onCopertina }: { quaderno: Quaderno; onCoper
       {copertina ? (
         <div className={s.copertina}>
           <Miniatura src={copertina} alt="" draggable={false} />
-          <button className={s.cambiaCopertina} onClick={onCopertina}>Cambia copertina</button>
+          <button className={s.cambiaCopertina} onClick={onCopertina}>{tr('Cambia copertina')}</button>
         </div>
       ) : (
-        <button className={s.aggiungiCopertina} onClick={onCopertina}><Icona nome="nuovo" dimensione={14} /> Aggiungi una copertina</button>
+        <button className={s.aggiungiCopertina} onClick={onCopertina}><Icona nome="nuovo" dimensione={14} /> {tr('Aggiungi una copertina')}</button>
       )}
 
       <input
         className={s.nome}
         value={quaderno.nome}
-        placeholder="Nome della materia"
+        placeholder={tr('Nome della materia')}
         onChange={(e) => rinominaQuaderno(quaderno.id, e.target.value)}
       />
 
       <dl className={s.campi}>
-        <dt>Esami</dt>
+        <dt>{tr('Esami')}</dt>
         <dd><Esami quaderno={quaderno} nuovo={nuovo} onNuovo={setNuovo} /></dd>
 
-        <dt>Docente</dt>
+        <dt>{tr('Docente')}</dt>
         <dd>
           <input
             className={s.campo}
             value={quaderno.docente ?? ''}
-            placeholder="Vuoto"
+            placeholder={tr('Vuoto')}
             onChange={(e) => aggiornaQuaderno(quaderno.id, { docente: e.target.value })}
           />
         </dd>
 
-        <dt>Email</dt>
+        <dt>{tr('Email')}</dt>
         <dd className={s.conAzione}>
           <input
             className={s.campo}
             type="email"
             value={quaderno.email ?? ''}
-            placeholder="Vuoto"
+            placeholder={tr('Vuoto')}
             onChange={(e) => aggiornaQuaderno(quaderno.id, { email: e.target.value })}
           />
           {emailValida && (
-            <a className={s.apri} href={`mailto:${quaderno.email}`} title="Scrivi una email" aria-label="Scrivi una email"><Icona nome="apri-fuori" dimensione={14} /></a>
+            <a className={s.apri} href={`mailto:${quaderno.email}`} title={tr('Scrivi una email')} aria-label={tr('Scrivi una email')}><Icona nome="apri-fuori" dimensione={14} /></a>
           )}
         </dd>
 
-        <dt>Ricevimento</dt>
+        <dt>{tr('Ricevimento')}</dt>
         <dd>
           <input
             className={s.campo}
             value={quaderno.ricevimento ?? ''}
-            placeholder="Vuoto"
+            placeholder={tr('Vuoto')}
             onChange={(e) => aggiornaQuaderno(quaderno.id, { ricevimento: e.target.value })}
           />
         </dd>
 
-        <dt>Link</dt>
+        <dt>{tr('Link')}</dt>
         <dd><Collegamenti quaderno={quaderno} nuovo={nuovo} onNuovo={setNuovo} /></dd>
       </dl>
 

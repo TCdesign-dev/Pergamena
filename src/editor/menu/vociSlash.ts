@@ -2,6 +2,7 @@ import type { Editor, Range } from '@tiptap/core'
 import { normalizza } from '../../lib/testo'
 import { nuovaFormula } from '../estensioni/formule'
 import type { NomeIcona } from '../../lib/Icona'
+import { tr } from '../../lingua/lingua'
 
 export type VoceSlash = {
   chiave: string
@@ -24,17 +25,17 @@ export const VOCI_SLASH: VoceSlash[] = [
     azione: (e, r) => c(e, r).setNode('heading', { level: 2 }).run() },
   { chiave: 'h3', nome: 'Titolo 3', suggerimento: '###', icona: 'H₃', parole: ['titolo'],
     azione: (e, r) => c(e, r).setNode('heading', { level: 3 }).run() },
-  { chiave: 'ul', nome: 'Elenco puntato', suggerimento: '-', icona: '•', parole: ['lista', 'punti'],
+  { chiave: 'ul', nome: tr('Elenco puntato'), suggerimento: '-', icona: '•', parole: ['lista', 'punti'],
     azione: (e, r) => c(e, r).toggleBulletList().run() },
-  { chiave: 'ol', nome: 'Elenco numerato', suggerimento: '1.', icona: '1.', parole: ['lista', 'numeri'],
+  { chiave: 'ol', nome: tr('Elenco numerato'), suggerimento: '1.', icona: '1.', parole: ['lista', 'numeri'],
     azione: (e, r) => c(e, r).toggleOrderedList().run() },
   { chiave: 'quote', nome: 'Citazione', suggerimento: '>', icona: '❝', parole: ['blocco', 'virgolette'],
     azione: (e, r) => c(e, r).toggleBlockquote().run() },
-  { chiave: 'code', nome: 'Blocco di codice', suggerimento: '```', icona: '‹›', parole: ['codice', 'formula'],
+  { chiave: 'code', nome: tr('Blocco di codice'), suggerimento: '```', icona: '‹›', parole: ['codice', 'formula'],
     azione: (e, r) => c(e, r).toggleCodeBlock().run() },
   { chiave: 'formula', nome: 'Formula', suggerimento: '$$$', icona: { svg: 'formula' }, parole: ['latex', 'math', 'matematica', 'equazione'],
     azione: (e, r) => { c(e, r).run(); nuovaFormula(e, 'blocco') } },
-  { chiave: 'fx', nome: 'Formula nel testo', suggerimento: '$$', icona: { svg: 'formula' }, parole: ['latex', 'math', 'inline', 'equazione'],
+  { chiave: 'fx', nome: tr('Formula nel testo'), suggerimento: '$$', icona: { svg: 'formula' }, parole: ['latex', 'math', 'inline', 'equazione'],
     azione: (e, r) => { c(e, r).run(); nuovaFormula(e, 'inline') } },
   { chiave: 'hr', nome: 'Separatore', suggerimento: '---', icona: '—', parole: ['riga', 'linea', 'divisore'],
     azione: (e, r) => c(e, r).setHorizontalRule().run() },

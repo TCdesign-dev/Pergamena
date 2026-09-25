@@ -1,5 +1,6 @@
 import { esponi } from './dev'
 import { intestazioniChiavi } from '../chiavi'
+import { tr } from '../lingua/lingua'
 
 /*  Le chiamate al modello che devono rispondere in JSON.
  *
@@ -66,9 +67,9 @@ export async function chiediJson(compito: Compito, messaggi: Messaggio[], opzion
     const json = leggi(grezzo)
     if (json) return { json, costo }
 
-    motivo = scelta?.finish_reason === 'length' ? 'si è interrotto a metà risposta'
-      : grezzo.trim() ? 'ha risposto in un formato illeggibile'
-      : 'ha risposto vuoto'
+    motivo = scelta?.finish_reason === 'length' ? tr('si è interrotto a metà risposta')
+      : grezzo.trim() ? tr('ha risposto in un formato illeggibile')
+      : tr('ha risposto vuoto')
     ultimaIlleggibile = { compito, motivo, testo: grezzo.slice(0, 4000) }
     console.warn(`[modello] ${compito}: ${motivo} (tentativo ${tentativo})`, grezzo.slice(0, 500))
   }
@@ -94,7 +95,7 @@ export async function chiediTesto(compito: Compito, messaggi: Messaggio[], opzio
   const dati = await r.json().catch(() => ({}))
   if (!r.ok || dati.error) throw new Error(dati.error?.message ?? dati.errore ?? `il modello non risponde (${r.status})`)
   const testo = String(dati.choices?.[0]?.message?.content ?? '').trim()
-  if (!testo) throw new Error('il modello ha risposto vuoto. Riprova.')
+  if (!testo) throw new Error(tr('il modello ha risposto vuoto. Riprova.'))
   return { testo, costo: Number(dati.usage?.cost) || 0 }
 }
 

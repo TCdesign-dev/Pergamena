@@ -1,4 +1,5 @@
 import s from './Attesa.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  I segni dell'attesa, uguali in tutta l'app.
  *
@@ -15,7 +16,7 @@ export function Rotella() {
 }
 
 export function Barra() {
-  return <span className={s.barra} role="progressbar" aria-label="In corso" />
+  return <span className={s.barra} role="progressbar" aria-label={tr('In corso')} />
 }
 
 export function Tessere({ quante, classe }: { quante: number; classe?: string }) {

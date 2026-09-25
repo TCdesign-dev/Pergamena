@@ -12,6 +12,8 @@ import {
 import { useStretto } from './larghezza'
 import { Icona, type NomeIcona } from '../lib/Icona'
 import s from './Impostazioni.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  Le Impostazioni: una finestra sopra tutto, su --velo. Si aprono con
  *  ⌘, dalla rotaia, dalla barra laterale e dal piede del pannello
@@ -62,7 +64,7 @@ function Finestra({ sezione, microfono, onArchivio }: { sezione: Sezione; microf
   const chiudi = (
     <>
       <kbd className={s.tasto}>esc</kbd>
-      <button className={s.chiudi} title="Chiudi  esc" aria-label="Chiudi le impostazioni" onClick={chiudiImpostazioni}>
+      <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi le impostazioni')} onClick={chiudiImpostazioni}>
         <Icona nome="chiudi" />
       </button>
     </>
@@ -75,14 +77,14 @@ function Finestra({ sezione, microfono, onArchivio }: { sezione: Sezione; microf
         className={`${s.finestra} ${stretta ? s.stretta : s.larga}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Impostazioni"
+        aria-label={tr('Impostazioni')}
         tabIndex={-1}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {stretta ? (
           <>
             <header className={s.testa}>
-              <span className={s.nome}>Impostazioni</span>
+              <span className={s.nome}>{tr('Impostazioni')}</span>
               {chiudi}
             </header>
             <div className={s.colonna}>
@@ -96,8 +98,8 @@ function Finestra({ sezione, microfono, onArchivio }: { sezione: Sezione; microf
           </>
         ) : (
           <>
-            <nav className={s.sezioni} aria-label="Sezioni">
-              <span className={s.nome}>Impostazioni</span>
+            <nav className={s.sezioni} aria-label={tr('Sezioni')}>
+              <span className={s.nome}>{tr('Impostazioni')}</span>
               {SEZIONI.map((x) => (
                 <button
                   key={x.id}
@@ -139,8 +141,8 @@ function Contenuto({ sezione, stretta, microfono, onArchivio }: {
     case 'tastiera': return <Tastiera stretta={stretta} />
     case 'archivio':
       return (
-        <Riga titolo="Archivio" spiega="Quanto occupano materie, pagine e lezioni, e cosa togliere per fare spazio.">
-          <button className={s.secondario} onClick={onArchivio}>Apri l’archivio</button>
+        <Riga titolo={tr('Archivio')} spiega={tr('Quanto occupano materie, pagine e lezioni, e cosa togliere per fare spazio.')}>
+          <button className={s.secondario} onClick={onArchivio}>{tr('Apri l’archivio')}</button>
         </Riga>
       )
   }
@@ -184,8 +186,8 @@ const TEMI: { id: Tema; nome: string; icona: NomeIcona }[] = [
 function Aspetto() {
   const [tema, setTema] = useState<Tema>(leggiTema)
   return (
-    <Riga titolo="Tema">
-      <div className={s.segmenti} role="radiogroup" aria-label="Tema">
+    <Riga titolo={tr('Tema')}>
+      <div className={s.segmenti} role="radiogroup" aria-label={tr('Tema')}>
         {TEMI.map((t) => (
           <button
             key={t.id}
@@ -223,8 +225,11 @@ function Integratore() {
   return (
     <>
       <Riga
-        titolo="Le istruzioni per l’integratore"
-        spiega={<>Sono la prima cosa che il modello legge, prima dei tuoi appunti e della trascrizione. <code>{'{massimo}'}</code> diventa il numero massimo di proposte: 8 per una lezione, 16 per tutte insieme.</>}
+        titolo={tr('Le istruzioni per l’integratore')}
+        spiega={<Tr
+          frase="Sono la prima cosa che il modello legge, prima dei tuoi appunti e della trascrizione. {segnaposto} diventa il numero massimo di proposte: 8 per una lezione, 16 per tutte insieme."
+          valori={{ segnaposto: <code>{'{massimo}'}</code> }}
+        />}
       />
       <textarea
         className={s.prompt}
@@ -232,18 +237,18 @@ function Integratore() {
         spellCheck={false}
         onChange={(e) => setBozza(e.target.value)}
         onBlur={salva}
-        aria-label="Le istruzioni per l’integratore"
+        aria-label={tr('Le istruzioni per l’integratore')}
       />
       <div className={s.sottoPrompt}>
         <span className={s.nota}>
-          {suo ? 'Stai usando istruzioni tue.' : 'Stai usando le istruzioni di serie.'}
+          {suo ? tr('Stai usando istruzioni tue.') : tr('Stai usando le istruzioni di serie.')}
           {' '}Dopo, il programma aggiunge sempre titoli, immagini e formato della risposta.
         </span>
         <span className={s.tastiPrompt}>
           <button className={s.secondario} disabled={diSerie} onClick={() => { setBozza(ISTRUZIONI_DI_SERIE); imposta('promptMerge', null) }}>
             Ripristina
           </button>
-          <button className={s.principale} disabled={!cambiato} onClick={salva}>Salva</button>
+          <button className={s.principale} disabled={!cambiato} onClick={salva}>{tr('Salva')}</button>
         </span>
       </div>
     </>
@@ -277,7 +282,7 @@ function CampoChiave({ nome, titolo, spiega, dalFile = false, tipo = 'password',
           disabled={dalFile}
           spellCheck={false}
           autoComplete="off"
-          placeholder={dalFile ? 'c’è già nel .env.local' : 'incolla qui'}
+          placeholder={dalFile ? tr('c’è già nel .env.local') : tr('incolla qui')}
           aria-label={titolo}
           onChange={(e) => impostaChiave(nome, e.target.value)}
         />
@@ -312,7 +317,7 @@ function Chiavi() {
         setProva(`la chiave risponde${soldi}`)
       }
     } catch {
-      setProva('il server locale non risponde')
+      setProva(tr('il server locale non risponde'))
     }
     setInProva(false)
   }
@@ -321,35 +326,35 @@ function Chiavi() {
     <>
       <CampoChiave
         nome="openrouter"
-        titolo="OpenRouter"
+        titolo={tr('OpenRouter')}
         dalFile={dalFile}
-        spiega={<>Serve all’integratore, ai quiz e alle correzioni in diretta. Si prende su <code>openrouter.ai/keys</code>: qualche centesimo al mese ai ritmi di una persona che studia.</>}
+        spiega={<Tr frase="Serve all’integratore, ai quiz e alle correzioni in diretta. Si prende su <code>openrouter.ai/keys</code>: qualche centesimo al mese ai ritmi di una persona che studia." />}
       >
         <button className={s.secondario} disabled={inProva || (!dalFile && !chiavi.openrouter)} onClick={() => void provaChiave()}>
-          {inProva ? 'Provo…' : 'Prova'}
+          {inProva ? tr('Provo…') : 'Prova'}
         </button>
       </CampoChiave>
       {prova && <p className={s.esitoChiave}>{prova}</p>}
 
       <CampoChiave
         nome="serper"
-        titolo="Serper (facoltativa)"
-        spiega={<>Dà le immagini di Google al posto di Openverse. Senza, le immagini arrivano lo stesso da Wikipedia e Commons.</>}
+        titolo={tr('Serper (facoltativa)')}
+        spiega={tr('Dà le immagini di Google al posto di Openverse. Senza, le immagini arrivano lo stesso da Wikipedia e Commons.')}
       />
 
       <CampoChiave
         nome="supabaseUrl"
-        titolo="Supabase — indirizzo (facoltativo)"
+        titolo={tr('Supabase — indirizzo (facoltativo)')}
         tipo="text"
-        spiega={<>Per sincronizzare Mac e telefono. Finisce per <code>.supabase.co</code>.</>}
+        spiega={<Tr frase="Per sincronizzare Mac e telefono. Finisce per <code>.supabase.co</code>." />}
       />
       <CampoChiave
         nome="supabaseAnon"
-        titolo="Supabase — chiave pubblica"
-        spiega={<>Quella con l’etichetta <b>anon public</b>. Non la <b>service_role</b>: quella scavalca ogni regola di accesso e qui non avrebbe dove stare al sicuro.</>}
+        titolo={tr('Supabase — chiave pubblica')}
+        spiega={<Tr frase="Quella con l’etichetta <b>anon public</b>. Non la <b>service_role</b>: quella scavalca ogni regola di accesso e qui non avrebbe dove stare al sicuro." />}
       />
       <p className={s.esitoChiave}>
-        Le chiavi restano su questo computer e vanno solo al server locale. Supabase entra in funzione al prossimo caricamento della pagina.
+        {tr('Le chiavi restano su questo computer e vanno solo al server locale. Supabase entra in funzione al prossimo caricamento della pagina.')}
       </p>
     </>
   )
@@ -380,11 +385,11 @@ function Registrazione({ suMicrofono }: { suMicrofono: boolean }) {
 
   return (
     <>
-      <Riga titolo="Microfono" spiega="Quello che usi in aula. Vale dalla prossima registrazione.">
+      <Riga titolo={tr('Microfono')} spiega={tr('Quello che usi in aula. Vale dalla prossima registrazione.')}>
         <span className={s.tendina}>
           <select
             ref={rifMicrofono}
-            aria-label="Microfono"
+            aria-label={tr('Microfono')}
             value={impostazioni.microfono ?? ''}
             onChange={(e) => imposta('microfono', e.target.value || null)}
           >
@@ -398,15 +403,15 @@ function Registrazione({ suMicrofono }: { suMicrofono: boolean }) {
         </span>
       </Riga>
       <Riga
-        titolo="Correzioni in diretta"
-        spiega="Mentre registri, un pallino a margine quando una data, un numero o un nome non torna con quello che ha detto il professore."
+        titolo={tr('Correzioni in diretta')}
+        spiega={tr('Mentre registri, un pallino a margine quando una data, un numero o un nome non torna con quello che ha detto il professore.')}
       >
-        <Interruttore etichetta="Correzioni in diretta" acceso={impostazioni.correzioniInDiretta} onCambia={(v) => imposta('correzioniInDiretta', v)} />
+        <Interruttore etichetta={tr('Correzioni in diretta')} acceso={impostazioni.correzioniInDiretta} onCambia={(v) => imposta('correzioniInDiretta', v)} />
       </Riga>
-      <Riga titolo="Tieni anche l’audio" spiega="Circa 17 MB per ogni ora di lezione. Senza, resta solo la trascrizione.">
-        <Interruttore etichetta="Tieni anche l’audio" acceso={impostazioni.salvaAudio} onCambia={(v) => imposta('salvaAudio', v)} />
+      <Riga titolo={tr('Tieni anche l’audio')} spiega={tr('Circa 17 MB per ogni ora di lezione. Senza, resta solo la trascrizione.')}>
+        <Interruttore etichetta={tr('Tieni anche l’audio')} acceso={impostazioni.salvaAudio} onCambia={(v) => imposta('salvaAudio', v)} />
       </Riga>
-      <Riga titolo="Scorciatoia per registrare">
+      <Riga titolo={tr('Scorciatoia per registrare')}>
         <kbd className={s.tastoGrande}>⌘R</kbd>
       </Riga>
     </>
@@ -419,15 +424,15 @@ function Immagini() {
   return (
     <>
       <Riga
-        titolo="Cerca anche sul web"
+        titolo={tr('Cerca anche sul web')}
         spiega={web
-          ? 'Oltre a Wikimedia Commons, immagini libere dal web, con la licenza su ognuna.'
-          : 'Le immagini arrivano solo da Wikimedia Commons, con la licenza su ognuna.'}
+          ? tr('Oltre a Wikimedia Commons, immagini libere dal web, con la licenza su ognuna.')
+          : tr('Le immagini arrivano solo da Wikimedia Commons, con la licenza su ognuna.')}
       >
-        <Interruttore etichetta="Cerca anche sul web" acceso={web} onCambia={(v) => imposta('fonteImmagini', v ? 'web' : 'commons')} />
+        <Interruttore etichetta={tr('Cerca anche sul web')} acceso={web} onCambia={(v) => imposta('fonteImmagini', v ? 'web' : 'commons')} />
       </Riga>
-      <Riga titolo="Cerca mentre scrivi" spiega={<>Scrivi <code>!Basilica di Superga!</code> negli appunti e la ricerca parte da sola, nel pannello Immagini.</>}>
-        <Interruttore etichetta="Cerca mentre scrivi" acceso={impostazioni.sintassiImmagini} onCambia={(v) => imposta('sintassiImmagini', v)} />
+      <Riga titolo={tr('Cerca mentre scrivi')} spiega={<>Scrivi <code>!Basilica di Superga!</code> negli appunti e la ricerca parte da sola, nel pannello Immagini.</>}>
+        <Interruttore etichetta={tr('Cerca mentre scrivi')} acceso={impostazioni.sintassiImmagini} onCambia={(v) => imposta('sintassiImmagini', v)} />
       </Riga>
     </>
   )
@@ -437,13 +442,13 @@ function Immagini() {
  *  e i tasti della revisione, dove una lettera riassegnata male
  *  vorrebbe dire non riuscire più a scrivere. */
 const FISSE: [string, string][] = [
-  ['/', 'Menu dei blocchi, in una riga vuota'],
-  ['$$…$$', 'Formula nel testo'],
-  ['!…!', 'Cerca un’immagine'],
-  ['⌥⌘↓  ⌥⌘↑', 'Segnalazione dopo, e prima'],
-  ['J  K', 'Proposta dopo, e prima (in revisione)'],
-  ['↵  X', 'Accetta, rifiuta (in revisione)'],
-  ['esc', 'Chiude menu e finestre'],
+  ['/', tr('Menu dei blocchi, in una riga vuota')],
+  ['$$…$$', tr('Formula nel testo')],
+  ['!…!', tr('Cerca un’immagine')],
+  ['⌥⌘↓  ⌥⌘↑', tr('Segnalazione dopo, e prima')],
+  ['J  K', tr('Proposta dopo, e prima (in revisione)')],
+  ['↵  X', tr('Accetta, rifiuta (in revisione)')],
+  ['esc', tr('Chiude menu e finestre')],
 ]
 
 /*  Le scorciatoie si registrano premendole: il campo ascolta il tasto
@@ -489,7 +494,7 @@ function Tastiera({ stretta }: { stretta: boolean }) {
               aria-label={`Cambia la scorciatoia di ${c.nome}`}
               onClick={() => { setAvviso(null); setInAscolto(inAscolto === c.id ? null : c.id) }}
             >
-              {inAscolto === c.id ? 'premi i tasti…' : scrittaDi(combinazioneDi(c.id))}
+              {inAscolto === c.id ? tr('premi i tasti…') : scrittaDi(combinazioneDi(c.id))}
             </button>
           </dd>
         </div>
@@ -500,25 +505,25 @@ function Tastiera({ stretta }: { stretta: boolean }) {
   return (
     <>
       <Riga
-        titolo="Le scorciatoie"
+        titolo={tr('Le scorciatoie')}
         spiega={inAscolto
-          ? <>Premi la combinazione. <b>esc</b> lascia com’era, <b>⌫</b> rimette quella di serie.</>
-          : <>Clicca una combinazione per cambiarla. Ci vuole almeno ⌘, ⌥ o ⌃: una lettera da sola servirebbe a scrivere.</>}
+          ? <Tr frase="Premi la combinazione. <b>esc</b> lascia com’era, <b>⌫</b> rimette quella di serie." />
+          : tr('Clicca una combinazione per cambiarla. Ci vuole almeno ⌘, ⌥ o ⌃: una lettera da sola servirebbe a scrivere.')}
       >
         {cambiate > 0 && (
           <button className={s.secondario} onClick={() => { azzeraScorciatoie(); setInAscolto(null); setAvviso(null) }}>
-            Ripristina tutte
+            {tr('Ripristina tutte')}
           </button>
         )}
       </Riga>
       {avviso && <p className={s.avvisoTasti}>{avviso}</p>}
 
-      <h3 className={s.gruppoTasti}>Nell’app</h3>
+      <h3 className={s.gruppoTasti}>{tr('Nell’app')}</h3>
       {gruppo('app')}
-      <h3 className={s.gruppoTasti}>Nel foglio</h3>
+      <h3 className={s.gruppoTasti}>{tr('Nel foglio')}</h3>
       {gruppo('editor')}
 
-      <Riga titolo="Quelle che non si cambiano" spiega="Sintassi che scrivi, e i tasti della revisione.">
+      <Riga titolo={tr('Quelle che non si cambiano')} spiega={tr('Sintassi che scrivi, e i tasti della revisione.')}>
         <button className={s.secondario} aria-expanded={mostraFisse} onClick={() => setMostraFisse((v) => !v)}>
           <Icona nome="tastiera" dimensione={14} />
           {mostraFisse ? 'Nascondi' : 'Mostra'}

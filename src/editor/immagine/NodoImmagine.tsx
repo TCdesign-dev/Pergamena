@@ -3,11 +3,12 @@ import { NodeViewWrapper, type NodeViewProps } from '@tiptap/react'
 import { urlDi } from '../../immagini/deposito'
 import { Miniatura } from '../../layout/Miniatura'
 import s from './NodoImmagine.module.css'
+import { tr } from '../../lingua/lingua'
 
 const ALLINEAMENTI = [
-  { chiave: 'piena', segno: '▭', titolo: 'Larghezza piena' },
-  { chiave: 'sinistra', segno: '◧', titolo: 'A sinistra, il testo le scorre accanto' },
-  { chiave: 'destra', segno: '◨', titolo: 'A destra, il testo le scorre accanto' },
+  { chiave: 'piena', segno: '▭', titolo: tr('Larghezza piena') },
+  { chiave: 'sinistra', segno: '◧', titolo: tr('A sinistra, il testo le scorre accanto') },
+  { chiave: 'destra', segno: '◨', titolo: tr('A destra, il testo le scorre accanto') },
 ] as const
 
 export function NodoImmagine({ node, updateAttributes, selected, editor }: NodeViewProps) {
@@ -71,12 +72,12 @@ export function NodoImmagine({ node, updateAttributes, selected, editor }: NodeV
         ) : cerco ? (
           <div className={s.arriva} aria-busy />
         ) : (
-          <div className={s.assente}>immagine non trovata nel deposito</div>
+          <div className={s.assente}>{tr('immagine non trovata nel deposito')}</div>
         )}
 
         {editor.isEditable && (
           <>
-            <span className={s.maniglia} onPointerDown={ridimensiona} title="Trascina per ridimensionare" />
+            <span className={s.maniglia} onPointerDown={ridimensiona} title={tr('Trascina per ridimensionare')} />
             <div className={s.comandi} contentEditable={false}>
               {ALLINEAMENTI.map((a) => (
                 <button
@@ -88,7 +89,7 @@ export function NodoImmagine({ node, updateAttributes, selected, editor }: NodeV
                   {a.segno}
                 </button>
               ))}
-              <button title="Larghezza originale" onClick={() => updateAttributes({ larghezza: 100 })}>
+              <button title={tr('Larghezza originale')} onClick={() => updateAttributes({ larghezza: 100 })}>
                 ⤢
               </button>
             </div>

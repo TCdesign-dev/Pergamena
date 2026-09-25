@@ -14,6 +14,8 @@ import { Miniatura } from './Miniatura'
 import { Rotella, Tessere } from './Attesa'
 import { Icona } from '../lib/Icona'
 import s from './PannelloImmagini.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  Due schede, perché sono due cose diverse.
  *
@@ -38,8 +40,8 @@ export function PannelloImmagini({ rifEditore, doc, materia }: {
   return (
     <div className={s.pannello}>
       <header className={s.testa}>
-        <span className={s.titolo}>Immagini</span>
-        <button className={s.chiudi} title="Chiudi  ⌘/" aria-label="Chiudi il pannello" onClick={() => apriPannello(false)}><Icona nome="chiudi" /></button>
+        <span className={s.titolo}>{tr('Immagini')}</span>
+        <button className={s.chiudi} title={tr('Chiudi  ⌘/')} aria-label={tr('Chiudi il pannello')} onClick={() => apriPannello(false)}><Icona nome="chiudi" /></button>
       </header>
 
       <div className={s.schede} role="tablist">
@@ -77,9 +79,9 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
     setLavoro('leggo gli appunti…')
     try {
       const n = await suggerisci(editor, doc, materia)
-      setLavoro(n ? null : 'Nessun concetto ha bisogno di un’immagine.')
+      setLavoro(n ? null : tr('Nessun concetto ha bisogno di un’immagine.'))
     } catch (e) {
-      setLavoro(e instanceof Error ? e.message : 'non è andata')
+      setLavoro(e instanceof Error ? e.message : tr('non è andata'))
     }
   }
 
@@ -116,12 +118,9 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
     <div className={s.scorrevole}>
       {consigli.length === 0 && (
         <div className={s.vuoto}>
-          <p>
-            Qui arrivano le immagini che servono ai concetti dei tuoi appunti.
-            Dopo una lezione integrata compaiono da sole; per questa pagina puoi chiederle adesso.
-          </p>
+          <p>{tr('Qui arrivano le immagini che servono ai concetti dei tuoi appunti. Dopo una lezione integrata compaiono da sole; per questa pagina puoi chiederle adesso.')}</p>
           <button className={s.suggerisci} onClick={() => void chiediConsigli()} disabled={lavoro === 'leggo gli appunti…'}>
-            {lavoro === 'leggo gli appunti…' ? <><Rotella /> Leggo gli appunti…</> : 'Suggerisci immagini'}
+            {lavoro === 'leggo gli appunti…' ? <><Rotella /> {tr('Leggo gli appunti…')}</> : tr('Suggerisci immagini')}
           </button>
           {lavoro && lavoro !== 'leggo gli appunti…' && <p className={s.stato}>{lavoro}</p>}
         </div>
@@ -130,7 +129,7 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
       {consigli.map((c) => c.id === espanso ? (
         <article key={c.id} className={s.consiglio}>
           <h3 className={s.concetto}>{c.concetto}</h3>
-          <button className={s.citazione} title="Vai al passo negli appunti" onClick={() => vaiAlPasso(c.blocco)}>
+          <button className={s.citazione} title={tr('Vai al passo negli appunti')} onClick={() => vaiAlPasso(c.blocco)}>
             ↩︎ «{c.citazione}»
           </button>
           <button
@@ -149,15 +148,15 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
           {c.risultati.length > 1 && (
             <div className={s.alternative}>
               {c.risultati.slice(1, 4).map((t, i) => (
-                <button key={t.chiave} title="Usa questa" onClick={() => scegliFoto(doc, c.id, i + 1)}>
+                <button key={t.chiave} title={tr('Usa questa')} onClick={() => scegliFoto(doc, c.id, i + 1)}>
                   <Miniatura src={t.miniatura} alt="" loading="lazy" draggable={false} />
                 </button>
               ))}
             </div>
           )}
           <div className={s.azioniConsiglio}>
-            <button className={s.metti} onClick={() => void metti(c)}>Metti sotto il paragrafo</button>
-            <button className={s.nonServe} onClick={() => cambiaStato(doc, c.id, 'scartato')}>Non serve</button>
+            <button className={s.metti} onClick={() => void metti(c)}>{tr('Metti sotto il paragrafo')}</button>
+            <button className={s.nonServe} onClick={() => cambiaStato(doc, c.id, 'scartato')}>{tr('Non serve')}</button>
           </div>
         </article>
       ) : (
@@ -169,7 +168,7 @@ function Consigliate({ consigli, doc, rifEditore, materia }: {
 
       {consigli.length > 0 && consigli.length < 5 && (
         <button className={s.ancora} onClick={() => void chiediConsigli()} disabled={lavoro === 'leggo gli appunti…'}>
-          {lavoro === 'leggo gli appunti…' ? <><Rotella /> Leggo gli appunti…</> : 'Suggerisci altre'}
+          {lavoro === 'leggo gli appunti…' ? <><Rotella /> {tr('Leggo gli appunti…')}</> : tr('Suggerisci altre')}
         </button>
       )}
     </div>
@@ -191,7 +190,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
   return (
     <>
       {/* il web trova quasi tutto; Commons ha licenze pulite e schede d'autore */}
-      <div className={s.fonti} role="radiogroup" aria-label="Dove cercare">
+      <div className={s.fonti} role="radiogroup" aria-label={tr('Dove cercare')}>
         {(['web', 'commons'] as const).map((f) => (
           <button
             key={f}
@@ -209,7 +208,7 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
         <input
           className={s.campo}
           value={query}
-          placeholder={impostazioni.fonteImmagini === 'web' ? 'Cerca immagini sul web…' : 'Cerca su Wikimedia Commons…'}
+          placeholder={impostazioni.fonteImmagini === 'web' ? tr('Cerca immagini sul web…') : tr('Cerca su Wikimedia Commons…')}
           onChange={(e) => setQuery(e.target.value)}
         />
       </form>
@@ -220,14 +219,13 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
           checked={impostazioni.sintassiImmagini}
           onChange={(e) => imposta('sintassiImmagini', e.target.checked)}
         />
-        <span><code>!parola!</code> cerca mentre scrivi</span>
+        <span><Tr frase="<code>!parola!</code> cerca mentre scrivi" /></span>
       </label>
 
       <div className={s.scorrevole}>
         {ricerche.length === 0 && (
           <p className={s.vuoto}>
-            Cerca qui sopra, oppure scrivi <code>!Basilica di Superga!</code> negli
-            appunti.<br />Poi trascina l'immagine dove ti serve.
+            <Tr frase="Cerca qui sopra, oppure scrivi <code>!Basilica di Superga!</code> negli appunti.<br>Poi trascina l’immagine dove ti serve." />
           </p>
         )}
 
@@ -235,18 +233,18 @@ function Cercate({ rifEditore }: { rifEditore: RifEditore }) {
           <section key={r.id} className={s.gruppo}>
             <div className={s.intestazione}>
               <span className={s.query}>{r.query}</span>
-              {r.origine === 'sintassi' && <span className={s.marchio}>dagli appunti</span>}
+              {r.origine === 'sintassi' && <span className={s.marchio}>{tr('dagli appunti')}</span>}
               {r.fonte && <span className={s.marchio}>{NOMI_FONTI[r.fonte] ?? r.fonte}</span>}
               {/* cercata anche in inglese: là le foto sono catalogate così */}
-              {r.tradotta && <span className={s.marchio} title="Commons e Openverse sono catalogati in inglese: la parola è stata tradotta con Wikipedia">→ {r.tradotta}</span>}
-              <button className={s.scarta} title="Togli" aria-label="Togli questa ricerca" onClick={() => scartaRicerca(r.id)}><Icona nome="chiudi" dimensione={12} /></button>
+              {r.tradotta && <span className={s.marchio} title={tr('Commons e Openverse sono catalogati in inglese: la parola è stata tradotta con Wikipedia')}>→ {r.tradotta}</span>}
+              <button className={s.scarta} title={tr('Togli')} aria-label={tr('Togli questa ricerca')} onClick={() => scartaRicerca(r.id)}><Icona nome="chiudi" dimensione={12} /></button>
             </div>
 
             {r.stato === 'in-corso' && <div className={s.griglia}><Tessere quante={6} classe={s.tesseraAttesa} /></div>}
             {r.stato === 'errore' && <p className={s.stato}>{r.errore}</p>}
             {r.stato === 'pronta' && r.risultati.length === 0 && <p className={s.stato}>niente su {NOMI_FONTI[r.fonte ?? 'commons'] ?? 'Commons'}</p>}
             {r.fonte === 'openverse' && r.risultati.length > 0 && (
-              <p className={s.stato}>Le prime arrivano da Wikipedia, le altre da Openverse. Con una chiave Serper nel .env.local arrivano quelle di Google Immagini.</p>
+              <p className={s.stato}>{tr('Le prime arrivano da Wikipedia, le altre da Openverse. Con una chiave Serper nel .env.local arrivano quelle di Google Immagini.')}</p>
             )}
 
             <div className={s.griglia}>

@@ -1,5 +1,6 @@
 import type { Trovata } from './commons'
 import { intestazioniChiavi } from '../chiavi'
+import { tr } from '../lingua/lingua'
 
 /*  Le immagini dal web: le cerca il server (server/immagini.ts), con
  *  Google Immagini se c'è la chiave di Serper, altrimenti con Openverse.
@@ -20,5 +21,5 @@ export async function cercaSulWeb(query: string, n = 12, inglese?: string | null
 }
 
 export const NOMI_FONTI: Record<string, string> = {
-  commons: 'Commons', google: 'Google Immagini', brave: 'Brave', openverse: 'Openverse',
+  commons: 'Commons', google: tr('Google Immagini'), brave: 'Brave', openverse: 'Openverse',
 }

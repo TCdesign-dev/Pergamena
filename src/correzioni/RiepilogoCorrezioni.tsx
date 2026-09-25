@@ -6,6 +6,7 @@ import { iscrivitiStatoCorrezioni, leggiStatoCorrezioni } from './statoCorrezion
 import { mappaCorrezioni } from './deposito'
 import { mostraSegnalazione, segnalazioni } from './naviga'
 import s from './RiepilogoCorrezioni.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Nel pannello delle lezioni, due cose delle correzioni in diretta.
  *  In cima quelle a cui non hai ancora risposto: in classe si ignora il
@@ -15,7 +16,7 @@ import s from './RiepilogoCorrezioni.module.css'
 
 function centesimi(dollari: number) {
   const c = dollari * 100
-  return c < 0.01 ? 'meno di 0,01 cent' : `${c.toLocaleString('it-IT', { maximumFractionDigits: 2 })} cent`
+  return c < 0.01 ? tr('meno di 0,01 cent') : tr('{n} cent', { n: c.toLocaleString(locale(), { maximumFractionDigits: 2 }) })
 }
 
 /** Si ridisegna quando cambiano le correzioni della pagina. */
@@ -44,7 +45,7 @@ export function CorrezioniInAttesa({ doc, rifEditore, onVai }: {
     <div className={s.attesa} role="status">
       <span className={s.pallino} aria-hidden />
       <span className={s.testo}>
-        {tutte.length === 1 ? 'Una correzione aspetta' : `${tutte.length} correzioni aspettano`} una risposta
+        {tr('Una correzione aspetta una risposta | {n} correzioni aspettano una risposta', { n: tutte.length })}
       </span>
       <button className={s.vedi} onClick={() => { onVai(); mostraSegnalazione(editor, tutte[0].c.id) }}>
         Vedi <kbd className={s.tasto}>⌥⌘↓</kbd>
@@ -63,15 +64,16 @@ export function ContiCorrezioni({ lezioni }: { lezioni: Registrazione[] }) {
     <div className={s.conti}>
       {qui && (
         <p>
-          Correzioni in questa lezione: {stato.controlli} {stato.controlli === 1 ? 'controllo' : 'controlli'} ·{' '}
-          {stato.proposte} {stato.proposte === 1 ? 'segnalazione' : 'segnalazioni'} · {centesimi(stato.costo)}
+          {tr('Correzioni in questa lezione:')}{' '}
+          {tr('{n} controllo | {n} controlli', { n: stato.controlli })} ·{' '}
+          {tr('{n} segnalazione | {n} segnalazioni', { n: stato.proposte })} · {centesimi(stato.costo)}
         </p>
       )}
       {stato.fermo === 'credito' && (
-        <p className={s.fermo}>Correzioni ferme: il credito di OpenRouter è finito. Dopo averlo aggiunto, ricarica la pagina.</p>
+        <p className={s.fermo}>{tr('Correzioni ferme: il credito di OpenRouter è finito. Dopo averlo aggiunto, ricarica la pagina.')}</p>
       )}
       {stato.errore && !stato.fermo && qui && (
-        <p className={s.fermo}>Ultimo intoppo: {stato.errore}. Riprovo da solo.</p>
+        <p className={s.fermo}>{tr('Ultimo intoppo: {errore}. Riprovo da solo.', { errore: stato.errore })}</p>
       )}
     </div>
   )

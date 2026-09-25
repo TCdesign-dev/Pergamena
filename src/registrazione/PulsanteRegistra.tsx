@@ -8,6 +8,7 @@ import { leggiImpostazioni } from '../impostazioni'
 import { corrisponde, scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './PulsanteRegistra.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Il controllo della registrazione, nella barra in alto: sempre nello
  *  stesso posto, cambia forma con lo stato.
@@ -127,7 +128,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       return (
         <span className={s.stato}>
           <Icona nome="attesa" dimensione={14} className={s.gira} />
-          {forma === 'parto' ? 'Preparo il microfono…' : 'Chiudo la lezione…'}
+          {forma === 'parto' ? tr('Preparo il microfono…') : tr('Chiudo la lezione…')}
         </span>
       )
     case 'finestra':
@@ -139,7 +140,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
       )
     case 'pagina':
       return (
-        <span className={`${s.stato} ${s.grigio}`} title="La lezione si sta registrando in un’altra pagina">
+        <span className={`${s.stato} ${s.grigio}`} title={tr('La lezione si sta registrando in un’altra pagina')}>
           <span className={`${s.pallino} ${s.acceso}`} />
           In un’altra pagina
         </span>
@@ -160,7 +161,7 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
   const tono = forma === 'registra' ? s.rossa : forma === 'pausa' ? s.grigia : s.arancio
 
   return (
-    <div className={`${s.pillola} ${tono}`} role="group" aria-label="Lezione in registrazione">
+    <div className={`${s.pillola} ${tono}`} role="group" aria-label={tr('Lezione in registrazione')}>
       {forma === 'registra' && <span className={`${s.pallino} ${s.acceso}`} />}
       {forma === 'pausa' && <Icona nome="pausa" dimensione={14} />}
       {forma === 'perso' && <Icona nome="scollegato" dimensione={14} />}
@@ -172,21 +173,21 @@ export function PulsanteRegistra({ documentoId, materia, rifEditore }: {
         </span>
       )}
       {r.pausa ? (
-        <button className={s.riprendi} title="Riprendi a registrare" onClick={() => void riprendiRegistrazione()}>
+        <button className={s.riprendi} title={tr('Riprendi a registrare')} onClick={() => void riprendiRegistrazione()}>
           <Icona nome="registra" dimensione={12} />
           Riprendi
         </button>
       ) : (
         <button
           className={s.icona}
-          title="Pausa: il microfono non registra finché non riprendi"
-          aria-label="Pausa"
+          title={tr('Pausa: il microfono non registra finché non riprendi')}
+          aria-label={tr('Pausa')}
           onClick={() => void pausaRegistrazione()}
         >
           <Icona nome="pausa" dimensione={14} />
         </button>
       )}
-      <button className={s.icona} title="Termina la lezione" aria-label="Termina la lezione" onClick={() => void fermaRegistrazione()}>
+      <button className={s.icona} title={tr('Termina la lezione')} aria-label={tr('Termina la lezione')} onClick={() => void fermaRegistrazione()}>
         <Icona nome="termina" dimensione={14} />
       </button>
     </div>

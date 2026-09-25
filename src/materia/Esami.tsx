@@ -4,6 +4,7 @@ import { aggiornaQuaderno } from '../documento/archivio'
 import { comeDetto, inOrdine, mancano } from '../lib/esami'
 import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Le prove d'esame: parziale, scritto, orale. Si scrivono al loro
  *  posto, senza finestre: una riga per prova, e la riga stessa è il
@@ -31,7 +32,7 @@ export function Esami({ quaderno, nuovo, onNuovo }: {
             <input
               className={s.campo}
               value={e.nome}
-              placeholder="Scritto, orale…"
+              placeholder={tr('Scritto, orale…')}
               autoFocus={e.id === nuovo}
               onChange={(ev) => cambia(e.id, { nome: ev.target.value })}
             />
@@ -47,10 +48,10 @@ export function Esami({ quaderno, nuovo, onNuovo }: {
             <input
               className={`${s.campo} ${s.nota}`}
               value={e.nota ?? ''}
-              placeholder="nota"
+              placeholder={tr('nota')}
               onChange={(ev) => cambia(e.id, { nota: ev.target.value })}
             />
-            <button className={s.togli} title="Togli questa prova" aria-label="Togli questa prova" onClick={() => salva(esami.filter((x) => x.id !== e.id))}><Icona nome="chiudi" dimensione={14} /></button>
+            <button className={s.togli} title={tr('Togli questa prova')} aria-label={tr('Togli questa prova')} onClick={() => salva(esami.filter((x) => x.id !== e.id))}><Icona nome="chiudi" dimensione={14} /></button>
           </div>
         )
       })}

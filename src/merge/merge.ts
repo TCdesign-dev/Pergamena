@@ -11,6 +11,7 @@ import { chiediJson } from '../lib/modello'
 import { leggiImpostazioni } from '../impostazioni'
 import { esponi } from '../lib/dev'
 import { aggiungiConsigli, type Richiesta } from '../immagini/consigliate'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Il merge dopo la lezione: UNA chiamata per lezione.
  *
@@ -39,7 +40,7 @@ function trattiDi(editor: Editor, reg: Registrazione, lezione?: string): TrattoD
     .map((t) => ({ ...t, lezione }))
 }
 
-const giorno = (t: number) => new Date(t).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })
+const giorno = (t: number) => new Date(t).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })
 
 export async function integraLezione(
   editor: Editor,
@@ -49,8 +50,8 @@ export async function integraLezione(
   avanza: (fase: FaseMerge) => void = () => {},
 ): Promise<EsitoMerge> {
   const reg = leggiRegistrazioni(doc).find((r) => r.id === idRegistrazione)
-  if (!reg) throw new Error('registrazione non trovata')
-  if (!reg.segmenti.length) throw new Error('la registrazione non contiene parlato')
+  if (!reg) throw new Error(tr('registrazione non trovata'))
+  if (!reg.segmenti.length) throw new Error(tr('la registrazione non contiene parlato'))
 
   avanza('preparo')
   const esito = await integra(editor, doc, materia, trattiDi(editor, reg), 1, MASSIMO, avanza)
@@ -72,7 +73,7 @@ export async function integraTutto(
   avanza: (fase: FaseMerge) => void = () => {},
 ): Promise<EsitoMerge> {
   const lezioni = leggiRegistrazioni(doc).filter((r) => r.fine !== null && r.segmenti.length)
-  if (!lezioni.length) throw new Error('questa pagina non ha lezioni finite da integrare')
+  if (!lezioni.length) throw new Error(tr('questa pagina non ha lezioni finite da integrare'))
   if (lezioni.length === 1) return integraLezione(editor, doc, lezioni[0].id, materia, avanza)
 
   avanza('preparo')

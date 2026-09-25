@@ -1,4 +1,5 @@
 import { imposta, leggiImpostazioni } from '../impostazioni'
+import { tr } from '../lingua/lingua'
 
 /*  Le scorciatoie, in un posto solo.
  *
@@ -27,14 +28,14 @@ export type Comando = {
  *  revisione (J, K, X, ↵): lì una lettera riassegnata male vorrebbe
  *  dire non riuscire più a scrivere. */
 export const COMANDI: Comando[] = [
-  { id: 'cerca', nome: 'Cerca o dai un comando', ambito: 'app', predefinita: 'mod+k' },
-  { id: 'barra', nome: 'Barra laterale', ambito: 'app', predefinita: 'mod+\\' },
-  { id: 'registra', nome: 'Registra la lezione', ambito: 'app', predefinita: 'mod+r' },
-  { id: 'immagini', nome: 'Pannello delle immagini', ambito: 'app', predefinita: 'mod+/' },
+  { id: 'cerca', nome: tr('Cerca o dai un comando'), ambito: 'app', predefinita: 'mod+k' },
+  { id: 'barra', nome: tr('Barra laterale'), ambito: 'app', predefinita: 'mod+\\' },
+  { id: 'registra', nome: tr('Registra la lezione'), ambito: 'app', predefinita: 'mod+r' },
+  { id: 'immagini', nome: tr('Pannello delle immagini'), ambito: 'app', predefinita: 'mod+/' },
   { id: 'impostazioni', nome: 'Impostazioni', ambito: 'app', predefinita: 'mod+,' },
-  { id: 'chiedi', nome: 'Chiedi alla lezione', ambito: 'app', predefinita: 'mod+shift+d' },
+  { id: 'chiedi', nome: tr('Chiedi alla lezione'), ambito: 'app', predefinita: 'mod+shift+d' },
 
-  { id: 'commenta', nome: 'Commenta la selezione', ambito: 'editor', predefinita: 'mod+shift+m' },
+  { id: 'commenta', nome: tr('Commenta la selezione'), ambito: 'editor', predefinita: 'mod+shift+m' },
   { id: 'grassetto', nome: 'Grassetto', ambito: 'editor', predefinita: 'mod+b' },
   { id: 'corsivo', nome: 'Corsivo', ambito: 'editor', predefinita: 'mod+i' },
   { id: 'sottolineato', nome: 'Sottolineato', ambito: 'editor', predefinita: 'mod+u' },
@@ -43,15 +44,15 @@ export const COMANDI: Comando[] = [
   { id: 'titolo1', nome: 'Titolo 1', ambito: 'editor', predefinita: 'mod+alt+1' },
   { id: 'titolo2', nome: 'Titolo 2', ambito: 'editor', predefinita: 'mod+alt+2' },
   { id: 'titolo3', nome: 'Titolo 3', ambito: 'editor', predefinita: 'mod+alt+3' },
-  { id: 'colore1', nome: 'Colora di rosso', ambito: 'editor', predefinita: 'mod+shift+1' },
-  { id: 'colore2', nome: 'Colora di arancio', ambito: 'editor', predefinita: 'mod+shift+2' },
-  { id: 'colore3', nome: 'Colora di verde', ambito: 'editor', predefinita: 'mod+shift+3' },
-  { id: 'colore4', nome: 'Colora di blu', ambito: 'editor', predefinita: 'mod+shift+4' },
-  { id: 'colore5', nome: 'Colora di viola', ambito: 'editor', predefinita: 'mod+shift+5' },
-  { id: 'coloreUltimo', nome: 'Colora col colore di prima', ambito: 'editor', predefinita: 'mod+shift+c' },
-  { id: 'scolora', nome: 'Togli il colore', ambito: 'editor', predefinita: 'mod+shift+0' },
-  { id: 'spostaSu', nome: 'Sposta il blocco in su', ambito: 'editor', predefinita: 'mod+shift+up' },
-  { id: 'spostaGiu', nome: 'Sposta il blocco in giù', ambito: 'editor', predefinita: 'mod+shift+down' },
+  { id: 'colore1', nome: tr('Colora di rosso'), ambito: 'editor', predefinita: 'mod+shift+1' },
+  { id: 'colore2', nome: tr('Colora di arancio'), ambito: 'editor', predefinita: 'mod+shift+2' },
+  { id: 'colore3', nome: tr('Colora di verde'), ambito: 'editor', predefinita: 'mod+shift+3' },
+  { id: 'colore4', nome: tr('Colora di blu'), ambito: 'editor', predefinita: 'mod+shift+4' },
+  { id: 'colore5', nome: tr('Colora di viola'), ambito: 'editor', predefinita: 'mod+shift+5' },
+  { id: 'coloreUltimo', nome: tr('Colora col colore di prima'), ambito: 'editor', predefinita: 'mod+shift+c' },
+  { id: 'scolora', nome: tr('Togli il colore'), ambito: 'editor', predefinita: 'mod+shift+0' },
+  { id: 'spostaSu', nome: tr('Sposta il blocco in su'), ambito: 'editor', predefinita: 'mod+shift+up' },
+  { id: 'spostaGiu', nome: tr('Sposta il blocco in giù'), ambito: 'editor', predefinita: 'mod+shift+down' },
 ]
 
 export const comandoDi = (id: string) => COMANDI.find((c) => c.id === id)

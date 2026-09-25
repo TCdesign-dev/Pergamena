@@ -4,6 +4,7 @@ import { giaAperto } from '../documento/archivio'
 import type { Documento, Quaderno } from '../documento/tipi'
 import { normalizza } from '../lib/testo'
 import { esponi } from '../lib/dev'
+import { tr } from '../lingua/lingua'
 
 /*  La ricerca legge il testo direttamente dai documenti Yjs salvati
  *  in IndexedDB, senza un indice separato da tenere allineato.
@@ -87,7 +88,7 @@ export async function cercaNelContenuto(
   const q = normalizza(query.trim())
   if (q.length < 2) return []
 
-  const nomeMateria = (id: string) => quaderni.find((k) => k.id === id)?.nome || 'Senza nome'
+  const nomeMateria = (id: string) => quaderni.find((k) => k.id === id)?.nome || tr('Senza nome')
   const esiti: Risultato[] = []
 
   for (const d of documenti) {
@@ -97,7 +98,7 @@ export async function cercaNelContenuto(
     if (pos < 0) continue
     esiti.push({
       documentoId: d.id,
-      titolo: d.titolo || 'Senza titolo',
+      titolo: d.titolo || tr('Senza titolo'),
       materia: nomeMateria(d.quadernoId),
       frammento: ritaglia(testo, pos, q.length),
     })

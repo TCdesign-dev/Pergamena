@@ -7,6 +7,7 @@ import { mappaDocumenti } from '../documento/archivio'
 import type { Documento } from '../documento/tipi'
 import { Icona } from '../lib/Icona'
 import s from './Archivio.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Il gestore dell'archivio: quanto occupa ogni materia, ogni pagina,
  *  ogni lezione — e togliere quello che non serve più, una cosa alla
@@ -17,7 +18,7 @@ import s from './Archivio.module.css'
 type DaConfermare = { titolo: string; dettaglio: string; azione: string; esegui: () => Promise<void> }
 
 function quando(t: number) {
-  return new Date(t).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  return new Date(t).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
 export function Archivio({ onHome, onApri, onEliminaPagina }: {
@@ -47,16 +48,16 @@ export function Archivio({ onHome, onApri, onEliminaPagina }: {
   return (
     <div className={s.vista}>
       <nav className={s.percorso}>
-        <button className={s.passo} onClick={onHome}>Materie</button>
+        <button className={s.passo} onClick={onHome}>{tr('Materie')}</button>
         <span className={s.sbarra}>/</span>
-        <span className={s.qui}>Archivio</span>
+        <span className={s.qui}>{tr('Archivio')}</span>
       </nav>
 
       <div className={s.scorre}>
         <div className={s.colonna}>
-          <h1 className={s.titolo}>Archivio</h1>
+          <h1 className={s.titolo}>{tr('Archivio')}</h1>
           <p className={s.sotto}>
-            Quanto occupa cosa, e cosa togliere. L'audio si toglie lasciando la trascrizione; la trascrizione lasciando gli appunti.
+            {tr('Quanto occupa cosa, e cosa togliere. L\'audio si toglie lasciando la trascrizione; la trascrizione lasciando gli appunti.')}
           </p>
 
           {!misure && <div className={s.attesa}><Tessere quante={4} classe={s.rigaAttesa} /></div>}
@@ -64,11 +65,11 @@ export function Archivio({ onHome, onApri, onEliminaPagina }: {
           {misure && (
             <>
               <dl className={s.totali}>
-                <div><dt>Appunti</dt><dd>{quanto(misure.totali.appunti)}</dd></div>
-                <div><dt>Trascrizioni</dt><dd>{quanto(misure.totali.trascrizioni)}</dd></div>
-                <div><dt>Audio</dt><dd>{quanto(misure.totali.audio)}</dd></div>
-                <div><dt>Immagini</dt><dd>{quanto(misure.totali.immagini)}</dd></div>
-                <div className={s.tutto}><dt>In tutto</dt><dd>{quanto(totale)}</dd></div>
+                <div><dt>{tr('Appunti')}</dt><dd>{quanto(misure.totali.appunti)}</dd></div>
+                <div><dt>{tr('Trascrizioni')}</dt><dd>{quanto(misure.totali.trascrizioni)}</dd></div>
+                <div><dt>{tr('Audio')}</dt><dd>{quanto(misure.totali.audio)}</dd></div>
+                <div><dt>{tr('Immagini')}</dt><dd>{quanto(misure.totali.immagini)}</dd></div>
+                <div className={s.tutto}><dt>{tr('In tutto')}</dt><dd>{quanto(totale)}</dd></div>
               </dl>
               {misure.browser !== null && (
                 <p className={s.nota}>Il browser, per Pergamena, usa in tutto {quanto(misure.browser)} (con le copie di lavoro e le cache).</p>
@@ -136,7 +137,7 @@ function Pagina({ p, onApri, onElimina, chiedi, dopo }: {
   return (
     <li className={s.pagina}>
       <div className={s.rigaPagina}>
-        <button className={s.titoloPagina} onClick={onApri} title="Apri la pagina">{p.titolo}</button>
+        <button className={s.titoloPagina} onClick={onApri} title={tr('Apri la pagina')}>{p.titolo}</button>
         <span className={s.peso}>{quanto(peso(p))}</span>
       </div>
       <p className={s.voci}>
@@ -153,24 +154,25 @@ function Pagina({ p, onApri, onElimina, chiedi, dopo }: {
           <span className={s.azioni}>
             {l.byteAudio > 0 && (
               <button onClick={() => chiedi({
-                titolo: 'Togliere l’audio di questa lezione?',
-                dettaglio: `Si libera ${quanto(l.byteAudio)}. La trascrizione resta, e il merge funziona lo stesso: non potrai più riascoltare il professore.`,
-                azione: 'Togli l’audio',
+                titolo: tr('Togliere l’audio di questa lezione?'),
+                dettaglio: tr('Si libera {spazio}. La trascrizione resta, e il merge funziona lo stesso: non potrai più riascoltare il professore.', { spazio: quanto(l.byteAudio) }),
+                azione: tr('Togli l’audio'),
                 esegui: () => togliAudio(p.id, l.id),
-              })}>Togli l’audio</button>
+              })}>{tr('Togli l’audio')}</button>
             )}
             <button onClick={() => chiedi({
-              titolo: 'Togliere la trascrizione di questa lezione?',
-              dettaglio: 'Gli appunti restano come sono, proposte accettate comprese. Sparisce il testo della lezione' +
-                (l.byteAudio > 0 ? ' e il suo audio.' : '.') + ' Non si torna indietro.',
-              azione: 'Togli la trascrizione',
+              titolo: tr('Togliere la trascrizione di questa lezione?'),
+              dettaglio: l.byteAudio > 0
+                ? tr('Gli appunti restano come sono, proposte accettate comprese. Sparisce il testo della lezione e il suo audio. Non si torna indietro.')
+                : tr('Gli appunti restano come sono, proposte accettate comprese. Sparisce il testo della lezione. Non si torna indietro.'),
+              azione: tr('Togli la trascrizione'),
               esegui: () => togliTrascrizione(p.id, l.id).then(dopo),
-            })}>Togli la trascrizione</button>
+            })}>{tr('Togli la trascrizione')}</button>
           </span>
         </div>
       ))}
       <div className={s.fondo}>
-        <button className={s.pericolo} onClick={onElimina}>Elimina la pagina</button>
+        <button className={s.pericolo} onClick={onElimina}>{tr('Elimina la pagina')}</button>
       </div>
     </li>
   )

@@ -37,6 +37,7 @@ import { FinestraQuiz } from './ripasso/FinestraQuiz'
 import { registraApertura } from './layout/navigazione'
 import { Archivio } from './archivio/Archivio'
 import s from './App.module.css'
+import { tr } from './lingua/lingua'
 
 const ULTIMO = 'pergamena:ultimo-documento'
 const leggiUltimo = () => { try { return localStorage.getItem(ULTIMO) } catch { return null } }
@@ -327,12 +328,12 @@ export function App() {
         <Conferma
           titolo={
             daEliminare.tipo === 'pagina'
-              ? `Eliminare «${daEliminare.documento.titolo || 'Senza titolo'}»?`
-              : `Eliminare la materia «${daEliminare.quaderno.nome || 'Senza nome'}»?`
+              ? tr('Eliminare «{titolo}»?', { titolo: daEliminare.documento.titolo || tr('Senza titolo') })
+              : tr('Eliminare la materia «{nome}»?', { nome: daEliminare.quaderno.nome || tr('Senza nome') })
           }
           dettaglio={
             daEliminare.tipo === 'pagina'
-              ? 'Spariscono il testo e le immagini della pagina, qui e sul server. Non si torna indietro.'
+              ? tr('Spariscono il testo e le immagini della pagina, qui e sul server. Non si torna indietro.')
               : `Spariscono la materia, le sue ${
                   documenti.filter((d) => d.quadernoId === daEliminare.quaderno.id).length
                 } pagine e tutte le loro immagini, qui e sul server. Non si torna indietro.`

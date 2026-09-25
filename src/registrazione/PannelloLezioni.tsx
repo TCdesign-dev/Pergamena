@@ -17,6 +17,7 @@ import { MenuPagina } from '../layout/MenuPagina'
 import { CorrezioniInAttesa, ContiCorrezioni } from '../correzioni/RiepilogoCorrezioni'
 import { Icona } from '../lib/Icona'
 import s from './PannelloLezioni.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
  *  legge la trascrizione, si riascolta il professore, si cancella.
@@ -31,7 +32,7 @@ import s from './PannelloLezioni.module.css'
 type Microfono = { uid: string; nome: string; virtuale: boolean; sistema: boolean }
 
 function quando(t: number) {
-  const d = new Date(t).toLocaleString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  const d = new Date(t).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
   return d.charAt(0).toUpperCase() + d.slice(1)
 }
 
@@ -44,11 +45,11 @@ type Lavoro = { id: string; fase: FaseMerge | 'fatto' | 'errore'; messaggio?: st
 const TUTTE = 'tutte-le-lezioni'
 
 const FASI: Record<FaseMerge, string> = {
-  preparo: 'Preparo la lezione…',
-  chiedo: 'Il modello confronta la lezione con i tuoi appunti…',
-  riprovo: 'Risposta illeggibile: riprovo…',
-  inserisco: 'Inserisco le proposte…',
-  immagini: 'Cerco le immagini su Commons…',
+  preparo: tr('Preparo la lezione…'),
+  chiedo: tr('Il modello confronta la lezione con i tuoi appunti…'),
+  riprovo: tr('Risposta illeggibile: riprovo…'),
+  inserisco: tr('Inserisco le proposte…'),
+  immagini: tr('Cerco le immagini su Commons…'),
 }
 
 function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
@@ -146,7 +147,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
         inizio,
         messaggio: esito.proposte
           ? `${esito.proposte} ${esito.proposte === 1 ? 'proposta' : 'proposte'} negli appunti`
-          : 'Non manca niente di importante.',
+          : tr('Non manca niente di importante.'),
       })
       /*  Dopo un merge si è già in modalità «sistemo gli appunti»:
        *  il pannello si apre da solo sulle immagini consigliate.
@@ -154,7 +155,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
       if (esito.immagini) apriPannello(true, 'consigliate')
       if (esito.proposte) { onChiudi(); avviaRevisione() }
     } catch (e) {
-      setLavoro({ id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : 'merge fallito' })
+      setLavoro({ id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : tr('merge fallito') })
     }
   }
 
@@ -182,9 +183,9 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   const microfono = impostazioni.microfono
     ? microfoni.find((m) => m.uid === impostazioni.microfono)?.nome
     : microfoni.find((m) => m.sistema)?.nome
-  const statoCorrezioni = !impostazioni.correzioniInDiretta ? 'correzioni in diretta spente'
-    : correzioni.fermo === 'credito' ? 'correzioni in diretta ferme'
-    : 'correzioni in diretta attive'
+  const statoCorrezioni = !impostazioni.correzioniInDiretta ? tr('correzioni in diretta spente')
+    : correzioni.fermo === 'credito' ? tr('correzioni in diretta ferme')
+    : tr('correzioni in diretta attive')
 
   // le lezioni finite che hanno del parlato: quelle che si possono rileggere insieme
   const insieme = lezioni.filter((r) => r.fine !== null && r.segmenti.length > 0)
@@ -194,9 +195,9 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   return (
     <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>{modo === 'lato' ? 'Lezioni' : 'Lezioni di questa pagina'}</span>
+        <span className={s.titolo}>{modo === 'lato' ? 'Lezioni' : tr('Lezioni di questa pagina')}</span>
         <span className={s.numero}>{lezioni.length}</span>
-        <button className={s.chiudi} title="Chiudi  esc" aria-label="Chiudi il pannello delle lezioni" onClick={onChiudi}>
+        <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello delle lezioni')} onClick={onChiudi}>
           <Icona nome="chiudi" />
         </button>
       </header>
@@ -205,7 +206,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
         <CorrezioniInAttesa doc={doc} rifEditore={rifEditore} onVai={modo === 'tendina' ? onChiudi : () => {}} />
 
         {lezioni.length === 0 && (
-          <p className={s.vuoto}>Nessuna lezione registrata qui. Premi <b>Registra</b> quando comincia.</p>
+          <p className={s.vuoto}>Nessuna lezione registrata qui. Premi <b>{tr('Registra')}</b> quando comincia.</p>
         )}
 
         <ul className={s.elenco}>
@@ -221,26 +222,26 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                   <span className={s.misure}>
                     {finita
                       ? `${minuti(r)} min · ${r.segmenti.length} ${r.segmenti.length === 1 ? 'frase' : 'frasi'}`
-                      : r.pause.some((p) => p.a === null) ? 'in pausa' : 'si sta registrando'}
+                      : r.pause.some((p) => p.a === null) ? tr('in pausa') : tr('si sta registrando')}
                     {r.interrotta && (
-                      <span className={s.interrotta} title="Si è fermata da sola, per esempio perché il server si è riavviato. Quello che era già trascritto è salvo.">
+                      <span className={s.interrotta} title={tr('Si è fermata da sola, per esempio perché il server si è riavviato. Quello che era già trascritto è salvo.')}>
                         {' '}· interrotta
                       </span>
                     )}
                   </span>
                   <span className={s.stato}>
-                    {!finita ? <><span className={s.dalVivo} />in corso</>
+                    {!finita ? <><span className={s.dalVivo} />{tr('in corso')}</>
                       : r.integrata !== null || r.insieme !== null ? (
                         <span
                           className={s.integrata}
                           title={r.integrata !== null
-                            ? `${r.integrata} ${r.integrata === 1 ? 'proposta' : 'proposte'}`
-                            : 'Integrata insieme alle altre lezioni della pagina'}
+                            ? tr('{n} proposta | {n} proposte', { n: r.integrata })
+                            : tr('Integrata insieme alle altre lezioni della pagina')}
                         >
-                          <Icona nome="accetta" dimensione={12} />Integrata
+                          <Icona nome="accetta" dimensione={12} />{tr('Integrata')}
                         </span>
                       )
-                      : r.segmenti.length > 0 ? <><span className={s.daIntegrare} />Da integrare</>
+                      : r.segmenti.length > 0 ? <><span className={s.daIntegrare} />{tr('Da integrare')}</>
                       : null}
                   </span>
                 </div>
@@ -255,7 +256,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                       disabled={occupata}
                     >
                       {occupata ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
-                      {occupata ? 'Integro…' : r.integrata === null && r.insieme === null ? 'Integra negli appunti' : 'Integra di nuovo'}
+                      {occupata ? tr('Integro…') : r.integrata === null && r.insieme === null ? tr('Integra negli appunti') : tr('Integra di nuovo')}
                     </button>
                   )}
                   <button
@@ -268,17 +269,17 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                   </button>
                   <span className={s.spazio} />
                   <MenuPagina
-                    etichetta="Altre azioni sulla lezione"
+                    etichetta={tr('Altre azioni sulla lezione')}
                     voci={[
-                      ...(r.audio ? [{ etichetta: 'Scarica l’audio', icona: 'scarica' as const, azione: () => scaricaAudio(r) }] : []),
-                      { etichetta: 'Elimina la lezione…', icona: 'elimina', pericolo: true, staccata: r.audio, azione: () => setDaEliminare(r) },
+                      ...(r.audio ? [{ etichetta: tr('Scarica l’audio'), icona: 'scarica' as const, azione: () => scaricaAudio(r) }] : []),
+                      { etichetta: tr('Elimina la lezione…'), icona: 'elimina', pericolo: true, staccata: r.audio, azione: () => setDaEliminare(r) },
                     ]}
                   />
                 </div>
 
                 {aperte && (
                   <div className={s.trascrizione}>
-                    {r.segmenti.length === 0 && <p className={s.nessuna}>Ancora nessuna frase.</p>}
+                    {r.segmenti.length === 0 && <p className={s.nessuna}>{tr('Ancora nessuna frase.')}</p>}
                     {frasi.map((seg, i) => (
                       <Fragment key={i}>
                         {pausePrima(r, i).map((p) => (
@@ -288,7 +289,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                         ))}
                         <p className={s.frase}>
                           {r.audio
-                            ? <button className={s.minuto} title="Riascolta da qui" onClick={() => riascolta(r, seg.inizio)}>{tempo(seg.inizio)}</button>
+                            ? <button className={s.minuto} title={tr('Riascolta da qui')} onClick={() => riascolta(r, seg.inizio)}>{tempo(seg.inizio)}</button>
                             : <span className={s.minuto}>{tempo(seg.inizio)}</span>}
                           <span>{seg.testo}</span>
                         </p>
@@ -308,7 +309,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
 
         {insieme.length > 1 && (
           <div className={s.insieme}>
-            <b className={s.insiemeTitolo}>Integrazione completa</b>
+            <b className={s.insiemeTitolo}>{tr('Integrazione completa')}</b>
             <p className={s.insiemeTesto}>
               Rilegge le {insieme.length} lezioni insieme, invece di una alla volta: ciò che il
               professore ha ripreso da una lezione all’altra diventa una proposta sola.
@@ -316,7 +317,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
             {lavoro?.id === TUTTE && <Avanzamento lavoro={lavoro} />}
             <button className={s.secondario} onClick={() => void integraTutte()} disabled={inCorso}>
               {tutteInCorso ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
-              {tutteInCorso ? 'Integro…' : 'Integra tutte le lezioni'}
+              {tutteInCorso ? tr('Integro…') : tr('Integra tutte le lezioni')}
             </button>
           </div>
         )}

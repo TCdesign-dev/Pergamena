@@ -3,6 +3,7 @@ import { iscrivitiRegistrazione, leggiRegistrazione, azzera, type StatoRegistraz
 import { prendiQui } from './registrazione'
 import { Icona, type NomeIcona } from '../lib/Icona'
 import s from './AvvisoRegistrazione.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  L'avviso della registrazione: una fascia subito sotto la barra in
  *  alto, SOPRA il margine del foglio. Non spinge niente: il testo resta
@@ -41,7 +42,7 @@ export function AvvisoRegistrazione({ documentoId, onRiprendi, onCambiaMicrofono
           <span className={s.testo} title={a.spiega}>{a.testo}</span>
           {a.azione && <button className={s.azione} onClick={a.azione.fai}>{a.azione.etichetta}</button>}
           {a.chiudi && (
-            <button className={s.chiudi} title="Chiudi" aria-label="Chiudi l’avviso" onClick={a.chiudi}>
+            <button className={s.chiudi} title={tr('Chiudi')} aria-label={tr('Chiudi l’avviso')} onClick={a.chiudi}>
               <Icona nome="chiudi" dimensione={14} />
             </button>
           )}
@@ -65,8 +66,8 @@ function quale(
     return {
       tono: 'rosso',
       icona: 'errore',
-      testo: `Registrazione interrotta. ${frase(r.errore)}`,
-      azione: { etichetta: 'Riprendi', fai: onRiprendi },
+      testo: tr('Registrazione interrotta. {motivo}', { motivo: frase(r.errore) }),
+      azione: { etichetta: tr('Riprendi'), fai: onRiprendi },
       chiudi: () => azzera(),
     }
   }
@@ -78,27 +79,27 @@ function quale(
       tono: 'arancio',
       icona: 'microfono-muto',
       // in una riga anche a 716: il nome del microfono sta nel suggerimento
-      testo: r.virtuale ? 'L’ingresso scelto è virtuale e non sente niente.' : 'Il microfono non sente niente da qualche secondo.',
-      spiega: r.dispositivo ? `Sto ascoltando da «${r.dispositivo}»` : undefined,
-      azione: { etichetta: 'Cambia microfono', fai: onCambiaMicrofono },
+      testo: r.virtuale ? tr('L’ingresso scelto è virtuale e non sente niente.') : tr('Il microfono non sente niente da qualche secondo.'),
+      spiega: r.dispositivo ? tr('Sto ascoltando da «{microfono}»', { microfono: r.dispositivo }) : undefined,
+      azione: { etichetta: tr('Cambia microfono'), fai: onCambiaMicrofono },
     }
   }
   if (r.attiva && r.scollegato) {
     return {
       tono: 'arancio',
       icona: 'scollegato',
-      testo: 'Collegamento perso: continuo a registrare sul Mac, le frasi arrivano appena torna il collegamento.',
+      testo: tr('Collegamento perso: continuo a registrare sul Mac, le frasi arrivano appena torna il collegamento.'),
     }
   }
   if (!r.attiva && r.altrove) {
     return {
       tono: 'grigio',
       icona: 'altra-finestra',
-      testo: 'La lezione si sta registrando in un’altra finestra.',
-      azione: { etichetta: 'Portala qui', fai: () => void prendiQui() },
+      testo: tr('La lezione si sta registrando in un’altra finestra.'),
+      azione: { etichetta: tr('Portala qui'), fai: () => void prendiQui() },
     }
   }
-  if (ripreso) return { tono: 'verde', icona: 'accetta', testo: 'Ricollegato. Nessuna frase persa.' }
+  if (ripreso) return { tono: 'verde', icona: 'accetta', testo: tr('Ricollegato. Nessuna frase persa.') }
   return null
 }
 

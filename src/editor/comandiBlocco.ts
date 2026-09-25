@@ -1,4 +1,5 @@
 import type { Editor, Range } from '@tiptap/core'
+import { tr } from '../lingua/lingua'
 
 /*  I blocchi inseribili col menu `/`.
  *
@@ -22,12 +23,12 @@ const pulisci = (editor: Editor, range: Range) => editor.chain().focus().deleteR
 
 export const COMANDI_BLOCCO: ComandoBlocco[] = [
   {
-    chiave: 'testo', nome: 'Testo', descrizione: 'Paragrafo normale', segno: '¶',
+    chiave: 'testo', nome: 'Testo', descrizione: tr('Paragrafo normale'), segno: '¶',
     alias: ['paragrafo', 'normale', 'p'],
     esegui: (e, r) => pulisci(e, r).setParagraph().run(),
   },
   {
-    chiave: 'h1', nome: 'Titolo 1', descrizione: 'Apre un argomento', segno: 'H1',
+    chiave: 'h1', nome: 'Titolo 1', descrizione: tr('Apre un argomento'), segno: 'H1',
     alias: ['titolo', 'argomento', 'heading'],
     esegui: (e, r) => pulisci(e, r).setNode('heading', { level: 1 }).run(),
   },
@@ -42,27 +43,27 @@ export const COMANDI_BLOCCO: ComandoBlocco[] = [
     esegui: (e, r) => pulisci(e, r).setNode('heading', { level: 3 }).run(),
   },
   {
-    chiave: 'ul', nome: 'Elenco puntato', descrizione: 'Tab per annidare', segno: '•',
+    chiave: 'ul', nome: tr('Elenco puntato'), descrizione: tr('Tab per annidare'), segno: '•',
     alias: ['lista', 'punti', 'bullet'],
     esegui: (e, r) => pulisci(e, r).toggleBulletList().run(),
   },
   {
-    chiave: 'ol', nome: 'Elenco numerato', descrizione: 'Tab per annidare', segno: '1.',
+    chiave: 'ol', nome: tr('Elenco numerato'), descrizione: tr('Tab per annidare'), segno: '1.',
     alias: ['lista', 'numeri', 'ordinato'],
     esegui: (e, r) => pulisci(e, r).toggleOrderedList().run(),
   },
   {
-    chiave: 'quote', nome: 'Citazione', descrizione: 'Testo rientrato', segno: '❝',
+    chiave: 'quote', nome: 'Citazione', descrizione: tr('Testo rientrato'), segno: '❝',
     alias: ['citazione', 'blockquote'],
     esegui: (e, r) => pulisci(e, r).toggleBlockquote().run(),
   },
   {
-    chiave: 'code', nome: 'Blocco di codice', descrizione: 'A larghezza fissa', segno: '‹›',
+    chiave: 'code', nome: tr('Blocco di codice'), descrizione: tr('A larghezza fissa'), segno: '‹›',
     alias: ['codice', 'code', 'pre'],
     esegui: (e, r) => pulisci(e, r).toggleCodeBlock().run(),
   },
   {
-    chiave: 'hr', nome: 'Separatore', descrizione: 'Linea orizzontale', segno: '—',
+    chiave: 'hr', nome: 'Separatore', descrizione: tr('Linea orizzontale'), segno: '—',
     alias: ['linea', 'divisore', 'hr'],
     esegui: (e, r) => pulisci(e, r).setHorizontalRule().run(),
   },

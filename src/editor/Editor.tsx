@@ -15,6 +15,7 @@ import { iscrivitiNavigazione, prendiMeta } from '../layout/navigazione'
 import { Tessere } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
 import s from './Editor.module.css'
+import { tr } from '../lingua/lingua'
 
 /** Dove deve andare il cursore quando si apre un documento.
  *  Esplicito e non automatico, perché l'editor non deve rubare il
@@ -126,7 +127,7 @@ function Tela({ documento, quaderno, doc, fuoco, rifEditore, intestazione, segna
               ref={rifTitolo}
               className={s.titolo}
               defaultValue={documento.titolo}
-              placeholder="Senza titolo"
+              placeholder={tr('Senza titolo')}
               onChange={(e) => rinominaDocumento(documento.id, e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === 'ArrowDown') {
@@ -164,8 +165,8 @@ function Maniglia({ editor }: { editor: EditoreTipTap }) {
     >
       <button
         className={s.maniglia}
-        title="Trascina per spostare · clic per selezionare"
-        aria-label="Sposta il blocco"
+        title={tr('Trascina per spostare · clic per selezionare')}
+        aria-label={tr('Sposta il blocco')}
         onClick={() => {
           if (sotto.current !== null && sotto.current >= 0) editor.chain().focus().setNodeSelection(sotto.current).run()
         }}

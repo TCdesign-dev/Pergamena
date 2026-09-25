@@ -4,6 +4,7 @@ import { leggiRegistrazioni } from '../registrazione/voci'
 import { allinea } from '../merge/allinea'
 import { blocchiDelDocumento, type Argomento, type BloccoTesto } from './argomenti'
 import { esponi } from '../lib/dev'
+import { tr } from '../lingua/lingua'
 
 /*  I quiz di ripasso.
  *
@@ -133,7 +134,7 @@ export async function preparaQuiz(ambito: Ambito, quante: number): Promise<Doman
   } else {
     materiale = appunti([{ titolo: ambito.titolo, documentoId: ambito.documentoId, blocchi: ambito.blocchi }], rif)
   }
-  if (!rif.size) throw new Error('negli appunti non c’è ancora abbastanza testo per un quiz')
+  if (!rif.size) throw new Error(tr('negli appunti non c’è ancora abbastanza testo per un quiz'))
 
   const { json } = await chiediJson('quiz', [
     { role: 'system', content: SISTEMA },
@@ -155,7 +156,7 @@ export async function preparaQuiz(ambito: Ambito, quante: number): Promise<Doman
       domande.push({ tipo: 'aperta', testo, risposta: senzaNomiDeiBlocchi(String(g.risposta)), fonte })
     }
   }
-  if (!domande.length) throw new Error('il modello non ha preparato domande utilizzabili: riprova')
+  if (!domande.length) throw new Error(tr('il modello non ha preparato domande utilizzabili: riprova'))
   return domande.slice(0, quante)
 }
 

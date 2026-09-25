@@ -6,6 +6,8 @@ import { vaiA } from '../layout/navigazione'
 import { Barra } from '../layout/Attesa'
 import { Icona } from '../lib/Icona'
 import s from './Quiz.module.css'
+import { tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  Il quiz: una domanda alla volta, e subito la risposta giusta col suo
  *  perché. Tutto da tastiera: 1-4 sceglie, Invio va avanti, Esc chiude.
@@ -51,7 +53,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
       setFase('domande')
     } catch (e) {
       if (mio !== giro.current) return
-      setErrore(e instanceof Error ? e.message : 'non è andata')
+      setErrore(e instanceof Error ? e.message : tr('non è andata'))
       setFase('errore')
     }
   }, [ambito, quante])
@@ -127,12 +129,12 @@ function Quiz({ ambito }: { ambito: Ambito }) {
     <div className={s.velo} onMouseDown={chiudi}>
       <div className={s.finestra} onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-label={`Quiz: ${ambito.titolo}`}>
         <header className={s.testa}>
-          <span className={s.etichetta}>Quiz</span>
+          <span className={s.etichetta}>{tr('Quiz')}</span>
           <span className={s.titolo}>{ambito.titolo}</span>
           {fase === 'domande' && domande.length > 0 && (
             <span className={s.conto}>{i + 1} di {domande.length}</span>
           )}
-          <button className={s.chiudi} onClick={chiudi} title="Chiudi  esc" aria-label="Chiudi"><Icona nome="chiudi" /></button>
+          <button className={s.chiudi} onClick={chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi')}><Icona nome="chiudi" /></button>
         </header>
 
         {fase === 'preparo' && (
@@ -145,7 +147,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
         {fase === 'errore' && (
           <div className={s.attesa}>
             <p className={s.errore}>{errore}</p>
-            <button className={s.principale} onClick={() => void prepara()}>Riprova</button>
+            <button className={s.principale} onClick={() => void prepara()}>{tr('Riprova')}</button>
           </div>
         )}
 
@@ -184,17 +186,17 @@ function Quiz({ ambito }: { ambito: Ambito }) {
               </>
             ) : !svelata ? (
               <button className={s.svela} onClick={() => setSvelata(true)}>
-                Pensa alla risposta, poi scoprila <kbd className={s.tasto}>↵</kbd>
+                <Tr frase="Pensa alla risposta, poi scoprila <kbd>↵</kbd>" classi={{ kbd: s.tasto }} />
               </button>
             ) : (
               <>
                 <p className={s.risposta}>{d.risposta}</p>
                 <div className={s.valuta}>
                   <button className={`${s.opzione} ${risposta === true ? s.giusta : risposto ? s.spenta : ''}`} onClick={() => rispondi(true)} disabled={risposto}>
-                    <span className={s.lettera}>S</span> La sapevo
+                    <span className={s.lettera}>S</span> {tr('La sapevo')}
                   </button>
                   <button className={`${s.opzione} ${risposta === false ? s.sbagliata : risposto ? s.spenta : ''}`} onClick={() => rispondi(false)} disabled={risposto}>
-                    <span className={s.lettera}>N</span> Da rivedere
+                    <span className={s.lettera}>N</span> {tr('Da rivedere')}
                   </button>
                 </div>
               </>
@@ -203,9 +205,9 @@ function Quiz({ ambito }: { ambito: Ambito }) {
             <footer className={s.piede}>
               <span className={s.aiuto}>
                 {!risposto && (d.tipo === 'scelta'
-                  ? <>premi <kbd className={s.tasto}>1</kbd>–<kbd className={s.tasto}>4</kbd>, o clicca</>
-                  : svelata ? <><kbd className={s.tasto}>S</kbd> o <kbd className={s.tasto}>N</kbd></>
-                  : <><kbd className={s.tasto}>↵</kbd> per scoprire la risposta</>)}
+                  ? <Tr frase="premi <kbd>1</kbd>–<kbd>4</kbd>, o clicca" classi={{ kbd: s.tasto }} />
+                  : svelata ? <Tr frase="{si} o {no}" valori={{ si: <kbd className={s.tasto}>S</kbd>, no: <kbd className={s.tasto}>N</kbd> }} />
+                  : <Tr frase="<kbd>↵</kbd> per scoprire la risposta" classi={{ kbd: s.tasto }} />)}
               </span>
               {risposto && (
                 <span className={s.azioni}>
@@ -216,7 +218,7 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                     </button>
                   )}
                   <button className={s.principale} onClick={avanti} autoFocus>
-                    {i + 1 < domande.length ? 'Avanti' : 'Com’è andata'} <kbd className={s.tasto}>↵</kbd>
+                    {i + 1 < domande.length ? 'Avanti' : tr('Com’è andata')} <kbd className={s.tasto}>↵</kbd>
                   </button>
                 </span>
               )}
@@ -228,9 +230,9 @@ function Quiz({ ambito }: { ambito: Ambito }) {
           <div className={s.corpo}>
             <p className={s.punteggio}><strong>{giuste}</strong> su {domande.length}</p>
             <p className={s.commento}>
-              {giuste / domande.length >= 0.8 ? 'Lo sai bene.'
-                : giuste / domande.length >= 0.5 ? 'Quasi: rileggi i punti segnati.'
-                : 'Da ripassare: parti dai punti segnati.'}
+              {giuste / domande.length >= 0.8 ? tr('Lo sai bene.')
+                : giuste / domande.length >= 0.5 ? tr('Quasi: rileggi i punti segnati.')
+                : tr('Da ripassare: parti dai punti segnati.')}
             </p>
             <ol className={s.riepilogo}>
               {domande.map((q, k) => (
@@ -238,15 +240,15 @@ function Quiz({ ambito }: { ambito: Ambito }) {
                   <span className={s.segno}><Icona nome={eGiusta(k) ? 'accetta' : 'chiudi'} dimensione={14} /></span>
                   <span className={s.testoRiepilogo}>{q.testo}</span>
                   {!eGiusta(k) && q.fonte && (
-                    <button className={s.rileggi} onClick={() => rileggi(q)}>rileggi <Icona nome="destra" dimensione={12} /></button>
+                    <button className={s.rileggi} onClick={() => rileggi(q)}>{tr('rileggi')} <Icona nome="destra" dimensione={12} /></button>
                   )}
                 </li>
               ))}
             </ol>
             <footer className={s.piede}>
               <span className={s.azioni}>
-                <button className={s.secondario} onClick={() => void prepara()}>Altre domande</button>
-                <button className={s.principale} onClick={chiudi}>Chiudi <kbd className={s.tasto}>↵</kbd></button>
+                <button className={s.secondario} onClick={() => void prepara()}>{tr('Altre domande')}</button>
+                <button className={s.principale} onClick={chiudi}><Tr frase="Chiudi <kbd>↵</kbd>" classi={{ kbd: s.tasto }} /></button>
               </span>
             </footer>
           </div>

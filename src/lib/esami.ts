@@ -1,4 +1,5 @@
 import type { Esame, Quaderno } from '../documento/tipi'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Le date d'esame sono giorni, non istanti: si confrontano come
  *  giorni di calendario locali, così un esame «domani» resta domani
@@ -25,7 +26,7 @@ export function comeDetto(data: string) {
   if (n === 1) return 'domani'
   if (n > 1) return `fra ${n} giorni`
   if (n === -1) return 'ieri'
-  return `${-n} giorni fa`
+  return tr('{n} giorno fa | {n} giorni fa', { n: -n })
 }
 
 export function dataBreve(data: string) {
@@ -33,7 +34,7 @@ export function dataBreve(data: string) {
   if (!a || !m || !g) return data
   const quando = new Date(a, m - 1, g)
   const stessoAnno = a === new Date().getFullYear()
-  return quando.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', ...(stessoAnno ? {} : { year: 'numeric' }) })
+  return quando.toLocaleDateString(locale(), { day: 'numeric', month: 'short', ...(stessoAnno ? {} : { year: 'numeric' }) })
 }
 
 /** Il prossimo esame non ancora passato, se c'è. */

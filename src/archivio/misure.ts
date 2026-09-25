@@ -4,6 +4,7 @@ import { leggiDocumento } from '../documento/leggi'
 import { leggiRegistrazioni } from '../registrazione/voci'
 import { immaginiDi } from '../immagini/riferimenti'
 import { tutte } from '../immagini/deposito'
+import { tr } from '../lingua/lingua'
 
 /*  Quanto occupa cosa: materia per materia, pagina per pagina, lezione
  *  per lezione. Gli appunti pesano poco; le trascrizioni un po' di più
@@ -73,7 +74,7 @@ export async function misuraTutto(): Promise<Misure> {
         const ids = immaginiDi(doc)
         return {
           id: d.id,
-          titolo: d.scheda ? 'Scheda della materia' : d.titolo || 'Senza titolo',
+          titolo: d.scheda ? tr('Scheda della materia') : d.titolo || tr('Senza titolo'),
           byteAppunti: Math.max(0, tuttoIlDocumento - lezioni.reduce((s, l) => s + l.byteTrascrizione, 0)),
           byteImmagini: ids.reduce((s, id) => s + (immagini.get(id) ?? 0), 0),
           immagini: ids.length,
@@ -86,7 +87,7 @@ export async function misuraTutto(): Promise<Misure> {
       for (const l of misura.lezioni) { totali.trascrizioni += l.byteTrascrizione; totali.audio += l.byteAudio }
     }
     pagine.sort((a, b) => peso(b) - peso(a))
-    materie.push({ id: q.id, nome: q.nome || 'Senza nome', colore: q.colore, pagine })
+    materie.push({ id: q.id, nome: q.nome || tr('Senza nome'), colore: q.colore, pagine })
   }
   materie.sort((a, b) => b.pagine.reduce((s, p) => s + peso(p), 0) - a.pagine.reduce((s, p) => s + peso(p), 0))
   return { materie, totali, browser: stima?.usage ?? null }

@@ -3,6 +3,7 @@ import { daWikipedia } from './wikipedia'
 import { cercaSulWeb } from './web'
 import { leggiImpostazioni } from '../impostazioni'
 import { normalizza } from '../lib/testo'
+import { tr } from '../lingua/lingua'
 
 /*  Il pannello è una pila di ricerche, dalla più recente.
  *  Ci finiscono sia quelle scritte a mano sia quelle nate dalla
@@ -95,6 +96,6 @@ export async function avviaRicerca(query: string, origine: Ricerca['origine'] = 
       })
     }
   } catch (e) {
-    aggiorna({ stato: 'errore', errore: e instanceof Error ? e.message : 'ricerca fallita' })
+    aggiorna({ stato: 'errore', errore: e instanceof Error ? e.message : tr('ricerca fallita') })
   }
 }

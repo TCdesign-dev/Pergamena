@@ -4,6 +4,7 @@ import type { Documento, Quaderno } from '../documento/tipi'
 import { useRegistrazioni } from '../registrazione/useRegistrazioni'
 import { iscrivitiRegistrazione, leggiRegistrazione } from '../registrazione/statoRegistrazione'
 import s from './RigaDati.module.css'
+import { locale, tr } from '../lingua/lingua'
 
 /*  Sotto il titolo della pagina, i suoi dati in una riga: la materia,
  *  il giorno, e le lezioni — «lezione in corso» mentre si registra.
@@ -20,7 +21,7 @@ export function RigaDati({ documento, doc, quaderno }: {
   const inCorso = (r.attiva && r.documentoId === documento.id) || r.altrove?.documentoId === documento.id
 
   const giorno = new Date(documento.creato)
-  const data = giorno.toLocaleDateString('it-IT', {
+  const data = giorno.toLocaleDateString(locale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -31,12 +32,12 @@ export function RigaDati({ documento, doc, quaderno }: {
     quaderno && (
       <span key="materia" className={s.materia}>
         <span className={s.pallino} data-colore={quaderno.colore} />
-        {quaderno.nome || 'Senza nome'}
+        {quaderno.nome || tr('Senza nome')}
       </span>
     ),
     <span key="data">{data}</span>,
-    inCorso ? <span key="lezioni">lezione in corso</span>
-      : lezioni.length ? <span key="lezioni">{lezioni.length === 1 ? '1 lezione registrata' : `${lezioni.length} lezioni registrate`}</span>
+    inCorso ? <span key="lezioni">{tr('lezione in corso')}</span>
+      : lezioni.length ? <span key="lezioni">{tr('{n} lezione registrata | {n} lezioni registrate', { n: lezioni.length })}</span>
       : null,
   ].filter(Boolean)
 

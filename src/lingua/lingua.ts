@@ -12,7 +12,7 @@
  *  Le lingue non sono elencate da nessuna parte: si contano i file in
  *  `lingue/`. Aggiungerne una vuol dire aggiungere un file, e nient'altro. */
 
-import { leggiImpostazioni } from '../impostazioni'
+import { imposta, leggiImpostazioni } from '../impostazioni'
 
 /** Il blocco `_` in testa a ogni file: quello che la lingua dice di sé. */
 export type Scheda = {
@@ -57,7 +57,6 @@ export function lingue(): Lingua[] {
 
 let corrente: Lingua = ITALIANO
 let dizionario: Record<string, string> = {}
-const ascoltatori = new Set<() => void>()
 
 export const linguaCorrente = () => corrente
 /** Il locale da dare a `toLocaleDateString` e compagnia. */
@@ -87,16 +86,16 @@ export async function caricaLingua(codice = daMostrare()) {
   dizionario = voci
   corrente = scelta
   document.documentElement.lang = codice
-  ascoltatori.forEach((f) => f())
 }
 
+/*  Cambiare lingua ricarica la pagina. Sembra brusco, ma le frasi
+ *  stanno anche in tabelle che si leggono una volta sola — i nomi dei
+ *  blocchi, le scorciatoie, i temi — e ricaricare è l'unico modo per
+ *  cui non ne resti mezza in italiano. Gli appunti non rischiano
+ *  niente: sono già su questo computer. */
 export function cambiaLingua(codice: string | null) {
-  void caricaLingua(codice ?? daMostrare())
-}
-
-export function iscrivitiLingua(fn: () => void) {
-  ascoltatori.add(fn)
-  return () => { ascoltatori.delete(fn) }
+  imposta('lingua', codice)
+  location.reload()
 }
 
 /*  ── le frasi ──────────────────────────────────────────────────────

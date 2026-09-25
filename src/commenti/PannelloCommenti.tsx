@@ -9,6 +9,7 @@ import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { quandoFa } from '../lib/quando'
 import { Icona } from '../lib/Icona'
 import s from './PannelloCommenti.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Tutti i commenti della pagina, in fila.
  *
@@ -67,9 +68,9 @@ export function PannelloCommenti({ doc, rifEditore, modo, onChiudi }: {
   return (
     <div className={s.pannello} data-modo={modo}>
       <header className={s.testa}>
-        <span className={s.titolo}>{modo === 'lato' ? 'Commenti' : 'Commenti di questa pagina'}</span>
+        <span className={s.titolo}>{modo === 'lato' ? 'Commenti' : tr('Commenti di questa pagina')}</span>
         <span className={s.numero}>{elenco.length}</span>
-        <button className={s.chiudi} title="Chiudi  esc" aria-label="Chiudi il pannello dei commenti" onClick={onChiudi}>
+        <button className={s.chiudi} title={tr('Chiudi  esc')} aria-label={tr('Chiudi il pannello dei commenti')} onClick={onChiudi}>
           <Icona nome="chiudi" />
         </button>
       </header>
@@ -95,7 +96,7 @@ export function PannelloCommenti({ doc, rifEditore, modo, onChiudi }: {
                 <div className={s.riga}>
                   <span className={s.data}>
                     {quandoFa(c.modificato ?? c.quando)}
-                    {!nelTesto && ' · la frase non c’è più'}
+                    {!nelTesto && tr(' · la frase non c’è più')}
                   </span>
                   <button className={s.risolvi} onClick={() => risolvi(c)}>
                     <Icona nome="accetta" dimensione={12} />Risolvi

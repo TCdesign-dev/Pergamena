@@ -4,6 +4,7 @@ import { schedaDi, schedaEsistente } from '../documento/archivio'
 import { Editor, type RifEditore } from '../editor/Editor'
 import { Testata } from './Testata'
 import s from './Scheda.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  La scheda della materia: in cima i campi che fanno qualcosa (le
  *  date d'esame, l'email, i link), sotto una pagina libera per tutto
@@ -31,9 +32,9 @@ export function SchedaMateria({ quaderno, rifEditore, onHome, onCopertina }: {
   return (
     <div className={s.vista}>
       <nav className={s.percorso}>
-        <button className={s.passo} onClick={onHome}>Materie</button>
+        <button className={s.passo} onClick={onHome}>{tr('Materie')}</button>
         <span className={s.sbarra}>/</span>
-        <span className={s.qui}>{quaderno.nome || 'Senza nome'} · scheda</span>
+        <span className={s.qui}>{quaderno.nome || tr('Senza nome')} · scheda</span>
       </nav>
 
       <Editor
@@ -41,7 +42,7 @@ export function SchedaMateria({ quaderno, rifEditore, onHome, onCopertina }: {
         fuoco="niente"
         rifEditore={rifEditore}
         intestazione={<Testata quaderno={quaderno} onCopertina={() => onCopertina(quaderno)} />}
-        segnaposto="Programma, libri, regole d’esame… tutto quello che ti serve sapere su questa materia."
+        segnaposto={tr('Programma, libri, regole d’esame… tutto quello che ti serve sapere su questa materia.')}
       />
     </div>
   )

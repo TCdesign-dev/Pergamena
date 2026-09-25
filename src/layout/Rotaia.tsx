@@ -3,6 +3,7 @@ import type { Quaderno, Documento } from '../documento/tipi'
 import type { Fuoco } from '../editor/Editor'
 import { Icona } from '../lib/Icona'
 import s from './Rotaia.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  La barra laterale chiusa: una colonna di icone larga 48 px. Sotto i
  *  900 px è così di partenza (a 716, in aula, la colonna di scrittura si
@@ -38,14 +39,14 @@ export function Rotaia({
   }
 
   return (
-    <nav className={s.rotaia} aria-label="Navigazione">
-      <button className={s.pulsante} onClick={onBarra} aria-label="Apri la barra laterale (⌘\)" title="Barra laterale  ⌘\">
+    <nav className={s.rotaia} aria-label={tr('Navigazione')}>
+      <button className={s.pulsante} onClick={onBarra} aria-label={tr('Apri la barra laterale (⌘\\)')} title={tr('Barra laterale  ⌘\\')}>
         <Icona nome="barra-laterale" />
       </button>
-      <button className={s.pulsante} onClick={onCerca} aria-label="Cerca e comandi (⌘K)" title="Cerca  ⌘K">
+      <button className={s.pulsante} onClick={onCerca} aria-label={tr('Cerca e comandi (⌘K)')} title={tr('Cerca  ⌘K')}>
         <Icona nome="cerca" />
       </button>
-      <button className={`${s.pulsante} ${inHome ? s.attivo : ''}`} onClick={onHome} aria-label="Le tue materie" title="Le tue materie">
+      <button className={`${s.pulsante} ${inHome ? s.attivo : ''}`} onClick={onHome} aria-label={tr('Le tue materie')} title={tr('Le tue materie')}>
         <Icona nome="materie" />
       </button>
 
@@ -57,8 +58,8 @@ export function Rotaia({
             key={q.id}
             className={`${s.pulsante} ${materiaInVista === q.id ? s.attivo : ''}`}
             onClick={() => apriMateria(q)}
-            aria-label={q.nome || 'Senza nome'}
-            title={q.nome || 'Senza nome'}
+            aria-label={q.nome || tr('Senza nome')}
+            title={q.nome || tr('Senza nome')}
           >
             <span className={s.pallino} data-colore={q.colore} />
           </button>
@@ -66,8 +67,8 @@ export function Rotaia({
         <button
           className={`${s.pulsante} ${s.spento}`}
           onClick={() => { const q = creaQuaderno(''); onApri(creaDocumento(q.id).id, 'titolo') }}
-          aria-label="Nuova materia"
-          title="Nuova materia"
+          aria-label={tr('Nuova materia')}
+          title={tr('Nuova materia')}
         >
           <Icona nome="nuovo" />
         </button>
@@ -75,10 +76,10 @@ export function Rotaia({
 
       <span className={s.spazio} />
 
-      <button className={`${s.pulsante} ${archivioAperto ? s.attivo : ''}`} onClick={onArchivio} aria-label="Archivio" title="Archivio">
+      <button className={`${s.pulsante} ${archivioAperto ? s.attivo : ''}`} onClick={onArchivio} aria-label={tr('Archivio')} title={tr('Archivio')}>
         <Icona nome="archivio" />
       </button>
-      <button className={s.pulsante} onClick={onImpostazioni} aria-label="Impostazioni (⌘,)" title="Impostazioni  ⌘,">
+      <button className={s.pulsante} onClick={onImpostazioni} aria-label={tr('Impostazioni (⌘,)')} title={tr('Impostazioni  ⌘,')}>
         <Icona nome="impostazioni" />
       </button>
     </nav>

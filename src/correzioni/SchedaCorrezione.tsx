@@ -14,6 +14,8 @@ import type { Correzione } from './tipi'
 import { useLargo } from '../layout/larghezza'
 import { Icona } from '../lib/Icona'
 import s from './SchedaCorrezione.module.css'
+import { locale, tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  La scheda che si apre dal pallino a margine (o con ⌥⌘↓ e ⌥⌘↑): cosa
  *  ha detto il professore, cosa cambierebbe, e la scelta. Una
@@ -40,11 +42,13 @@ export function SchedaCorrezione({ editor, doc }: { editor: Editor; doc: Y.Doc }
 
 function quandoFa(ms: number) {
   const minuti = Math.round((Date.now() - ms) / 60_000)
-  if (minuti < 1) return 'adesso'
-  if (minuti < 60) return `${minuti} min fa`
+  if (minuti < 1) return tr('adesso')
+  if (minuti < 60) return tr('{n} min fa', { n: minuti })
   const d = new Date(ms)
-  const ora = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-  return new Date().toDateString() === d.toDateString() ? `alle ${ora}` : `il ${d.toLocaleDateString('it-IT')} alle ${ora}`
+  const ora = d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })
+  return new Date().toDateString() === d.toDateString()
+    ? tr('alle {ora}', { ora })
+    : tr('il {data} alle {ora}', { data: d.toLocaleDateString(locale()), ora })
 }
 
 /** La citazione, con in evidenza le parole che servono alla correzione. */
@@ -157,7 +161,7 @@ function Scheda({ editor, doc, id }: { editor: Editor; doc: Y.Doc; id: string })
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={tasti}
         role="dialog"
-        aria-label="Correzione dalla lezione"
+        aria-label={tr('Correzione dalla lezione')}
       >
         <div className={s.testa}>
           <span className={s.etichetta}>Il professore ha detto · {quandoFa(c.quando)}</span>
@@ -167,14 +171,14 @@ function Scheda({ editor, doc, id }: { editor: Editor; doc: Y.Doc; id: string })
         <Cambio c={c} />
         <div className={s.piede}>
           {tutte.length > 1 && (
-            <span className={s.suggerimento}><kbd className={s.tasto}>⌥⌘↓</kbd> prossima</span>
+            <span className={s.suggerimento}><Tr frase="<kbd>⌥⌘↓</kbd> prossima" classi={{ kbd: s.tasto }} /></span>
           )}
           <span className={s.azioni}>
             <button className={s.lascia} onClick={lascia}>
-              Lascia così <kbd className={s.tasto}>X</kbd>
+              <Tr frase="Lascia così <kbd>X</kbd>" classi={{ kbd: s.tasto }} />
             </button>
             <button ref={correggi} className={s.correggi} onClick={() => { accettaCorrezione(editor, doc, c); chiudi() }}>
-              Correggi <kbd className={s.tasto}>↵</kbd>
+              <Tr frase="Correggi <kbd>↵</kbd>" classi={{ kbd: s.tasto }} />
             </button>
           </span>
         </div>

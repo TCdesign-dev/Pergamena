@@ -17,6 +17,7 @@ import { Elenchi } from './elenchi'
 import { SpostaBlocchi, GruppoDiBlocchi } from './spostaBlocchi'
 import { FormulaASe, FormulaNelTesto, FormuleLettura } from './formule'
 import { Correzioni } from './correzioni'
+import { tr } from '../../lingua/lingua'
 
 /** L'elenco delle estensioni sta in un posto solo: da qui in poi
  *  aggiungere una funzione all'editor è aggiungere una riga qui. */
@@ -32,7 +33,7 @@ export function estensioni(doc: Y.Doc, opzioni: { segnaposto?: string; documento
     }),
     Highlight.configure({ multicolor: false }),
     Placeholder.configure({
-      placeholder: opzioni.segnaposto ?? 'Scrivi, oppure premi / per i blocchi…',
+      placeholder: opzioni.segnaposto ?? tr('Scrivi, oppure premi / per i blocchi…'),
     }),
     IdStabile,
     SegnoAi,

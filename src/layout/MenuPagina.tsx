@@ -2,6 +2,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEv
 import { createPortal } from 'react-dom'
 import { Icona, type NomeIcona } from '../lib/Icona'
 import s from './MenuPagina.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  Il menu ⋯: le cose che servono di rado — della pagina, nella barra
  *  in alto, o di una lezione, nel pannello Lezioni. Si apre col clic o
@@ -33,7 +34,7 @@ export type VoceMenu = {
   azione: () => void
 }
 
-export function MenuPagina({ voci, etichetta = 'Altre azioni' }: {
+export function MenuPagina({ voci, etichetta = tr('Altre azioni') }: {
   voci: VoceMenu[]
   /** per i lettori di schermo e il suggerimento al passaggio */
   etichetta?: string

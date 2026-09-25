@@ -21,6 +21,7 @@ import { useLargo } from './larghezza'
 import { scrittaDiComando } from '../tastiera/scorciatoie'
 import { Icona } from '../lib/Icona'
 import s from './BarraSuperiore.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  La barra in alto. A sinistra dove sei; a destra tre cose fisse, che
  *  non si restringono mai: la registrazione, le Lezioni, il menu ⋯.
@@ -65,28 +66,28 @@ export function BarraSuperiore({
 
   const voci: VoceMenu[] = [
     ...(largo ? [] : [{ etichetta: 'Immagini', icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
-    { etichetta: 'Elimina pagina…', icona: 'elimina', pericolo: true, azione: onElimina },
+    { etichetta: tr('Elimina pagina…'), icona: 'elimina', pericolo: true, azione: onElimina },
   ]
 
   return (
     <header className={s.barra}>
-      <nav className={s.percorso} aria-label="Percorso">
+      <nav className={s.percorso} aria-label={tr('Percorso')}>
         {largo && (
           <>
-            <button className={`${s.passo} ${s.materie}`} onClick={onHome}>Materie</button>
+            <button className={`${s.passo} ${s.materie}`} onClick={onHome}>{tr('Materie')}</button>
             <span className={s.sbarra}>/</span>
           </>
         )}
         {quaderno && (
           <>
-            <button className={`${s.passo} ${s.materia}`} title="Scheda della materia" onClick={() => onScheda(quaderno.id)}>
+            <button className={`${s.passo} ${s.materia}`} title={tr('Scheda della materia')} onClick={() => onScheda(quaderno.id)}>
               <span className={s.pallino} data-colore={quaderno.colore} />
-              <span className={s.nome}>{quaderno.nome || 'Senza nome'}</span>
+              <span className={s.nome}>{quaderno.nome || tr('Senza nome')}</span>
             </button>
             <span className={s.sbarra}>/</span>
           </>
         )}
-        <span className={s.pagina} aria-current="page">{documento.titolo || 'Senza titolo'}</span>
+        <span className={s.pagina} aria-current="page">{documento.titolo || tr('Senza titolo')}</span>
       </nav>
 
       <div className={s.azioni}>
@@ -94,8 +95,8 @@ export function BarraSuperiore({
         <button
           ref={rifLezioni}
           className={`${s.lezioni} ${lezioniAperte ? s.attivo : ''}`}
-          title="Lezioni di questa pagina"
-          aria-label={`Lezioni di questa pagina: ${lezioni.length}`}
+          title={tr('Lezioni di questa pagina')}
+          aria-label={tr('Lezioni di questa pagina: {n}', { n: lezioni.length })}
           aria-expanded={lezioniAperte}
           onClick={() => apriLezioni(!lezioniAperte)}
         >
@@ -106,8 +107,8 @@ export function BarraSuperiore({
           <button
             ref={rifDomande}
             className={`${s.icona} ${domandeAperte ? s.attivo : ''}`}
-            title={`Chiedi alla lezione  ${scrittaDiComando('chiedi')}`}
-            aria-label="Chiedi alla lezione"
+            title={tr('Chiedi alla lezione  {tasti}', { tasti: scrittaDiComando('chiedi') })}
+            aria-label={tr('Chiedi alla lezione')}
             aria-expanded={domandeAperte}
             onClick={() => apriDomande(!domandeAperte)}
           >
@@ -118,8 +119,8 @@ export function BarraSuperiore({
           <button
             ref={rifCommenti}
             className={`${s.lezioni} ${commentiAperti ? s.attivo : ''}`}
-            title="Commenti di questa pagina"
-            aria-label={`Commenti di questa pagina: ${commenti.length}`}
+            title={tr('Commenti di questa pagina')}
+            aria-label={tr('Commenti di questa pagina: {n}', { n: commenti.length })}
             aria-expanded={commentiAperti}
             onClick={() => apriCommenti(!commentiAperti)}
           >
@@ -131,7 +132,7 @@ export function BarraSuperiore({
           <button
             className={`${s.icona} ${pannelloAperto ? s.attivo : ''}`}
             title={`Immagini  ${scrittaDiComando('immagini')}`}
-            aria-label="Pannello delle immagini"
+            aria-label={tr('Pannello delle immagini')}
             aria-pressed={pannelloAperto}
             onClick={onPannello}
           >

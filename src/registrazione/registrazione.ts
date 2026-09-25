@@ -10,6 +10,7 @@ import { recuperaInterrotte, recuperaSospese } from './recupero'
 import { esponi } from '../lib/dev'
 import { leggiImpostazioni } from '../impostazioni'
 import { togliCorrezioniDi } from '../correzioni/deposito'
+import { tr } from '../lingua/lingua'
 
 export { mappaRegistrazioni, leggiRegistrazioni } from './voci'
 export { chiudiOrfane, recuperaInterrotte } from './recupero'
@@ -67,7 +68,7 @@ const posta = (dove: string, corpo: object) => fetch(`/api/ascolto/${dove}`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(corpo),
-}).then((x) => x.json()).catch(() => ({ ok: false, errore: 'server non raggiungibile' }))
+}).then((x) => x.json()).catch(() => ({ ok: false, errore: tr('server non raggiungibile') }))
 
 /** Il blocco di primo livello in cui si trova il cursore. */
 function bloccoSottoAlCursore(editor: Editor): string | null {
@@ -136,7 +137,7 @@ export async function avviaRegistrazione(opzioni: {
   if (!r.ok) {
     chiudi()
     mappaRegistrazioni(doc).delete(id)
-    azzera(r.errore ?? 'avvio fallito')
+    azzera(r.errore ?? tr('avvio fallito'))
   }
 }
 
@@ -207,7 +208,7 @@ function ascolta(voce: Y.Map<unknown>, opzioni: Opzioni, modo: Modo) {
     aggiorna({ scollegato: true })
     timerCollegamento = window.setTimeout(() => {
       timerCollegamento = undefined
-      concludi(voce, 'il collegamento con il server si è interrotto', true)
+      concludi(voce, tr('il collegamento con il server si è interrotto'), true)
     }, PAZIENZA)
   }
 }
@@ -244,7 +245,7 @@ function ricevi(evento: Record<string, unknown>, voce: Y.Map<unknown>, opzioni: 
         break
       }
       // un server nuovo: il programma di ascolto è morto col vecchio
-      concludi(voce, 'il server si è riavviato', true)
+      concludi(voce, tr('il server si è riavviato'), true)
       break
     }
     case 'occupato': {

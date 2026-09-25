@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { iscrivitiRegistrazione, leggiRegistrazione } from './statoRegistrazione'
 import s from './InCorso.module.css'
+import { tr } from '../lingua/lingua'
 
 /*  «Si sta registrando», fuori dalla pagina che registra.
  *
@@ -22,15 +23,15 @@ export function usePaginaRegistrata(): string | null {
 export function PallinoInCorso({ documentoId }: { documentoId: string }) {
   const registrata = usePaginaRegistrata()
   if (registrata !== documentoId) return null
-  return <span className={s.pallino} role="img" title="Si sta registrando qui" aria-label="Si sta registrando qui" />
+  return <span className={s.pallino} role="img" title={tr('Si sta registrando qui')} aria-label={tr('Si sta registrando qui')} />
 }
 
 /** La pastiglia in cima alle Materie: dice dove, e ci porta. */
 export function AvvisoInCorso({ titolo, onVai }: { titolo: string; onVai: () => void }) {
   return (
-    <button className={s.avviso} onClick={onVai} title="Vai alla pagina che sta registrando">
+    <button className={s.avviso} onClick={onVai} title={tr('Vai alla pagina che sta registrando')}>
       <span className={s.pallino} />
-      Si sta registrando · {titolo || 'Senza titolo'}
+      Si sta registrando · {titolo || tr('Senza titolo')}
     </button>
   )
 }

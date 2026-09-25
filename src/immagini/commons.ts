@@ -4,6 +4,7 @@
  *  stock: «Basilica di Superga», «ciclo di Krebs», «Filippo Juvarra»
  *  ci sono davvero, con licenza pulita e attribuzione. Nessuna chiave
  *  API, nessun limite pratico. */
+import { tr } from '../lingua/lingua'
 
 export type Trovata = {
   chiave: string
@@ -53,8 +54,8 @@ function scheda(p: Record<string, unknown>): Trovata | null {
     originale: info.url,
     larghezza: Number(info.thumbwidth) || 400,
     altezza: Number(info.thumbheight) || 300,
-    autore: autore(meta.Artist?.value) || 'Autore non indicato',
-    licenza: ripulisci(meta.LicenseShortName?.value) || 'vedi Commons',
+    autore: autore(meta.Artist?.value) || tr('Autore non indicato'),
+    licenza: ripulisci(meta.LicenseShortName?.value) || tr('vedi Commons'),
     pagina: info.descriptionurl ?? '',
   }
 }
@@ -120,7 +121,7 @@ export async function scarica(t: Trovata) {
       const r = await fetch(`/api/immagini/scarica?url=${encodeURIComponent(url)}`).catch(() => null)
       if (r?.ok) return rimpicciolisci(await r.blob())
     }
-    throw new Error('il sito non lascia scaricare l’immagine: provane un’altra')
+    throw new Error(tr('il sito non lascia scaricare l’immagine: provane un’altra'))
   }
   const risposta = await fetch(t.miniatura)
   if (!risposta.ok) throw new Error(`Scaricamento fallito (${risposta.status})`)

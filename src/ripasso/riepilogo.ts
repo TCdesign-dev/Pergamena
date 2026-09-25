@@ -4,6 +4,7 @@ import { leggiDocumento } from '../documento/leggi'
 import { leggiRegistrazioni } from '../registrazione/voci'
 import { chiediJson } from '../lib/modello'
 import { argomentiDellaPagina } from './argomenti'
+import { locale } from '../lingua/lingua'
 
 /*  «Dove eravamo rimasti»: il punto della situazione sulle ultime
  *  lezioni di una materia, da leggere prima di entrare in aula.
@@ -86,7 +87,7 @@ export async function faiRiepilogo(quadernoId: string, materia: string): Promise
   if (!lezioni.length) return null
 
   const materiale = lezioni.map((l) =>
-    `LEZIONE ${l.chiave} — ${new Date(l.quando).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}` +
+    `LEZIONE ${l.chiave} — ${new Date(l.quando).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })}` +
     ` (pagine: ${l.pagine.join(', ')})\n` +
     (l.titoli.length ? `Titoli negli appunti: ${l.titoli.join(' · ')}\n` : '') +
     `${daAppunti ? 'APPUNTI' : 'TRASCRIZIONE'}:\n${l.testo}`,
