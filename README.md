@@ -4,6 +4,7 @@
 ![macOS 26](https://img.shields.io/badge/macOS-26%2B-black)
 ![Node 24](https://img.shields.io/badge/Node-24-black)
 ![stato: sviluppo attivo](https://img.shields.io/badge/stato-sviluppo%20attivo-brightgreen)
+![lingue: italiano, inglese](https://img.shields.io/badge/lingue-italiano%20%C2%B7%20inglese-black)
 
 Applicazione per prendere appunti a lezione. Registra e trascrive l'audio
 in locale sul Mac, poi confronta la trascrizione con gli appunti e
@@ -158,6 +159,9 @@ altre funzioni sono invariate.
 - **Istruzioni dell'integratore** (Impostazioni › Integratore): il testo
   che precede appunti e trascrizione è modificabile; il formato della
   risposta resta gestito dall'applicazione;
+- **Lingua** (Impostazioni › Aspetto): italiano e inglese; «come il
+  sistema» segue la lingua del browser. Le lingue si aggiungono senza
+  toccare il codice, vedi [Traduzioni](#traduzioni);
 - **Chiavi API**, tema, microfono, fonte delle immagini e correzioni in
   diretta sono configurabili dalle impostazioni.
 
@@ -259,6 +263,7 @@ src/
 ├── ricerca/         indice e ricerca nel testo
 ├── sync/            Supabase: autenticazione e sincronizzazione
 ├── tastiera/        registro delle scorciatoie
+├── lingua/          dizionari, frasi e formati della lingua scelta
 ├── telefono/        interfaccia di sola lettura
 ├── layout/          struttura, barre, pannelli, impostazioni
 ├── lib/             modelli, decisioni, utilità di testo, icone
@@ -266,6 +271,8 @@ src/
 
 server/              plugin Vite: audio, modelli, decisioni, immagini
 nativo/ascolto/      componente Swift per acquisizione e trascrizione
+lingue/              un file JSON per lingua: frase italiana → traduzione
+strumenti/           lingue.mjs: estrae le frasi e aggiorna i dizionari
 supabase/schema.sql  tabella, indici e politiche di accesso
 docs/                quaderno di bordo e immagini
 ```
@@ -284,6 +291,29 @@ modelli sono la parte soggetta a modifiche più frequenti.
 Non sono previsti pacchetti di installazione né servizi ospitati:
 l'applicazione si esegue localmente a partire dal codice sorgente.
 
+## Traduzioni
+
+L'interfaccia è disponibile in italiano e in inglese. Ogni lingua è un
+file JSON in `lingue/`: la chiave è la frase italiana, il valore la
+traduzione. Le frasi senza traduzione compaiono in italiano, quindi una
+lingua è utilizzabile anche incompleta.
+
+```bash
+npm run lingue -- --nuova es
+```
+
+Il comando crea `lingue/es.json` con tutte le frasi da tradurre e un
+blocco `_` con i dati della lingua: nome, locale per date e numeri,
+locale della trascrizione, riga che indica al modello in che lingua
+rispondere. La lingua compare nelle impostazioni appena il file esiste.
+
+`npm run lingue`, senza argomenti, rilegge il codice e aggiorna tutti i
+file: aggiunge le frasi nuove, toglie quelle sparite, indica quante ne
+mancano.
+
+Procedura completa, in italiano e in inglese, in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Supporto e contributi
 
 Segnalazioni e domande:
@@ -291,10 +321,10 @@ Segnalazioni e domande:
 problema di avvio sono utili la versione di macOS, quella di Node e
 l'output del terminale in cui gira `npm run dev`.
 
-Le pull request sono benvenute. Per modifiche sostanziali conviene aprire
-prima una issue: alcune scelte strutturali — assenza di librerie di
-componenti, documento come unica fonte, chiavi API fuori dal browser —
-condizionano l'implementazione.
+Le pull request sono benvenute: [CONTRIBUTING.md](CONTRIBUTING.md). Per
+modifiche sostanziali conviene aprire prima una issue: alcune scelte
+strutturali — assenza di librerie di componenti, documento come unica
+fonte, chiavi API fuori dal browser — condizionano l'implementazione.
 
 ## Licenza
 
@@ -308,5 +338,8 @@ compares the transcript with your notes and proposes the missing
 information — completing existing lines rather than rewriting them. It
 also checks dates and figures against the lecture in real time, answers
 questions using only your notes and the transcript, and keeps data on
-your machine unless you configure your own Supabase project. Interface
-and documentation are in Italian.*
+your machine unless you configure your own Supabase project. The
+interface is available in Italian and English; other languages are a
+single JSON file each, and
+[CONTRIBUTING.md](CONTRIBUTING.md#contributing-to-pergamena) explains
+how to add one. Documentation is in Italian.*

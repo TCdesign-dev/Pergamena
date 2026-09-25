@@ -1,0 +1,20 @@
+name: lingue
+
+on:
+  pull_request:
+    paths: ['src/**', 'lingue/**', 'strumenti/lingue.mjs']
+  push:
+    branches: [main]
+    paths: ['src/**', 'lingue/**', 'strumenti/lingue.mjs']
+
+jobs:
+  controlla:
+    name: i file delle lingue sono aggiornati
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      # niente npm install: lo strumento usa solo moduli di Node
+      - run: node strumenti/lingue.mjs --controlla

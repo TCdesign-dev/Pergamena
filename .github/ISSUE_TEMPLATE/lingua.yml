@@ -1,0 +1,43 @@
+name: Nuova lingua · New language
+description: Proporre la traduzione dell'interfaccia in un'altra lingua · Offer to translate the interface
+title: 'Lingua: '
+labels: [traduzione]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        La procedura è in [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+        In breve: `npm run lingue -- --nuova xx` crea il file, si traducono
+        i valori, si apre una pull request.
+
+        The procedure is in [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md).
+        In short: `npm run lingue -- --nuova xx` creates the file, you
+        translate the values, you open a pull request.
+  - type: input
+    id: lingua
+    attributes:
+      label: Lingua · Language
+      description: Nome e codice ISO · Name and ISO code
+      placeholder: Español (es)
+    validations:
+      required: true
+  - type: dropdown
+    id: cosa
+    attributes:
+      label: Di cosa si tratta · What this is about
+      options:
+        - Una lingua nuova · A new language
+        - Correzioni a una lingua che c'è già · Fixes to an existing language
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: Note
+      description: |
+        Utile sapere: se sei madrelingua, se la lingua ha più di due forme
+        di plurale, e quale locale usare per la trascrizione.
+
+        Useful to know: whether you are a native speaker, whether the
+        language has more than two plural forms, and which locale to use
+        for transcription.
