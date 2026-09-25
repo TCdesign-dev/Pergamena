@@ -11,12 +11,34 @@ export type Proposta = {
   tipo: 'integra' | 'completa' | 'correggi'
   /** solo per «completa»: le parole della sua riga dopo cui va infilato */
   punto?: string
+  /*  solo per «integra»: il nome dell'argomento che questa riga apre,
+      quando negli appunti di quell'argomento non c'è traccia. Diventa
+      un «titolo 1» davanti alla riga. */
+  titolo?: string
   testo: string
   perche: string
   importanza: number
 }
 
 const SEGNO_AI = [{ type: 'segnoAi', attrs: { fonte: 'audio', stato: 'proposto' } }]
+
+/** Un titolo con queste parole c'è già? Fra un'integrazione e l'altra
+ *  della stessa pagina capita che lo stesso argomento venga aperto due
+ *  volte. */
+function titoloGiaPresente(editor: Editor, testo: string) {
+  const cercato = normalizza(testo).trim()
+  let presente = false
+  editor.state.doc.forEach((n) => {
+    if (n.type.name === 'heading' && normalizza(n.textContent).trim() === cercato) presente = true
+  })
+  return presente
+}
+
+/** Il nome dell'argomento ripulito, se la proposta ne porta uno. */
+function nomeArgomento(p: Proposta) {
+  const t = p.titolo?.trim().replace(/^#+\s*/, '').replace(/\*\*/g, '').trim()
+  return t || null
+}
 
 /** Dove sta, adesso, il blocco di primo livello con quell'id. */
 function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null {
@@ -131,6 +153,10 @@ export function applica(editor: Editor, proposte: Proposta[]) {
     perBlocco.set(p.dopo, [...(perBlocco.get(p.dopo) ?? []), p])
   }
 
+  //  i titoli messi in questo giro: due proposte che aprono lo stesso
+  //  argomento non devono produrre due titoli uguali di fila
+  const messi = new Set<string>()
+
   for (const [dopo, gruppo] of perBlocco) {
     const bersaglio = trova(editor, dopo)
     if (!bersaglio) continue
@@ -138,15 +164,29 @@ export function applica(editor: Editor, proposte: Proposta[]) {
     const { pos, nodo } = bersaglio
     const elenco = nodo.type.name === 'bulletList' || nodo.type.name === 'orderedList'
 
-    const blocchi = gruppo.map((p) => {
+    const blocchi = gruppo.flatMap((p) => {
       let testo = p.testo.trim()
       // in un elenco il trattino lo mette già l'elenco
       if (elenco) testo = testo.replace(/^[-–•*]\s+/, '')
       // grassetto, colori ed evidenziatore come negli appunti (vedi marcatura.ts)
       const segnato = daMarcatura((p.tipo === 'correggi' ? '⚠︎ ' : '') + testo, SEGNO_AI)
-      return elenco
+      const riga = elenco
         ? { type: 'listItem', content: [{ type: 'paragraph', content: segnato }] }
         : { type: 'paragraph', content: segnato }
+
+      /*  L'argomento di cui negli appunti non c'era niente arriva con il
+       *  suo titolo davanti. Dentro un elenco no: un titolo in mezzo
+       *  alle voci non è un titolo, è una voce storta. E non dietro a un
+       *  titolo, che sarebbe un titolo del titolo. */
+      const titolo = p.tipo === 'integra' && !elenco ? nomeArgomento(p) : null
+      if (!titolo || nodo.type.name === 'heading') return [riga]
+      const chiave = normalizza(titolo).trim()
+      if (messi.has(chiave) || titoloGiaPresente(editor, titolo)) return [riga]
+      messi.add(chiave)
+      return [
+        { type: 'heading', attrs: { level: 1 }, content: [{ type: 'text', text: titolo, marks: SEGNO_AI }] },
+        riga,
+      ]
     })
 
     // in fondo all'elenco (dentro, prima della chiusura) o dopo il blocco
@@ -169,6 +209,7 @@ export function applicaTitoli(editor: Editor, titoli: Titolo[]) {
     if (!bersaglio || !testo || bersaglio.nodo.type.name === 'heading') continue
     const prima = editor.state.doc.resolve(bersaglio.pos).nodeBefore
     if (prima?.type.name === 'heading') continue
+    if (titoloGiaPresente(editor, testo)) continue
     const ok = editor.chain().insertContentAt(bersaglio.pos, {
       type: 'heading',
       attrs: { level: 1 },

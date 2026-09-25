@@ -119,6 +119,7 @@ async function integra(
       ...p,
       tipo: p.tipo === 'correggi' ? 'correggi' as const : p.tipo === 'completa' ? 'completa' as const : 'integra' as const,
       punto: typeof p.punto === 'string' ? p.punto : undefined,
+      titolo: typeof p.titolo === 'string' ? p.titolo : undefined,
       importanza: Number(p.importanza) || 3,
     }))
     .sort((a, b) => b.importanza - a.importanza)
@@ -138,4 +139,4 @@ async function integra(
   return { proposte: fatte, scartate: proposte.length - fatte, immagini, costo }
 }
 
-esponi({ merge: { integraLezione, integraTutto, allinea } })
+esponi({ merge: { integraLezione, integraTutto, allinea, applica, applicaTitoli } })

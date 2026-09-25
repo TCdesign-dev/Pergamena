@@ -90,15 +90,24 @@ Regole:
  *  fuori, perché è il modo in cui il programma legge la risposta: un
  *  JSON storto non è una proposta brutta, è zero proposte. */
 const CONTRATTO = `Poi, i titoli degli argomenti. Un argomento comincia con un blocco
-«titolo 1». Se la lezione passa a un argomento NUOVO e negli appunti manca
-il titolo 1 che lo apre, proponi un titolo breve da mettere PRIMA del blocco
-dove l'argomento comincia ("prima": il suo id). Al massimo 3; mai davanti a
-un blocco che è già un titolo; nessuno se la pagina tratta un argomento solo.
+«titolo 1», e i casi sono due.
+
+Se dell'argomento lui ha scritto qualcosa ma manca il titolo che lo apre,
+proponi un titolo breve da mettere PRIMA del blocco dove l'argomento
+comincia: va in "titoli", con "prima" uguale all'id di quel blocco. Al
+massimo 3; mai davanti a un blocco che è già un titolo; nessuno se la
+pagina tratta un argomento solo.
+
+Se invece dell'argomento negli appunti non c'è traccia — nessuna riga,
+nessun titolo — e sei tu ad aprirlo con una proposta "integra", scrivi il
+nome dell'argomento nel campo "titolo" di QUELLA proposta: due o tre
+parole, e diventa il «titolo 1» che le sta davanti. Ce l'ha solo la prima
+proposta dell'argomento, non tutte quelle che lo riguardano.
 
 Poi, a parte: ${DOMANDA_IMMAGINI}
 
 Rispondi SOLO con un oggetto JSON:
-{"proposte":[{"dopo":"<id>","tipo":"completa"|"integra"|"correggi","punto":"<parole sue, o vuoto>","testo":"...","perche":"...","importanza":1-5}],
+{"proposte":[{"dopo":"<id>","tipo":"completa"|"integra"|"correggi","punto":"<parole sue, o vuoto>","titolo":"<solo se questa riga apre un argomento che negli appunti non c'è>","testo":"...","perche":"...","importanza":1-5}],
  "titoli":[{"prima":"<id>","titolo":"..."}],
  "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
 Se non manca niente di utile: {"proposte":[], "titoli":[], "immagini":[...]}`
