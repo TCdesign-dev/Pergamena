@@ -62,12 +62,14 @@
 }
 
 .minuto {
-  composes: trasparente from '../layout/Superficie.module.css';
-  height: auto;
   padding: 0;
+  border: none;
+  background: none;
   color: var(--tenue-testo);
+  font: inherit;
   font-size: var(--t-piccolo);
   font-variant-numeric: tabular-nums;
+  cursor: pointer;
 }
 .minuto:hover { color: var(--accento); }
 

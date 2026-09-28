@@ -4,6 +4,7 @@ import { aggiornaQuaderno, rinominaQuaderno } from '../documento/archivio'
 import { useImmagine } from '../immagini/useImmagine'
 import { Esami } from './Esami'
 import { Collegamenti } from './Collegamenti'
+import { CompitiMateria } from '../compiti/NellaScheda'
 import { Miniatura } from '../layout/Miniatura'
 import { Icona } from '../lib/Icona'
 import s from './Scheda.module.css'
@@ -39,6 +40,9 @@ export function Testata({ quaderno, onCopertina }: { quaderno: Quaderno; onCoper
       <dl className={s.campi}>
         <dt>{tr('Esami')}</dt>
         <dd><Esami quaderno={quaderno} nuovo={nuovo} onNuovo={setNuovo} /></dd>
+
+        <dt>{tr('Compiti')}</dt>
+        <dd><CompitiMateria quadernoId={quaderno.id} /></dd>
 
         <dt>{tr('Docente')}</dt>
         <dd>

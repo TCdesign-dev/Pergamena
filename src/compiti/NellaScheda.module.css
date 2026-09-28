@@ -1,0 +1,51 @@
+/*  I compiti nella scheda della materia: una riga per cosa da fare,
+ *  scadenza e pagina di provenienza sulla stessa riga. Corti, perché
+ *  stanno in mezzo ai campi della testata. */
+
+.elenco { display: flex; flex-direction: column; gap: calc(var(--u) / 4); }
+
+.riga { display: flex; align-items: baseline; gap: calc(var(--u) * 1.5); min-height: calc(var(--u) * 3); }
+
+.spunta { flex: none; width: calc(var(--u) * 1.75); height: calc(var(--u) * 1.75); accent-color: var(--accento); }
+
+.testo { flex: 1; min-width: 0; color: var(--inchiostro); }
+.fatto .testo { color: var(--tenue-testo); text-decoration: line-through; }
+
+.quando { flex: none; color: var(--tenue-testo); font-size: var(--t-piccolo); }
+.scaduto { color: var(--avviso); }
+
+/*  Niente `composes` qui: la classe composta viene emessa dopo e
+    vincerebbe su display, flex e padding, lasciando il nome della
+    pagina tagliato da tutt'e due i lati. */
+.pagina {
+  flex: 0 1 auto;
+  min-width: calc(var(--u) * 5);
+  max-width: calc(var(--u) * 16);
+  padding: 0 0 0 calc(var(--u) / 2);
+  border: none;
+  border-left: calc(var(--u) / 8) solid var(--linea);
+  background: none;
+  color: var(--tenue-testo);
+  font: inherit;
+  font-size: var(--t-piccolo);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.pagina:hover { color: var(--accento); }
+
+.fatti {
+  align-self: flex-start;
+  padding: calc(var(--u) / 4) 0 0;
+  border: none;
+  background: none;
+  color: var(--tenue-testo);
+  font: inherit;
+  font-size: var(--t-piccolo);
+  cursor: pointer;
+}
+.fatti:hover { color: var(--inchiostro-tenue); }
+
+.vuoto { color: var(--tenue-testo); }
