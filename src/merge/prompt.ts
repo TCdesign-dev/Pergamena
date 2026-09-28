@@ -104,13 +104,27 @@ nome dell'argomento nel campo "titolo" di QUELLA proposta: due o tre
 parole, e diventa il «titolo 1» che le sta davanti. Ce l'ha solo la prima
 proposta dell'argomento, non tutte quelle che lo riguardano.
 
+Poi, i compiti. Se il professore assegna qualcosa da FARE — una consegna,
+un esercizio, un capitolo da leggere, un materiale da portare — mettilo in
+"compiti". Solo quello che tocca allo studente: «la prossima volta parliamo
+di…» è il programma suo, non un compito.
+- "testo": la cosa da fare, all'infinito e in poche parole
+  («consegnare le tavole del portico», «leggere il capitolo 4»).
+- "data": AAAA-MM-GG, se ha nominato un giorno anche solo a voce («giovedì
+  prossimo», «fra due settimane», «per la prossima lezione»). Il giorno si
+  conta a partire dalla data della lezione, che trovi in QUANDO. Lascia
+  vuoto se un giorno non l'ha detto: non inventarne uno.
+- "citazione": le sue parole, poche, come le ha dette.
+Se non ha assegnato niente: "compiti":[].
+
 Poi, a parte: ${DOMANDA_IMMAGINI}
 
 Rispondi SOLO con un oggetto JSON:
 {"proposte":[{"dopo":"<id>","tipo":"completa"|"integra"|"correggi","punto":"<parole sue, o vuoto>","titolo":"<solo se questa riga apre un argomento che negli appunti non c'è>","testo":"...","perche":"...","importanza":1-5}],
  "titoli":[{"prima":"<id>","titolo":"..."}],
+ "compiti":[{"testo":"...","data":"AAAA-MM-GG o vuoto","citazione":"..."}],
  "immagini":[{"concetto":"...","query":"...","blocco":"<id>"}]}
-Se non manca niente di utile: {"proposte":[], "titoli":[], "immagini":[...]}`
+Se non manca niente di utile: {"proposte":[], "titoli":[], "compiti":[...], "immagini":[...]}`
 
 const sistema = (massimo: number, istruzioni?: string | null) =>
   `${(istruzioni?.trim() || ISTRUZIONI_DI_SERIE).replaceAll('{massimo}', String(massimo))}\n\n${CONTRATTO}`
@@ -133,7 +147,8 @@ export function costruisciPrompt(
   blocchi: BloccoAppunti[],
   tratti: TrattoDiLezione[],
   stile = '',
-  { lezioni = 1, massimo = 8, istruzioni = null }: { lezioni?: number; massimo?: number; istruzioni?: string | null } = {},
+  { lezioni = 1, massimo = 8, istruzioni = null, quando = '' }:
+    { lezioni?: number; massimo?: number; istruzioni?: string | null; quando?: string } = {},
 ) {
   const appunti = blocchi
     .map((b) => `[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`)
@@ -153,7 +168,9 @@ export function costruisciPrompt(
     { role: 'system' as const, content: sistema(massimo, istruzioni) },
     {
       role: 'user' as const,
-      content: `MATERIA: ${materia || 'non indicata'}\n\n` +
+      content: `MATERIA: ${materia || 'non indicata'}\n` +
+        //  serve ai compiti: «giovedì prossimo» si calcola da qui
+        (quando ? `QUANDO: ${quando}\n` : '') + '\n' +
         (lezioni > 1 ? `${PIU_LEZIONI(lezioni)}\n\n` : '') +
         (stile ? `COME SCRIVE LO STUDENTE IN QUESTA PAGINA:\n${stile}\n\n` : '') +
         `APPUNTI:\n${appunti || '(vuoti)'}\n\n${lezioni > 1 ? 'LEZIONI' : 'LEZIONE'}:\n${lezione}`,

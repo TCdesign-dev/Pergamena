@@ -23,6 +23,8 @@ import { apriCommenti, iscrivitiCommenti, leggiCommenti } from './commenti/stato
 import { PannelloCommenti } from './commenti/PannelloCommenti'
 import { apriDomande, iscrivitiDomande, leggiDomande } from './domande/statoPannello'
 import { PannelloDomande } from './domande/PannelloDomande'
+import { PannelloCompiti } from './compiti/PannelloCompiti'
+import { apriCompiti, iscrivitiCompiti, leggiCompiti } from './compiti/statoPannello'
 import { iscrivitiPannello, leggiPannello, apriPannello } from './immagini/statoPannello'
 import { FinestraAccesso } from './sync/FinestraAccesso'
 import { iscrivitiAccesso, leggiAccesso } from './sync/accesso'
@@ -64,6 +66,7 @@ export function App() {
   const lezioniAperte = useSyncExternalStore(iscrivitiLezioni, leggiLezioni)
   const commentiAperti = useSyncExternalStore(iscrivitiCommenti, leggiCommenti)
   const domandeAperte = useSyncExternalStore(iscrivitiDomande, leggiDomande)
+  const compitiAperti = useSyncExternalStore(iscrivitiCompiti, leggiCompiti)
   const strettoRif = useRef(stretto)
   strettoRif.current = stretto
   const [comandiAperti, setComandiAperti] = useState(false)
@@ -226,14 +229,16 @@ export function App() {
         onChiudiSopra={chiudiSopra}
         /*  Da 1200 px la colonna di destra: Lezioni, Commenti o
          *  Immagini, uno per volta. Sotto, sono tendine della barra. */
-        destra={largo && !mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && docAperto && (lezioniAperte || commentiAperti || domandeAperte || pannello.aperto)
+        destra={largo && !mostraHome && !archivioAperto && !materiaScheda && !materiaRipasso && docAperto && (lezioniAperte || commentiAperti || domandeAperte || compitiAperti || pannello.aperto)
           ? lezioniAperte
             ? <PannelloLezioni key={aperto!.id} doc={docAperto} materia={materiaAperta?.nome ?? ''} rifEditore={rifEditore} modo="lato" onChiudi={() => apriLezioni(false)} />
             : domandeAperte
               ? <PannelloDomande key={aperto!.id} doc={docAperto} rifEditore={rifEditore} materia={materiaAperta?.nome ?? ''} modo="lato" onChiudi={() => apriDomande(false)} />
-              : commentiAperti
-                ? <PannelloCommenti key={aperto!.id} doc={docAperto} rifEditore={rifEditore} modo="lato" onChiudi={() => apriCommenti(false)} />
-                : <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
+              : compitiAperti
+                ? <PannelloCompiti key={aperto!.id} doc={docAperto} modo="lato" onChiudi={() => apriCompiti(false)} />
+                : commentiAperti
+                  ? <PannelloCommenti key={aperto!.id} doc={docAperto} rifEditore={rifEditore} modo="lato" onChiudi={() => apriCommenti(false)} />
+                  : <PannelloImmagini key={aperto!.id} rifEditore={rifEditore} doc={docAperto} materia={materiaAperta?.nome ?? ''} />
           : undefined}
         rotaia={
           <Rotaia

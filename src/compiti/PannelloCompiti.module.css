@@ -1,0 +1,81 @@
+/*  I compiti: una riga per cosa da fare, la scadenza sotto. Quello
+ *  fatto resta, barrato e in fondo — la domanda «l'avevo consegnato?»
+ *  arriva settimane dopo. */
+
+.pannello { display: flex; flex-direction: column; flex: 1; min-height: 0; height: 100%; }
+
+.testa { composes: testa from '../layout/Superficie.module.css'; flex: none; }
+.pannello .testa { gap: calc(var(--u) / 4); padding-right: var(--u); }
+[data-modo="tendina"] .testa { border-bottom: calc(var(--u) / 8) solid var(--linea); }
+.titolo { composes: titolo from '../layout/Superficie.module.css'; }
+.testa .titolo { flex: 1; }
+.chiudi { composes: icona from '../layout/Superficie.module.css'; }
+
+.corpo { flex: 1; min-height: 0; overflow-y: auto; padding: var(--u) calc(var(--u) * 1.5) calc(var(--u) * 2); }
+
+.vuoto { margin: var(--u) 0 0; color: var(--inchiostro-tenue); font-size: var(--t-ui); line-height: 1.6; }
+
+.compito {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u);
+  padding: calc(var(--u) * 0.875) 0;
+  animation: var(--entra);
+}
+.compito + .compito { border-top: calc(var(--u) / 8) solid var(--linea); }
+
+.spunta {
+  flex: none;
+  width: calc(var(--u) * 2);
+  height: calc(var(--u) * 2);
+  margin-top: calc(var(--u) / 8);
+  accent-color: var(--accento);
+}
+
+.corpoCompito { flex: 1; min-width: 0; }
+
+.testo {
+  margin: 0;
+  color: var(--inchiostro);
+  font-size: calc(var(--t-ui) * 14 / 13);
+  line-height: 1.45;
+}
+.fatto .testo { color: var(--tenue-testo); text-decoration: line-through; }
+
+.quando {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 0.75);
+  margin: calc(var(--u) / 4) 0 0;
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+}
+/* una scadenza passata e non fatta si vede da lontano */
+.scaduto { color: var(--avviso); }
+
+.citazione {
+  margin: calc(var(--u) / 2) 0 0;
+  color: var(--inchiostro-tenue);
+  font-size: var(--t-piccolo);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.minuto {
+  composes: trasparente from '../layout/Superficie.module.css';
+  height: auto;
+  padding: 0;
+  color: var(--tenue-testo);
+  font-size: var(--t-piccolo);
+  font-variant-numeric: tabular-nums;
+}
+.minuto:hover { color: var(--accento); }
+
+.togli {
+  flex: none;
+  margin: calc(var(--u) / 8) calc(var(--u) * -0.5) 0 0;
+  color: var(--tenue);
+  opacity: 0;
+}
+.compito:hover .togli, .togli:focus-visible { opacity: 1; }
+.togli:hover { color: var(--inchiostro-tenue); }

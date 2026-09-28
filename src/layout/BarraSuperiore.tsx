@@ -12,6 +12,9 @@ import { apriCommenti, iscrivitiCommenti, leggiCommenti } from '../commenti/stat
 import { apriDomande, iscrivitiDomande, leggiDomande } from '../domande/statoPannello'
 import { PannelloDomande } from '../domande/PannelloDomande'
 import { useDomande } from '../domande/deposito'
+import { apriCompiti, iscrivitiCompiti, leggiCompiti } from '../compiti/statoPannello'
+import { PannelloCompiti } from '../compiti/PannelloCompiti'
+import { daFare, useCompiti } from '../compiti/deposito'
 import { PannelloCommenti } from '../commenti/PannelloCommenti'
 import { useCommenti } from '../commenti/deposito'
 import { PannelloImmagini } from './PannelloImmagini'
@@ -58,11 +61,14 @@ export function BarraSuperiore({
   const commenti = useCommenti(doc)
   const domandeAperte = useSyncExternalStore(iscrivitiDomande, leggiDomande)
   const domande = useDomande(doc)
+  const compitiAperti = useSyncExternalStore(iscrivitiCompiti, leggiCompiti)
+  const compiti = useCompiti(doc)
   const largo = useLargo()
   const materia = quaderno?.nome ?? ''
   const rifLezioni = useRef<HTMLButtonElement>(null)
   const rifCommenti = useRef<HTMLButtonElement>(null)
   const rifDomande = useRef<HTMLButtonElement>(null)
+  const rifCompiti = useRef<HTMLButtonElement>(null)
 
   const voci: VoceMenu[] = [
     ...(largo ? [] : [{ etichetta: tr('Immagini'), icona: 'immagini', tasto: scrittaDiComando('immagini'), azione: onPannello } satisfies VoceMenu]),
@@ -115,6 +121,19 @@ export function BarraSuperiore({
             <Icona nome="domanda" />
           </button>
         )}
+        {compiti.length > 0 && (
+          <button
+            ref={rifCompiti}
+            className={`${s.lezioni} ${compitiAperti ? s.attivo : ''}`}
+            title={tr('Compiti di questa pagina')}
+            aria-label={tr('Compiti da fare: {n}', { n: daFare(compiti) })}
+            aria-expanded={compitiAperti}
+            onClick={() => apriCompiti(!compitiAperti)}
+          >
+            <Icona nome="compiti" />
+            <span>{daFare(compiti)}</span>
+          </button>
+        )}
         {commenti.length > 0 && (
           <button
             ref={rifCommenti}
@@ -156,6 +175,11 @@ export function BarraSuperiore({
       {!largo && domandeAperte && (
         <Tendina alta escludi={rifDomande} onChiudi={() => apriDomande(false)}>
           <PannelloDomande doc={doc} rifEditore={rifEditore} materia={materia} modo="tendina" onChiudi={() => apriDomande(false)} />
+        </Tendina>
+      )}
+      {!largo && compitiAperti && (
+        <Tendina escludi={rifCompiti} onChiudi={() => apriCompiti(false)}>
+          <PannelloCompiti doc={doc} modo="tendina" onChiudi={() => apriCompiti(false)} />
         </Tendina>
       )}
       {!largo && commentiAperti && (
