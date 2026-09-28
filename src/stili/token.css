@@ -19,10 +19,18 @@
 
   /*  Scala. Il salto fra titolo della pagina e argomento (Titolo 1)
    *  è netto apposta: 32 contro 22, più la riga dei dati sotto il titolo. */
-  --t-pagina: 32px;       /* peso 700, interlinea 1.15, spaziatura -0.022em */
-  --t-argomento: 22px;    /* Titolo 1: peso 650, interlinea 1.25, -0.015em */
-  --t-h2: 18px;           /* peso 650 */
-  --t-h3: 16.5px;         /* peso 600 */
+  /*  La scala dei titoli DENTRO la pagina, sui rapporti di Notion
+      rispetto al corpo (16,5): 2,5× il titolo, poi 1,875× 1,5× 1,25×.
+      Prima stava fra 1,00× e 1,33×, e il Titolo 3 era grande come il
+      testo normale: tre livelli che non si distinguevano. */
+  --t-pagina: 41px;       /* titolo del documento: peso 700, interlinea 1.15, -0.022em */
+  --t-argomento: 31px;    /* Titolo 1: peso 650, interlinea 1.25, -0.015em */
+  --t-h2: 24.5px;         /* peso 650 */
+  --t-h3: 20.5px;         /* peso 600 */
+  /*  I titoli delle SCHERMATE — Home, Ripasso, punteggio del quiz —
+      non sono titoli di pagina e restano dov'erano: ingrandirli
+      farebbe gridare l'app fuori dagli appunti. */
+  --t-schermata: 32px;
   --t-ui: 13px;           /* peso 500 per i pulsanti, 400 per il resto */
   --t-piccolo: 12px;      /* didascalie, contatori */
   --t-etichetta: 11px;    /* peso 600, MAIUSCOLO, spaziatura +0.06em */

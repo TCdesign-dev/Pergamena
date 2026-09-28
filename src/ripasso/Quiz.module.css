@@ -150,7 +150,7 @@
 .secondario { composes: trasparente from '../layout/Superficie.module.css'; }
 
 .punteggio { margin: calc(var(--u) / 2) 0 calc(var(--u) / 4); font-size: calc(var(--t-ui) * 15 / 13); color: var(--inchiostro-tenue); animation: var(--entra-conferma); }
-.punteggio strong { color: var(--inchiostro); font-size: var(--t-pagina); font-weight: 650; margin-right: calc(var(--u) / 2); }
+.punteggio strong { color: var(--inchiostro); font-size: var(--t-schermata); font-weight: 650; margin-right: calc(var(--u) / 2); }
 .commento { margin: 0 0 calc(var(--u) * 1.75); color: var(--inchiostro-tenue); font-size: var(--t-ui); }
 
 .riepilogo { display: flex; flex-direction: column; gap: calc(var(--u) / 4); margin: 0; padding: 0; list-style: none; }

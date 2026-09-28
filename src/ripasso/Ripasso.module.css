@@ -37,7 +37,7 @@ button.passo:hover { background: var(--sfiorata); color: var(--inchiostro); }
 
 .titolo {
   margin: 0;
-  font-size: var(--t-pagina);
+  font-size: var(--t-schermata);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.022em;
