@@ -97,8 +97,10 @@
 }
 
 /* ── le azioni, sopra la trascrizione ───────────────────────── */
-.azioni { display: flex; align-items: center; gap: calc(var(--u) * 0.75); margin-top: calc(var(--u) * 1.25); }
-.spazio { flex: 1; }
+/*  Con «Riempi i buchi» i pulsanti sono quattro: nella colonna stretta
+    vanno a capo invece di spingere il menu ⋯ fuori dal pannello. */
+.azioni { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--u) * 0.75); margin-top: calc(var(--u) * 1.25); }
+.spazio { flex: 1; min-width: 0; }
 .principale { composes: primario from '../layout/Superficie.module.css'; }
 .secondario { composes: secondario from '../layout/Superficie.module.css'; }
 .trasparente { composes: trasparente from '../layout/Superficie.module.css'; }

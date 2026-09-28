@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Icona, type NomeIcona } from '../lib/Icona'
 import s from './MenuPagina.module.css'
@@ -34,10 +34,16 @@ export type VoceMenu = {
   azione: () => void
 }
 
-export function MenuPagina({ voci, etichetta = tr('Altre azioni') }: {
+export function MenuPagina({ voci, etichetta = tr('Altre azioni'), contenuto, classe }: {
   voci: VoceMenu[]
   /** per i lettori di schermo e il suggerimento al passaggio */
   etichetta?: string
+  /*  Di solito il menu si apre da un pulsante ⋯. Quando invece la cosa
+      da fare ha un nome — «Riempi i buchi» — il nome sta sul pulsante e
+      il menu serve solo a scegliere come: qui si passano il contenuto e
+      la classe di quel pulsante. */
+  contenuto?: ReactNode
+  classe?: string
 }) {
   const [dove, setDove] = useState<{ top: number; right: number } | null>(null)
   const aperto = dove !== null
@@ -118,14 +124,14 @@ export function MenuPagina({ voci, etichetta = tr('Altre azioni') }: {
     <div className={s.menuPagina}>
       <button
         ref={rifPulsante}
-        className={`${s.pulsante} ${aperto ? s.attivo : ''}`}
+        className={`${classe ?? s.pulsante} ${aperto ? s.attivo : ''}`}
         title={etichetta}
         aria-label={etichetta}
         aria-haspopup="menu"
         aria-expanded={aperto}
         onClick={() => setAperto(!aperto)}
       >
-        <Icona nome="altro" />
+        {contenuto ?? <Icona nome="altro" />}
       </button>
 
       {aperto && createPortal(

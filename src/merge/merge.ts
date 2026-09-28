@@ -33,10 +33,10 @@ const MASSIMO_INSIEME = 16
 export type EsitoMerge = { proposte: number; scartate: number; immagini: number; compiti: number; costo: number | null }
 
 /** A che punto è il merge, per dirlo mentre si aspetta. */
-export type FaseMerge = 'preparo' | 'chiedo' | 'riprovo' | 'inserisco' | 'immagini'
+export type FaseMerge = 'preparo' | 'chiedo' | 'riprovo' | 'inserisco' | 'immagini' | 'buchi'
 
 /** I tratti di una registrazione, agganciati ai blocchi di adesso. */
-function trattiDi(editor: Editor, reg: Registrazione, lezione?: string): TrattoDiLezione[] {
+export function trattiDi(editor: Editor, reg: Registrazione, lezione?: string): TrattoDiLezione[] {
   const rimappa = rimappaBlocchi(editor)
   return allinea(reg.segmenti, reg.ancore.map((a) => ({ t: a.t, blocco: rimappa(a.blocco) })))
     .map((t) => ({ ...t, lezione }))
