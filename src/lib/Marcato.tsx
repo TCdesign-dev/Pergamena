@@ -1,5 +1,6 @@
 import katex from 'katex'
 import { Fragment, type ReactNode } from 'react'
+import { pediciEApici } from '../merge/marcatura'
 import s from './Marcato.module.css'
 
 /*  Il testo che scrive il modello quando NON finisce dentro gli
@@ -37,7 +38,10 @@ function formula(latex: string, chiave: number) {
 }
 
 /** I segni dentro una riga. */
-function inRiga(testo: string): ReactNode[] {
+function inRiga(grezzo: string): ReactNode[] {
+  //  «σ<sub>0,2</sub>» diventa una formula anche qui: il modello
+  //  ripiega sull'HTML nelle risposte come negli appunti
+  const testo = pediciEApici(grezzo)
   const fuori: ReactNode[] = []
   let ultimo = 0
   for (let m; (m = SEGNI.exec(testo)) !== null; ) {

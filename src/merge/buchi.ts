@@ -118,7 +118,8 @@ Scrivi gli appunti che gli mancano, come li avrebbe scritti lui.
 - Ignora saluti, battute, ripetizioni, organizzazione del corso.
 - La trascrizione è automatica: nomi propri e numeri a volte sono
   storpiati. Scrivi quello che ha detto, non quello che senti male.
-- Formule in LaTeX fra dollari, solo se le ha dettate.
+- Formule in LaTeX fra dollari, solo se le ha dettate; anche i soli
+  pedici e apici sono formule: $\\sigma_{0,2}$, mai <sub> o <sup>.
 ${stile ? `\nCOME SCRIVE LUI, quando scrive:\n${stile}\n` : ''}
 Rispondi SOLO con un oggetto JSON:
 {"titolo":"<o vuoto>","righe":["...","..."]}`

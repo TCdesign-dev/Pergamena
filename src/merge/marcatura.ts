@@ -60,7 +60,37 @@ const FORMULA = String.raw`\$\$?(?<latex>[^\s$][^$]{0,199}?)\$\$?`
  *  resto (il confronto fra proposte). Nuova ogni volta: `lastIndex`. */
 export const soloFormule = () => new RegExp(FORMULA, 'g')
 
-export function daMarcatura(testo: string, sempre: Segno[]): Pezzo[] {
+/*  I modelli, quando devono scrivere un pedice, ogni tanto ripiegano
+ *  sull'HTML: «σ<sub>0,2</sub>». Nell'editor un segno per il pedice non
+ *  c'è — ci sono le formule — e quei tag finivano a schermo come testo,
+ *  parentesi angolari comprese. Si traducono in formula, che è il posto
+ *  dove in Pergamena un pedice vive davvero. */
+const GRECHE: Record<string, string> = {
+  α: '\\alpha', β: '\\beta', γ: '\\gamma', δ: '\\delta', ε: '\\varepsilon',
+  ζ: '\\zeta', η: '\\eta', θ: '\\theta', κ: '\\kappa', λ: '\\lambda',
+  μ: '\\mu', ν: '\\nu', ξ: '\\xi', π: '\\pi', ρ: '\\rho', σ: '\\sigma',
+  τ: '\\tau', φ: '\\varphi', χ: '\\chi', ψ: '\\psi', ω: '\\omega',
+  Γ: '\\Gamma', Δ: '\\Delta', Θ: '\\Theta', Λ: '\\Lambda', Ξ: '\\Xi',
+  Π: '\\Pi', Σ: '\\Sigma', Φ: '\\Phi', Ψ: '\\Psi', Ω: '\\Omega',
+}
+
+const inLatex = (t: string) => [...t].map((c) => GRECHE[c] ?? c).join('')
+
+const PEDICE = /([A-Za-zΑ-Ωα-ω0-9]+)<(sub|sup)>([^<]{1,24})<\/\2>([A-Za-zΑ-Ωα-ω0-9]*)/g
+
+export function pediciEApici(testo: string) {
+  return testo
+    //  la coda attaccata resta dentro la formula: «H<sub>2</sub>O» è
+    //  H₂O, non H₂ seguito da una O che se ne va per conto suo
+    .replace(PEDICE, (_, base: string, tipo: string, dentro: string, coda: string) =>
+      `$${inLatex(base)}${tipo === 'sub' ? '_' : '^'}{${inLatex(dentro.trim())}}${inLatex(coda)}$`)
+    //  un tag rimasto solo, senza niente davanti: meglio senza che a
+    //  schermo con le sue parentesi
+    .replace(/<\/?su[bp]>/g, '')
+}
+
+export function daMarcatura(grezzo: string, sempre: Segno[]): Pezzo[] {
+  const testo = pediciEApici(grezzo)
   const pezzi: Pezzo[] = []
   let grassetto = false
   let evidenziato = false

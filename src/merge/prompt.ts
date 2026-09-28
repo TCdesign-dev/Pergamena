@@ -72,6 +72,7 @@ Regole:
   importanti, colora anche tu le parole importanti, con il SUO colore.
   Mai una proposta intera in grassetto o colorata, se lui non lo fa.
 - Formule: scrivile in LaTeX fra dollari — $P_{95} = \\mu + 1{,}645\\,\\sigma$ —
+  e così anche i soli pedici e apici: $\\sigma_{0,2}$, mai <sub> o <sup>.
   e diventano formule vere, come quelle che scrive lui (negli APPUNTI le
   vedi già così). Solo se il professore l'ha davvero dettata: non
   inventarne, e non trasformare in formula una frase che formula non è.
