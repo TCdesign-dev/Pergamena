@@ -256,12 +256,30 @@ export function righeDi(editor: Editor): string[] {
 export function rimappaBlocchi(editor: Editor): (id: string) => string | null {
   const verso = new Map<string, string | null>()
   let ultimoPieno: string | null = null
-  editor.state.doc.forEach((n) => {
-    const id = n.attrs.idBlocco as string | undefined
-    const pieno = n.type.name === 'immagine' || n.textContent.trim() !== ''
-    if (pieno && id) ultimoPieno = id
-    if (id) verso.set(id, pieno ? id : ultimoPieno)
-  })
+
+  /*  Anche dentro gli elenchi, e nello stesso ordine in cui il prompt
+   *  li elenca: un'àncora che punta a una voce deve trovarla. Un
+   *  elenco intero punta alla sua ultima voce — le àncore vecchie
+   *  segnavano il contenitore, e senza questo diventavano «nessun
+   *  blocco»: la lezione risultava scritta da nessuna parte, e il
+   *  riempitore ci vedeva un buco dove invece stavi scrivendo. */
+  const scorri = (padre: NodoPM) => {
+    padre.forEach((n) => {
+      const id = n.attrs.idBlocco as string | undefined
+      if (ELENCO(n)) {
+        const prima = ultimoPieno
+        scorri(n)
+        if (id) verso.set(id, ultimoPieno !== prima ? ultimoPieno : prima)
+        return
+      }
+      const pieno = n.type.name === 'immagine' || n.textContent.trim() !== ''
+      if (pieno && id) ultimoPieno = id
+      if (id) verso.set(id, pieno ? id : ultimoPieno)
+      if (n.type.name === 'listItem') n.forEach((figlio) => { if (ELENCO(figlio)) scorri(figlio) })
+    })
+  }
+  scorri(editor.state.doc)
+
   return (id) => verso.get(id) ?? null
 }
 
