@@ -70,12 +70,22 @@ const posta = (dove: string, corpo: object) => fetch(`/api/ascolto/${dove}`, {
   body: JSON.stringify(corpo),
 }).then((x) => x.json()).catch(() => ({ ok: false, errore: tr('server non raggiungibile') }))
 
-/** Il blocco di primo livello in cui si trova il cursore. */
+/*  Il blocco in cui si trova il cursore: la VOCE se sei dentro un
+ *  elenco, altrimenti il blocco di primo livello.
+ *
+ *  Segnare l'elenco intero voleva dire un'àncora sola per tre voci
+ *  scritte in tre momenti diversi: il merge leggeva «mentre scriveva
+ *  [l'elenco]» e non sapeva a quale voce attaccare la proposta. La
+ *  voce ha il suo id (vedi idStabile) ed è una riga del prompt come le
+ *  altre. */
 function bloccoSottoAlCursore(editor: Editor): string | null {
   const { $from } = editor.state.selection
   if ($from.depth < 1) return null
-  const nodo = $from.node(1)
-  return (nodo?.attrs?.idBlocco as string | undefined) ?? null
+  for (let d = $from.depth; d >= 1; d--) {
+    const n = $from.node(d)
+    if (n.type.name === 'listItem') return (n.attrs?.idBlocco as string | undefined) ?? null
+  }
+  return ($from.node(1)?.attrs?.idBlocco as string | undefined) ?? null
 }
 
 /** Parole ricorrenti con la maiuscola: nomi propri, luoghi, termini

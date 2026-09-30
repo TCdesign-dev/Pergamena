@@ -1,5 +1,6 @@
 import type { Editor } from '@tiptap/core'
-import { applica, blocchiDi, type Proposta } from './applica'
+import { applica, blocchiDi, righeDi, type Proposta } from './applica'
+import { togliDoppioni } from './doppioni'
 import { istruzioniDiStile, stileDellaPagina } from './marcatura'
 import { trattiDi } from './merge'
 import type { Registrazione } from '../registrazione/tipi'
@@ -56,7 +57,27 @@ const mediana = (n: number[]) => {
 export function trovaBuchi(editor: Editor, reg: Registrazione): Buco[] {
   const tratti = trattiDi(editor, reg)
   if (!tratti.length) return []
-  const lunghezze = new Map(blocchiDi(editor).map((b) => [b.id, b.testo.trim().length]))
+  /*  Quanto hai scritto in ogni blocco, letto dal documento e non da
+   *  `blocchiDi`, che elenca le voci ma non l'elenco che le contiene.
+   *  Le àncore di una lezione segnano il blocco di primo livello: se
+   *  hai riempito tre voci, l'àncora è una sola e punta all'elenco,
+   *  e contare solo l'ultima voce faceva sembrare un buco un tratto in
+   *  cui avevi scritto tutto. */
+  const lunghezze = new Map<string, number>()
+  editor.state.doc.descendants((n, _pos, padre) => {
+    const id = n.attrs.idBlocco as string | undefined
+    if (!id) return true
+    /*  Una voce d'elenco vale per tutto il suo elenco. Le àncore di una
+     *  lezione segnano un blocco solo per volta: se hai riempito tre
+     *  voci una dopo l'altra, quel tratto è stato speso sull'elenco
+     *  intero, e contare i caratteri di una voce sola faceva sembrare
+     *  un buco il tratto in cui avevi scritto di più. Meglio sbagliare
+     *  da questa parte: un buco mancato si vede, uno inventato riscrive
+     *  cose che hai già. */
+    const testo = n.type.name === 'listItem' && padre ? padre.textContent : n.textContent
+    lunghezze.set(id, testo.trim().length)
+    return true
+  })
 
   /*  Più tratti sullo stesso blocco (sei tornato indietro) contano
    *  come uno: il testo scritto lì è uno solo, e dividerlo fra i
@@ -189,10 +210,20 @@ export async function riempiBuchi(
       .map((r: string) => r.trim())
     if (!testi.length) continue
 
+    /*  Lo stesso filtro dell'integratore, che qui mancava: una riga che
+     *  ripete con altre parole qualcosa di già scritto non entra. Non
+     *  prende tutto — due frasi sullo stesso concetto con parole
+     *  diverse si somigliano poco — ma le ripetizioni letterali sì. */
+    const tenute = togliDoppioni(
+      testi.map((testo: string) => ({ testo, tipo: 'integra' })),
+      righeDi(editor),
+    )
+    if (!tenute.length) continue
+
     //  si inseriscono come proposte normali: stessa revisione, stesso
     //  segno dell'AI, e il titolo davanti lo mette già `applica`
-    const proposte: Proposta[] = testi.map((testo, k) => ({
-      dopo, tipo: 'integra' as const, testo, perche: '', importanza: 3,
+    const proposte: Proposta[] = tenute.map((t, k) => ({
+      dopo, tipo: 'integra' as const, testo: t.testo, perche: '', importanza: 3,
       ...(k === 0 && titolo ? { titolo } : {}),
     }))
     righe += applica(editor, proposte)
