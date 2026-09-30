@@ -1,7 +1,7 @@
 import type { Tratto } from './allinea'
 import { DOMANDA_IMMAGINI } from '../immagini/consigliate'
 
-export type BloccoAppunti = { id: string; tipo: string; testo: string }
+export type BloccoAppunti = { id: string; tipo: string; testo: string; rientro?: number }
 
 /** Un tratto di trascrizione, e — se le lezioni sono più d'una — da
  *  quale lezione arriva. */
@@ -105,6 +105,15 @@ nome dell'argomento nel campo "titolo" di QUELLA proposta: due o tre
 parole, e diventa il «titolo 1» che le sta davanti. Ce l'ha solo la prima
 proposta dell'argomento, non tutte quelle che lo riguardano.
 
+Poi, DOVE va una proposta. Negli APPUNTI ogni riga è rientrata sotto
+quella a cui appartiene: i blocchi sotto un titolo sono dentro quella
+sezione fino al titolo successivo, e ogni voce d'elenco è una riga sua,
+col suo id. Quindi:
+- una proposta va nella sezione che parla di quella cosa, mai sotto un
+  titolo di un altro argomento solo perché quell'id era vicino;
+- se cinque voci d'elenco aspettano tutte di essere completate, sono
+  CINQUE proposte "completa", una per ogni id, non una sola sull'ultima.
+
 Poi, i compiti. Se il professore assegna qualcosa da FARE — una consegna,
 un esercizio, un capitolo da leggere, un materiale da portare — mettilo in
 "compiti". Solo quello che tocca allo studente: «la prossima volta parliamo
@@ -151,8 +160,22 @@ export function costruisciPrompt(
   { lezioni = 1, massimo = 8, istruzioni = null, quando = '' }:
     { lezioni?: number; massimo?: number; istruzioni?: string | null; quando?: string } = {},
 ) {
+  /*  Gli appunti disegnati come stanno: rientrati sotto il loro titolo,
+   *  e una voce d'elenco per riga. In fila indiana il modello doveva
+   *  ricostruirsi da solo a quale sezione appartiene ogni blocco, e su
+   *  una pagina lunga sbagliava — proposte di un argomento finivano
+   *  sotto il titolo di un altro. La struttura ce l'abbiamo già. */
+  let livello = 0
   const appunti = blocchi
-    .map((b) => `[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`)
+    .map((b) => {
+      const titolo = /^titolo (\d)$/.exec(b.tipo)
+      if (titolo) {
+        livello = Number(titolo[1])
+        return `${'  '.repeat(livello - 1)}[${b.id}] (${b.tipo}) ${b.testo}`
+      }
+      const rientro = '  '.repeat(livello + (b.rientro ?? 0))
+      return `${rientro}[${b.id}]${b.tipo !== 'paragrafo' ? ` (${b.tipo})` : ''} ${b.testo}`
+    })
     .join('\n')
 
   // il titolo della lezione si scrive solo quando cambia

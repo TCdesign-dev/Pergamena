@@ -40,11 +40,18 @@ function nomeArgomento(p: Proposta) {
   return t || null
 }
 
-/** Dove sta, adesso, il blocco di primo livello con quell'id. */
+/*  Dove sta, adesso, il blocco con quell'id — anche dentro un elenco.
+ *
+ *  Prima si guardava solo il primo livello, e un elenco era un blocco
+ *  solo: cinque voci con la freccia in fondo diventavano una riga
+ *  sola, e il modello poteva completarne una. Le voci un id ce l'hanno
+ *  (vedi idStabile), bastava cercarlo. */
 function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null {
   let trovato: { pos: number; nodo: NodoPM } | null = null
-  editor.state.doc.forEach((nodo, pos) => {
-    if (!trovato && nodo.attrs.idBlocco === id) trovato = { pos, nodo }
+  editor.state.doc.descendants((nodo, pos) => {
+    if (trovato) return false
+    if (nodo.attrs.idBlocco === id) { trovato = { pos, nodo }; return false }
+    return true
   })
   return trovato
 }
@@ -163,14 +170,18 @@ export function applica(editor: Editor, proposte: Proposta[]) {
 
     const { pos, nodo } = bersaglio
     const elenco = nodo.type.name === 'bulletList' || nodo.type.name === 'orderedList'
+    //  adesso una proposta può agganciarsi alla singola voce: la riga
+    //  nuova le va accanto, sorella, non in fondo all'elenco
+    const voce = nodo.type.name === 'listItem'
+    const inElenco = elenco || voce
 
     const blocchi = gruppo.flatMap((p) => {
       let testo = p.testo.trim()
       // in un elenco il trattino lo mette già l'elenco
-      if (elenco) testo = testo.replace(/^[-–•*]\s+/, '')
+      if (inElenco) testo = testo.replace(/^[-–•*]\s+/, '')
       // grassetto, colori ed evidenziatore come negli appunti (vedi marcatura.ts)
       const segnato = daMarcatura((p.tipo === 'correggi' ? '⚠︎ ' : '') + testo, SEGNO_AI)
-      const riga = elenco
+      const riga = inElenco
         ? { type: 'listItem', content: [{ type: 'paragraph', content: segnato }] }
         : { type: 'paragraph', content: segnato }
 
@@ -178,7 +189,7 @@ export function applica(editor: Editor, proposte: Proposta[]) {
        *  suo titolo davanti. Dentro un elenco no: un titolo in mezzo
        *  alle voci non è un titolo, è una voce storta. E non dietro a un
        *  titolo, che sarebbe un titolo del titolo. */
-      const titolo = p.tipo === 'integra' && !elenco ? nomeArgomento(p) : null
+      const titolo = p.tipo === 'integra' && !inElenco ? nomeArgomento(p) : null
       if (!titolo || nodo.type.name === 'heading') return [riga]
       const chiave = normalizza(titolo).trim()
       if (messi.has(chiave) || titoloGiaPresente(editor, titolo)) return [riga]
@@ -189,7 +200,9 @@ export function applica(editor: Editor, proposte: Proposta[]) {
       ]
     })
 
-    // in fondo all'elenco (dentro, prima della chiusura) o dopo il blocco
+    /*  In fondo all'elenco (dentro, prima della chiusura) quando la
+     *  proposta punta all'elenco intero; subito dopo la voce quando
+     *  punta a una voce; dopo il blocco in tutti gli altri casi. */
     const dove = elenco ? pos + nodo.nodeSize - 1 : pos + nodo.nodeSize
     if (editor.chain().insertContentAt(dove, blocchi).run()) fatte += gruppo.length
   }
@@ -252,26 +265,51 @@ export function rimappaBlocchi(editor: Editor): (id: string) => string | null {
   return (id) => verso.get(id) ?? null
 }
 
-/** Blocchi di primo livello, come li vede il prompt. */
+const ELENCO = (n: NodoPM) => n.type.name === 'bulletList' || n.type.name === 'orderedList'
+
+/*  I blocchi come li vede il prompt, UNA VOCE D'ELENCO PER RIGA.
+ *
+ *  Prima si fermava al primo livello, e un elenco arrivava al modello
+ *  come una riga sola: «**Problema** → · **Idea guida** → · **Tono** →».
+ *  Un id solo, una riga sola, quindi un completamento solo — e infatti
+ *  di cinque voci da completare ne completava l'ultima, con dentro il
+ *  materiale di tutte e cinque. Le voci un id ce l'hanno già: basta
+ *  elencarle. Il `rientro` dice quanto sono annidate, così il prompt le
+ *  può disegnare dove stanno. */
 export function blocchiDi(editor: Editor) {
   const tipo = (n: NodoPM) =>
     n.type.name === 'heading' ? `titolo ${n.attrs.level}` :
-    n.type.name === 'bulletList' ? 'elenco' :
-    n.type.name === 'orderedList' ? 'elenco numerato' :
+    n.type.name === 'listItem' ? 'voce' :
     n.type.name === 'blockquote' ? 'citazione' :
     n.type.name === 'codeBlock' ? 'codice' :
     n.type.name === 'immagine' ? 'immagine' : 'paragrafo'
 
-  const blocchi: { id: string; tipo: string; testo: string }[] = []
-  editor.state.doc.forEach((n) => {
-    const id = n.attrs.idBlocco as string | undefined
-    if (!id) return
-    const testo = n.type.name === 'immagine'
-      ? String(n.attrs.didascalia || 'immagine')
-      : n.type.name === 'blockMath'
-        ? `$$${String(n.attrs.latex ?? '')}$$`
-        : inMarcatura(n)
-    if (testo) blocchi.push({ id, tipo: tipo(n), testo })
-  })
+  const blocchi: { id: string; tipo: string; testo: string; rientro: number }[] = []
+
+  const scorri = (padre: NodoPM, rientro: number) => {
+    padre.forEach((n) => {
+      //  l'elenco in sé non è una riga: lo sono le sue voci
+      if (ELENCO(n)) { scorri(n, rientro); return }
+
+      const id = n.attrs.idBlocco as string | undefined
+      if (n.type.name === 'listItem') {
+        //  il testo della voce è il suo paragrafo, non i sottoelenchi
+        const suo = n.firstChild ? inMarcatura(n.firstChild) : ''
+        if (id && suo) blocchi.push({ id, tipo: 'voce', testo: suo, rientro })
+        n.forEach((figlio) => { if (ELENCO(figlio)) scorri(figlio, rientro + 1) })
+        return
+      }
+
+      if (!id) return
+      const testo = n.type.name === 'immagine'
+        ? String(n.attrs.didascalia || 'immagine')
+        : n.type.name === 'blockMath'
+          ? `$$${String(n.attrs.latex ?? '')}$$`
+          : inMarcatura(n)
+      if (testo) blocchi.push({ id, tipo: tipo(n), testo, rientro })
+    })
+  }
+
+  scorri(editor.state.doc, 0)
   return blocchi
 }

@@ -195,4 +195,4 @@ async function integra(
   return { proposte: fatte, scartate: proposte.length - fatte, immagini, compiti, costo }
 }
 
-esponi({ merge: { integraLezione, integraTutto, allinea, applica, applicaTitoli, compitiDalJson } })
+esponi({ merge: { integraLezione, integraTutto, allinea, applica, applicaTitoli, compitiDalJson, blocchiDi, costruisciPrompt } })

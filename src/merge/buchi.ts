@@ -112,8 +112,12 @@ Scrivi gli appunti che gli mancano, come li avrebbe scritti lui.
 
 - SOLO quello che è stato detto qui. Non aggiungere sapere tuo, non
   spiegare ciò che il professore non ha spiegato.
-- Se il tratto apre un argomento, mettigli un titolo breve; se è la
-  continuazione di qualcosa, lascia il titolo vuoto.
+- Ti dico DOVE finiranno queste righe: sotto quale titolo, e quali righe
+  ci sono subito prima e subito dopo. Guardale, perché decidono una cosa.
+  Se quello che è stato detto appartiene a quella sezione, continuala e
+  lascia il titolo vuoto. Se invece apre un argomento diverso da quello
+  del titolo, dagli un titolo tuo, breve: meglio una sezione nuova che
+  un pezzo finito sotto un titolo che parla d'altro.
 - ${QUANTE[misura]} Una riga per punto.
 - Ignora saluti, battute, ripetizioni, organizzazione del corso.
 - La trascrizione è automatica: nomi propri e numeri a volte sono
@@ -123,6 +127,27 @@ Scrivi gli appunti che gli mancano, come li avrebbe scritti lui.
 ${stile ? `\nCOME SCRIVE LUI, quando scrive:\n${stile}\n` : ''}
 Rispondi SOLO con un oggetto JSON:
 {"titolo":"<o vuoto>","righe":["...","..."]}`
+
+/*  Dove finiranno le righe: il titolo della sezione, cosa c'è appena
+ *  prima e cosa appena dopo. Senza, il riempitore scriveva alla cieca —
+ *  vedeva solo la trascrizione del buco — e un argomento nuovo finiva
+ *  sotto il titolo di quello vecchio, perché è lì che era rimasto il
+ *  cursore quando hai smesso di scrivere. */
+function dintorni(blocchi: { id: string; tipo: string; testo: string }[], dopo: string) {
+  const i = blocchi.findIndex((b) => b.id === dopo)
+  if (i < 0) return 'DOVE FINIRANNO: in fondo alla pagina.'
+
+  let sezione = '(la pagina non ha titoli)'
+  for (let k = i; k >= 0; k--) {
+    if (blocchi[k].tipo.startsWith('titolo')) { sezione = blocchi[k].testo; break }
+  }
+  const prima = blocchi.slice(Math.max(0, i - 1), i + 1).map((b) => `  ${b.testo}`).join('\n')
+  const poi = blocchi[i + 1]
+
+  return `DOVE FINIRANNO LE TUE RIGHE:\n` +
+    `sotto il titolo «${sezione}», subito dopo queste righe:\n${prima}\n` +
+    (poi ? `e subito prima di questa:\n  ${poi.testo}` : 'e in fondo alla pagina.')
+}
 
 export type EsitoBuchi = { buchi: number; righe: number; costo: number }
 
@@ -152,6 +177,7 @@ export async function riempiBuchi(
       {
         role: 'user',
         content: `MATERIA: ${materia || 'non indicata'}\n\n` +
+          `${dintorni(blocchi, dopo)}\n\n` +
           `QUI IL PROFESSORE PARLAVA E LUI NON SCRIVEVA:\n«${buco.testo.trim()}»`,
       },
     ], { maxToken: misura === 'esteso' ? 2500 : 1200 })
