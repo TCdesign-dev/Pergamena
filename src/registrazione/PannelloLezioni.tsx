@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { Fragment, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type * as Y from 'yjs'
 import type { Editor } from '@tiptap/core'
 import type { RifEditore } from '../editor/Editor'
@@ -7,7 +7,6 @@ import { useRegistrazioni } from './useRegistrazioni'
 import { eliminaRegistrazione } from './registrazione'
 import { integraLezione, integraTutto, type EsitoMerge, type FaseMerge } from '../merge/merge'
 import { riscriviPagina } from '../merge/riscrivi'
-import { riempiBuchi, trovaBuchi, type Misura } from '../merge/buchi'
 import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
 import { iscrivitiImpostazioni, leggiImpostazioni } from '../impostazioni'
@@ -56,7 +55,6 @@ const FASI: Record<FaseMerge, string> = {
   riprovo: tr('Risposta illeggibile: riprovo…'),
   inserisco: tr('Inserisco le proposte…'),
   immagini: tr('Cerco le immagini su Commons…'),
-  buchi: tr('Scrivo quello che ti sei perso…'),
   rifaccio: tr('Rimetto in ordine la pagina…'),
 }
 
@@ -124,21 +122,6 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   const lettore = useRef<HTMLAudioElement>(null)
   const [microfoni, setMicrofoni] = useState<Microfono[]>([])
 
-  /*  I buchi si contano in locale, senza chiedere niente a nessuno:
-   *  si rifà il conto quando cambia una lezione, non a ogni tasto. */
-  const impronta = lezioni.map((r) => `${r.id}:${r.segmenti.length}`).join()
-  const buchiPer = useMemo(() => {
-    const editor = rifEditore.current
-    const mappa = new Map<string, number>()
-    if (!editor) return mappa
-    for (const r of lezioni) {
-      if (r.fine === null || !r.segmenti.length) continue
-      try { mappa.set(r.id, trovaBuchi(editor, r).length) } catch { /* pazienza */ }
-    }
-    return mappa
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [impronta])
-
   useEffect(() => {
     fetch('/api/ascolto/dispositivi')
       .then((r) => r.json())
@@ -180,29 +163,6 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
       if (esito.proposte) { onChiudi(); avviaRevisione() }
     } catch (e) {
       setLavoro({ id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : tr('merge fallito') })
-    }
-  }
-
-  /*  Riempire i buchi non è un merge: scrive di più, in meno punti, e
-   *  lo si chiede apposta. L'attesa e la revisione però sono le stesse. */
-  async function riempi(r: Registrazione, misura: Misura) {
-    const editor = rifEditore.current
-    if (!editor) return
-    const inizio = Date.now()
-    setLavoro({ id: r.id, fase: 'buchi', inizio })
-    try {
-      const esito = await riempiBuchi(editor, materia, r, misura, () => setLavoro({ id: r.id, fase: 'buchi', inizio }))
-      setLavoro({
-        id: r.id,
-        fase: 'fatto',
-        inizio,
-        messaggio: esito.righe
-          ? tr('{n} riga scritta nei buchi | {n} righe scritte nei buchi', { n: esito.righe })
-          : tr('Non è venuto fuori niente di utile.'),
-      })
-      if (esito.righe) { onChiudi(); avviaRevisione() }
-    } catch (e) {
-      setLavoro({ id: r.id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : tr('merge fallito') })
     }
   }
 
@@ -330,20 +290,6 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
                       {occupata ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
                       {occupata ? tr('Integro…') : r.integrata === null && r.insieme === null ? tr('Integra negli appunti') : tr('Integra di nuovo')}
                     </button>
-                  )}
-                  {(buchiPer.get(r.id) ?? 0) > 0 && (
-                    <MenuPagina
-                      etichetta={tr('Riempi i buchi della lezione')}
-                      classe={s.trasparente}
-                      contenuto={<>
-                        <Icona nome="ai" dimensione={14} />
-                        {tr('Riempi {n} buco | Riempi {n} buchi', { n: buchiPer.get(r.id) ?? 0 })}
-                      </>}
-                      voci={[
-                        { etichetta: tr('Solo l’ossatura'), icona: 'testo', azione: () => void riempi(r, 'ossatura') },
-                        { etichetta: tr('Per esteso'), icona: 'ai', azione: () => void riempi(r, 'esteso') },
-                      ]}
-                    />
                   )}
                   <button
                     className={aperte ? s.secondario : s.trasparente}

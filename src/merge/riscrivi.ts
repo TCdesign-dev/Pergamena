@@ -2,6 +2,7 @@ import type { Editor } from '@tiptap/core'
 import type * as Y from 'yjs'
 import { blocchiDi } from './applica'
 import { daMarcatura, istruzioniDiStile, stileDellaPagina } from './marcatura'
+import { trovaBuchi } from './buchi'
 import { trattiDi } from './merge'
 import { leggiRegistrazioni } from '../registrazione/registrazione'
 import { chiediJson } from '../lib/modello'
@@ -151,6 +152,15 @@ export async function riscriviPagina(
     .join('\n')
   const lezione = tratti.map((t) => `— ${t.testo.trim()}`).join('\n')
 
+  /*  I tratti in cui il professore parlava e tu non stavi dietro: non
+   *  si riempiono più uno per uno, ma dire alla riscrittura dove sono
+   *  costa due righe e le dice dove gli appunti hanno più bisogno. */
+  const buchi = lezioni.flatMap((r) => { try { return trovaBuchi(editor, r) } catch { return [] } })
+  const indietro = buchi.length
+    ? `QUI NON STAVA SCRIVENDO, e gli appunti hanno più bisogno:\n` +
+      buchi.map((b) => `— «${b.testo.trim().slice(0, 90)}…»`).join('\n')
+    : ''
+
   avanza('chiedo')
   const { json, costo } = await chiediJson('merge', [
     { role: 'system', content: SISTEMA },
@@ -158,6 +168,7 @@ export async function riscriviPagina(
       role: 'user',
       content: `MATERIA: ${materia || 'non indicata'}\n\n` +
         (stile ? `COME SCRIVE LUI:\n${stile}\n\n` : '') +
+        (indietro ? `${indietro}\n\n` : '') +
         `APPUNTI:\n${appunti}\n\nLEZIONE:\n${lezione}`,
     },
   ], { maxToken: 12000 })
