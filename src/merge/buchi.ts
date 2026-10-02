@@ -1,5 +1,5 @@
 import type { Editor } from '@tiptap/core'
-import { applica, blocchiDi, righeDi, type Proposta } from './applica'
+import { applica, blocchiDi, primoLivelloDi, righeDi, type Proposta } from './applica'
 import { togliDoppioni } from './doppioni'
 import { istruzioniDiStile, stileDellaPagina } from './marcatura'
 import { trattiDi } from './merge'
@@ -140,6 +140,10 @@ Scrivi gli appunti che gli mancano, come li avrebbe scritti lui.
   del titolo, dagli un titolo tuo, breve: meglio una sezione nuova che
   un pezzo finito sotto un titolo che parla d'altro.
 - ${QUANTE[misura]} Una riga per punto.
+- Se il tratto tocca più soggetti distinti — persone, opere, casi — apri
+  la riga col nome in **grassetto** e poi la freccia: «**John Everett
+  Millais** → Ofelia di Shakespeare». Dodici righe tutte uguali una
+  sotto l'altra non si rileggono.
 - Ignora saluti, battute, ripetizioni, organizzazione del corso.
 - La trascrizione è automatica: nomi propri e numeri a volte sono
   storpiati. Scrivi quello che ha detto, non quello che senti male.
@@ -220,10 +224,15 @@ export async function riempiBuchi(
     )
     if (!tenute.length) continue
 
+    /*  Se apre un argomento suo, esce dall'elenco in cui stava il
+     *  cursore: dentro, il titolo verrebbe soppresso e le righe
+     *  diventerebbero altri pallini di quell'elenco. */
+    const attacco = (titolo ? primoLivelloDi(editor, dopo) : null) ?? dopo
+
     //  si inseriscono come proposte normali: stessa revisione, stesso
     //  segno dell'AI, e il titolo davanti lo mette già `applica`
     const proposte: Proposta[] = tenute.map((t, k) => ({
-      dopo, tipo: 'integra' as const, testo: t.testo, perche: '', importanza: 3,
+      dopo: attacco, tipo: 'integra' as const, testo: t.testo, perche: '', importanza: 3,
       ...(k === 0 && titolo ? { titolo } : {}),
     }))
     righe += applica(editor, proposte)

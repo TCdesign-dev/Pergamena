@@ -56,6 +56,29 @@ function trova(editor: Editor, id: string): { pos: number; nodo: NodoPM } | null
   return trovato
 }
 
+/*  Il blocco di primo livello che contiene quell'id.
+ *
+ *  Un argomento nuovo non può nascere DENTRO l'elenco su cui stavi
+ *  scrivendo: il titolo verrebbe soppresso (un titolo fra le voci non
+ *  è un titolo) e le righe diventerebbero altri pallini di quell'elenco
+ *  — che è come dodici righe sui preraffaelliti sono finite sotto
+ *  «Edwin Lutyens», tutte incolonnate. Esce dall'elenco e riparte da
+ *  capo, dopo. */
+export function primoLivelloDi(editor: Editor, id: string): string | null {
+  let fuori: string | null = null
+  editor.state.doc.forEach((cima) => {
+    if (fuori) return
+    const suo = cima.attrs.idBlocco as string | undefined
+    if (suo === id) { fuori = suo; return }
+    cima.descendants((n) => {
+      if (fuori) return false
+      if (n.attrs.idBlocco === id) { fuori = suo ?? null; return false }
+      return true
+    })
+  })
+  return fuori
+}
+
 /*  ── I completamenti ─────────────────────────────────────────────
  *
  *  Una proposta che finisce la TUA riga invece di scriverne una nuova
@@ -173,7 +196,11 @@ export function applica(editor: Editor, proposte: Proposta[]) {
     //  adesso una proposta può agganciarsi alla singola voce: la riga
     //  nuova le va accanto, sorella, non in fondo all'elenco
     const voce = nodo.type.name === 'listItem'
-    const inElenco = elenco || voce
+    /*  Una proposta che apre un argomento suo esce dall'elenco: il suo
+     *  titolo non può stare fra i pallini, e le sue righe nemmeno.
+     *  Nasce dopo l'elenco, come sezione a sé. */
+    const apre = gruppo.some((p) => p.tipo === 'integra' && nomeArgomento(p))
+    const inElenco = (elenco || voce) && !apre
 
     const blocchi = gruppo.flatMap((p) => {
       let testo = p.testo.trim()
@@ -203,7 +230,7 @@ export function applica(editor: Editor, proposte: Proposta[]) {
     /*  In fondo all'elenco (dentro, prima della chiusura) quando la
      *  proposta punta all'elenco intero; subito dopo la voce quando
      *  punta a una voce; dopo il blocco in tutti gli altri casi. */
-    const dove = elenco ? pos + nodo.nodeSize - 1 : pos + nodo.nodeSize
+    const dove = elenco && !apre ? pos + nodo.nodeSize - 1 : pos + nodo.nodeSize
     if (editor.chain().insertContentAt(dove, blocchi).run()) fatte += gruppo.length
   }
   return fatte
