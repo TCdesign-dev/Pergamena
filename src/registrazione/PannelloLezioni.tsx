@@ -6,6 +6,7 @@ import type { Registrazione } from './tipi'
 import { useRegistrazioni } from './useRegistrazioni'
 import { eliminaRegistrazione } from './registrazione'
 import { integraLezione, integraTutto, type EsitoMerge, type FaseMerge } from '../merge/merge'
+import { riscriviPagina } from '../merge/riscrivi'
 import { riempiBuchi, trovaBuchi, type Misura } from '../merge/buchi'
 import { avviaRevisione } from '../merge/statoRevisione'
 import { apriPannello } from '../immagini/statoPannello'
@@ -19,6 +20,7 @@ import { CorrezioniInAttesa, ContiCorrezioni } from '../correzioni/RiepilogoCorr
 import { Icona } from '../lib/Icona'
 import s from './PannelloLezioni.module.css'
 import { locale, tr } from '../lingua/lingua'
+import { Tr } from '../lingua/Tr'
 
 /*  Le lezioni registrate in questa pagina: da qui parte il merge, si
  *  legge la trascrizione, si riascolta il professore, si cancella.
@@ -45,6 +47,9 @@ type Lavoro = { id: string; fase: FaseMerge | 'fatto' | 'errore'; messaggio?: st
 /** Il lavoro che non è di UNA lezione, ma di tutte insieme. */
 const TUTTE = 'tutte-le-lezioni'
 
+/** Il lavoro che rifà la pagina intera. */
+const RIFAI = 'rifai-la-pagina'
+
 const FASI: Record<FaseMerge, string> = {
   preparo: tr('Preparo la lezione…'),
   chiedo: tr('Il modello confronta la lezione con i tuoi appunti…'),
@@ -52,6 +57,7 @@ const FASI: Record<FaseMerge, string> = {
   inserisco: tr('Inserisco le proposte…'),
   immagini: tr('Cerco le immagini su Commons…'),
   buchi: tr('Scrivo quello che ti sei perso…'),
+  rifaccio: tr('Rimetto in ordine la pagina…'),
 }
 
 function Avanzamento({ lavoro }: { lavoro: Lavoro }) {
@@ -114,6 +120,7 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
   const [tutte, setTutte] = useState<string | null>(null)
   const [lavoro, setLavoro] = useState<Lavoro | null>(null)
   const [daEliminare, setDaEliminare] = useState<Registrazione | null>(null)
+  const [daRifare, setDaRifare] = useState(false)
   const lettore = useRef<HTMLAudioElement>(null)
   const [microfoni, setMicrofoni] = useState<Microfono[]>([])
 
@@ -196,6 +203,31 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
       if (esito.righe) { onChiudi(); avviaRevisione() }
     } catch (e) {
       setLavoro({ id: r.id, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : tr('merge fallito') })
+    }
+  }
+
+  /*  Rifare la pagina non è un merge: tocca tutto, e si conferma prima.
+   *  Le righe tue vengono spostate, non riscritte; quelle nuove restano
+   *  segnate come ogni proposta. */
+  async function rifai() {
+    const editor = rifEditore.current
+    if (!editor) return
+    setDaRifare(false)
+    const inizio = Date.now()
+    setLavoro({ id: RIFAI, fase: 'chiedo', inizio })
+    try {
+      const esito = await riscriviPagina(editor, doc, materia, (fase) => setLavoro({ id: RIFAI, fase, inizio }))
+      setLavoro({
+        id: RIFAI,
+        fase: 'fatto',
+        inizio,
+        messaggio: esito.inCoda
+          ? tr('{n} righe nuove da rivedere · {c} tue rimesse in fondo, non sapeva dove metterle', { n: esito.nuove, c: esito.inCoda })
+          : tr('{n} riga nuova da rivedere | {n} righe nuove da rivedere', { n: esito.nuove }),
+      })
+      if (esito.nuove) { onChiudi(); avviaRevisione() }
+    } catch (e) {
+      setLavoro({ id: RIFAI, fase: 'errore', inizio, messaggio: e instanceof Error ? e.message : tr('merge fallito') })
     }
   }
 
@@ -376,6 +408,20 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
           </div>
         )}
 
+        {insieme.length > 0 && (
+          <div className={s.insieme}>
+            <b className={s.insiemeTitolo}>{tr('Rifai la pagina')}</b>
+            <p className={s.insiemeTesto}>
+              <Tr frase="Rimette in ordine tutta la pagina: i titoli dove vanno, le tue righe nel punto giusto, e scritto quello che mancava. <b>Le tue parole non le tocca</b> — le sposta e basta; quello che aggiunge resta segnato finché non lo accetti." />
+            </p>
+            {lavoro?.id === RIFAI && <Avanzamento lavoro={lavoro} />}
+            <button className={s.secondario} onClick={() => setDaRifare(true)} disabled={inCorso}>
+              {lavoro?.id === RIFAI && inCorso ? <Rotella /> : <Icona nome="ai" dimensione={14} />}
+              {lavoro?.id === RIFAI && inCorso ? tr('Rifaccio…') : tr('Rifai la pagina')}
+            </button>
+          </div>
+        )}
+
         <ContiCorrezioni lezioni={lezioni} />
         <audio ref={lettore} className={s.lettore} controls preload="none" />
       </div>
@@ -401,6 +447,16 @@ export function PannelloLezioni({ doc, materia, rifEditore, modo, onChiudi }: {
             : tr('Spariscono la trascrizione e le correzioni ancora aperte di questa lezione. Gli appunti restano come sono.')}
           onConferma={() => { const r = daEliminare; setDaEliminare(null); void eliminaRegistrazione(doc, r.id) }}
           onAnnulla={() => setDaEliminare(null)}
+        />
+      )}
+
+      {daRifare && (
+        <Conferma
+          titolo={tr('Rifare tutta la pagina?')}
+          dettaglio={tr('Le tue righe restano parola per parola, ma cambiano posto: la pagina viene rimessa in ordine da capo. Quello che aggiunge l’AI resta segnato finché non lo accetti. Con ⌘Z torna tutto com’era, in un colpo solo.')}
+          azione={tr('Rifai')}
+          onConferma={() => void rifai()}
+          onAnnulla={() => setDaRifare(false)}
         />
       )}
     </div>

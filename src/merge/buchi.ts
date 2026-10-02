@@ -31,8 +31,8 @@ import { tr } from '../lingua/lingua'
  *  sotto: la soglia se la calcola la lezione, non l'ho decisa io. */
 
 const MINIMO = 90          // secondi: sotto, non è un buco, è una pausa
-const QUANTO_SOTTO = 0.35  // frazione del tuo ritmo abituale
-const MASSIMO = 5          // buchi per lezione: oltre, non è un buco, è l'ora intera
+const QUANTO_SOTTO = 0.5   // frazione del tuo ritmo abituale
+const MASSIMO = 12         // buchi per lezione: oltre, non è un buco, è l'ora intera
 const RITMO_FERMO = 40     // caratteri al minuto, per quando non c'è una mediana
 
 export type Buco = {
